@@ -1,5 +1,6 @@
 import { Route, Routes } from "react-router-dom";
 import Test from "./Contents/Test";
+import MemberJoin from "./member/MemberJoin";
 
 export default function Content() {
     return (<>
@@ -12,9 +13,14 @@ export default function Content() {
                 <Routes>
 
                     <Route path="/contents/test" element={<Test/>}></Route>
-                
-                </Routes>
 
+
+                   {/* 회원 페이지 */}
+                        <Route path="/member/join" element={<MemberJoin/>}></Route>
+
+
+
+                </Routes>
             </div>
         </div>
     </>)
