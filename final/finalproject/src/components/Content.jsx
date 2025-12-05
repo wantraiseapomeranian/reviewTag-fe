@@ -15,9 +15,9 @@ export default function Content() {
 
                 {/* 분할된 화면의 주소를 지정하는 영역 (path=주소 , element=화면) */}
                 <Routes>
-
+                    {/* contents */}
                     <Route path="/contents/test" element={<Test/>}></Route>
-
+                    <Route path="/contents/test2" element={<SearchAndSave/>}></Route>
 
                    {/* 회원 페이지 */}
                         <Route path="/member/join" element={<MemberJoin/>}></Route>
