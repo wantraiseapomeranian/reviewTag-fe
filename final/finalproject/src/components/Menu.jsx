@@ -1,5 +1,5 @@
 import { useAtom, useAtomValue, useSetAtom } from "jotai";
-import { useNavigate } from "react-router-dom"
+import { Link, useNavigate } from "react-router-dom"
 import { accessTokenState, adminState, clearLoginState, loginIdState, loginLevelState, loginState } from "../utils/jotai";
 
 
@@ -9,7 +9,7 @@ export default function Menu() {
     const navigate = useNavigate();
 
     //통합 state
-    const [loginState, setLoginState] = useAtom(loginIdState);
+    const [loginId, setLoginId] = useAtom(loginIdState);
     const [loginLevel, setLoginLevel] = useAtom(loginLevelState);
     const [loginComplete, setLoginComplete] = useAtom(loginState); 
     const [accessToken, setAccessToken] = useAtom(accessTokenState);
