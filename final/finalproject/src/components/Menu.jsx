@@ -21,7 +21,9 @@ export default function Menu() {
         <div className="row mt-4">
             <div className="col">
                 <h1>임시 메뉴 화면</h1>
-                <Link to="/">홈</Link> |    
+                <Link to="/"> 홈</Link> 
+                <Link to="/member/login"> 로그인</Link>
+                <Link to="/member/join"> 회원가입</Link>    
             </div>
         </div>
     </>)
