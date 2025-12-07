@@ -1,7 +1,8 @@
 import { useAtom, useAtomValue, useSetAtom } from "jotai";
 import { Link, useNavigate } from "react-router-dom"
-import { accessTokenState, adminState, clearLoginState, loginIdState, loginLevelState, loginState } from "../utils/jotai";
-
+import { accessTokenState, adminState, clearLoginState, loginCompleteState, loginIdState, loginLevelState, loginState } from "../utils/jotai";
+import { useCallback, useEffect, useRef, useState } from "react";
+import axios from "axios";
 
 
 
@@ -11,20 +12,101 @@ export default function Menu() {
     //통합 state
     const [loginId, setLoginId] = useAtom(loginIdState);
     const [loginLevel, setLoginLevel] = useAtom(loginLevelState);
-    const [loginComplete, setLoginComplete] = useAtom(loginState); 
+    const [loginComplete, setLoginComplete] = useAtom(loginCompleteState); 
     const [accessToken, setAccessToken] = useAtom(accessTokenState);
     const isLogin = useAtomValue(loginState);
     const isAdmin = useAtomValue(adminState);  
     const clearLogin = useSetAtom(clearLoginState);
 
-    return(<>
-        <div className="row mt-4">
-            <div className="col">
-                <h1>임시 메뉴 화면</h1>
-                <Link to="/"> 홈</Link> 
-                <Link to="/member/login"> 로그인</Link>
-                <Link to="/member/join"> 회원가입</Link>    
+    //effect
+    useEffect(()=>{
+        if(accessToken?.length>0){
+            axios.defaults.headers.common['Authorization'] = `Bearer ${accessToken}`;
+        }
+        setLoginComplete(true);
+    },[accessToken]);
+
+    //callback
+    //로그아웃
+    const logout = useCallback(async(e)=>{
+        e.stopPropagation();
+        e.preventDefault();
+        clearLogin();
+        await axios.delete("/member/logout");
+        delete axios.defaults.headers.common['Authorization'];
+        navigate("/");
+
+        closeMenu();
+    },[]);
+
+    //메뉴가 정상적으로 닫히지 않는 현상에 대한 해결 (좁은 폭인 경우)
+    const [open, setOpen] = useState(false);
+    const toggleMenu = useCallback(()=>{ setOpen(prev=>!prev); }, []);
+
+    //메뉴 및 외부 영역 클릭 시 메뉴가 닫히도록 처리하는 코드
+    const closeMenu = useCallback(()=>{ 
+        setOpen(false); 
+    }, []);
+    const menuRef = useRef();
+    useEffect(()=>{
+        //클릭 감지 함수
+        const listener = e=>{
+            if(open === true && menuRef.current.contains(e.target) === false) {
+                closeMenu();
+            }
+        };
+        window.addEventListener("mousedown", listener);
+        return ()=>{//clean up 함수
+            window.removeEventListener("mousedown", listener);
+        };
+    }, [open]);
+
+
+return(<>
+
+    <nav className="navbar navbar-expand-lg navbar-light bg-light fixed-top" data-be-theme="dark"
+        ref={menuRef}>
+        <div className="container-fluid">
+
+            {/* 브랜딩 텍스트(이미지) : 메뉴 가장 좌측에 나오는 로고 또는 텍스트 */}
+            <Link className="navbar-brand" to="/" onClick={closeMenu}>로고 위치</Link>
+
+            {/* 토글버튼 */}
+            <button className="navbar-toggler" type="button" 
+                    aria-controls="menu-body"  aria-expanded="false" aria-label="Toggle navigation"
+                    onClick={toggleMenu}>
+                <span className="navbar-toggler-icon"></span>
+            </button>
+
+            <div className={`collapse navbar-collapse ${open && 'show'}`} id="menu-body">
+                {/* 좌측 메뉴 (화면이 좁아지면 합쳐짐) */}
+                <ul className="navbar-nav me-auto">
+                    <Link to="/"> 홈</Link> 
+                </ul>
+                {/* 우측 메뉴 (화면이 좁아지면 합쳐짐) */}
+                    {isLogin === true ? (<>  {/* 로그인 시 나와야 하는 화면 */}
+                    <li className="nav-item" onClick={closeMenu}>
+                        <Link className="nav-link" onClick={logout}>
+                            <i className="fa-solid fa-right-to-bracket"></i>
+                            <span>로그아웃</span>
+                        </Link>
+                    </li>
+                    </>) : (<>  {/* 비로그인 시 나와야 하는 화면 */}
+                    <li className="nav-item" onClick={closeMenu}>
+                        <Link className="nav-link" to="/member/login">
+                            <i className="fa-solid fa-right-to-bracket"></i>
+                            <span>로그인</span>
+                        </Link>
+                    </li>
+                    <li className="nav-item" onClick={closeMenu}>
+                        <Link className="nav-link" to="/member/join">
+                            <i className="fa-solid fa-user-plus"></i>
+                            <span>회원가입</span>
+                        </Link>
+                    </li>
+                </>)}
             </div>
         </div>
-    </>)
+    </nav>
+</>)
 }
