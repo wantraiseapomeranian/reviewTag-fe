@@ -44,6 +44,7 @@ export default function MemberLogin(){
             navigate("/");
         }
         catch(err){
+            console.log(err);
             setLogin(false);
             console.log("로그인 실패");
         }

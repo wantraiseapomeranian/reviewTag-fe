@@ -3,7 +3,9 @@ import { Link, useNavigate } from "react-router-dom"
 import { accessTokenState, adminState, clearLoginState, loginCompleteState, loginIdState, loginLevelState, loginState } from "../utils/jotai";
 import { useCallback, useEffect, useRef, useState } from "react";
 import axios from "axios";
-
+import './Menu.css'
+import { FaHome } from "react-icons/fa";
+import { MdMovie } from "react-icons/md";
 
 
 export default function Menu() {
@@ -64,15 +66,15 @@ export default function Menu() {
 
 return(<>
 
-    <nav className="navbar navbar-expand-lg navbar-light bg-light fixed-top" data-be-theme="dark"
+    <nav className="navbar navbar-expand-lg  text-light cinema-navbar fixed-top" data-be-theme="dark"
         ref={menuRef}>
         <div className="container-fluid">
 
             {/* 브랜딩 텍스트(이미지) : 메뉴 가장 좌측에 나오는 로고 또는 텍스트 */}
-            <Link className="navbar-brand" to="/" onClick={closeMenu}>로고 위치</Link>
+            <Link className="navbar-brand cinema-brand text-light" to="/" onClick={closeMenu}>로고 위치</Link>
 
             {/* 토글버튼 */}
-            <button className="navbar-toggler" type="button" 
+            <button className="navbar-toggler " type="button" 
                     aria-controls="menu-body"  aria-expanded="false" aria-label="Toggle navigation"
                     onClick={toggleMenu}>
                 <span className="navbar-toggler-icon"></span>
@@ -81,30 +83,57 @@ return(<>
             <div className={`collapse navbar-collapse ${open && 'show'}`} id="menu-body">
                 {/* 좌측 메뉴 (화면이 좁아지면 합쳐짐) */}
                 <ul className="navbar-nav me-auto">
-                    <Link to="/"> 홈</Link> 
+                    <li className="nav-item" onClick={closeMenu}>
+                        <Link className="nav-link"  to="/">
+                            <span>홈</span>
+                        </Link>
+                    </li>
+                    <li className="nav-item dropdown ">
+                        <a className="nav-link dropdown-toggle" data-bs-toggle="dropdown" href="#" role="button"
+                            aria-haspopup="true" aria-expanded="false"><span>영화</span></a>
+                        <div className="dropdown-menu">
+                            <Link className="nav-link"  to="/contents/genreList"><span>장르</span> </Link>
+                        </div>
+                    </li>
+                    <li className="nav-item dropdown ">
+                        <a className="nav-link dropdown-toggle" data-bs-toggle="dropdown" href="#" role="button"
+                            aria-haspopup="true" aria-expanded="false"><span>리뷰</span></a>
+                        <div className="dropdown-menu">
+                            <Link className="nav-link"  to="/review/insert"><span>리뷰등록</span> </Link>
+                            <Link className="nav-link"  to="/review/search"><span>리뷰검색</span></Link>
+                        </div>
+                    </li>
+                     <li className="nav-item" onClick={closeMenu}>
+                        <Link className="nav-link"  to="#">
+                            <span>퀴즈</span>
+                        </Link>
+                    </li>
+
                 </ul>
+                 <ul className="navbar-nav ms-auto">
                 {/* 우측 메뉴 (화면이 좁아지면 합쳐짐) */}
                     {isLogin === true ? (<>  {/* 로그인 시 나와야 하는 화면 */}
                     <li className="nav-item" onClick={closeMenu}>
+                        <Link className="nav-link" to="/member/mypage">
+                            <span>마이페이지</span>
+                        </Link>
                         <Link className="nav-link" onClick={logout}>
-                            <i className="fa-solid fa-right-to-bracket"></i>
                             <span>로그아웃</span>
                         </Link>
                     </li>
                     </>) : (<>  {/* 비로그인 시 나와야 하는 화면 */}
                     <li className="nav-item" onClick={closeMenu}>
                         <Link className="nav-link" to="/member/login">
-                            <i className="fa-solid fa-right-to-bracket"></i>
                             <span>로그인</span>
                         </Link>
                     </li>
                     <li className="nav-item" onClick={closeMenu}>
                         <Link className="nav-link" to="/member/join">
-                            <i className="fa-solid fa-user-plus"></i>
                             <span>회원가입</span>
                         </Link>
                     </li>
                 </>)}
+                </ul>
             </div>
         </div>
     </nav>
