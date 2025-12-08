@@ -14,7 +14,7 @@
     font-weight: bold;
     font-size: 20px;
 }
-.my_review > .border {
+.border {
     border-color: black;
 }
 .how {
@@ -30,6 +30,10 @@
     border-radius: 0.8em !important;
     background-color: rgb(15, 126, 0) !important;
     border-color: rgb(15, 126, 0) !important;
+}
+.btn-success:active {
+    filter: brightness(85%) !important;
+    transform: translateY(1px);
 }
 
 /* 켜짐 상태 (Checked) 트랙 배경색 변경 */
@@ -58,3 +62,11 @@
 .cate_btn {
     border-radius: 1.5em !important;
 }
+.mini-button {
+    border-color: transparent;
+    background-color: transparent;
+}
+.user-review {
+    padding: 10px;
+}
+

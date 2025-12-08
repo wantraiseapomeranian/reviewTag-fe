@@ -8,7 +8,10 @@ import MemberJoinFinish from "./member/MemberJoinFinish";
 import MemberLogin from "./member/MemberLogin";
 
 import ReviewWrite from "./review/ReviewWrite";
-import ReviewSearch from "./review/ReviewSearch";
+import ReviewUpdate from "./review/ReviewUpdate";
+import NeedPermission from "./error/NeedPermission";
+import TargetNotfound from "./error/TargetNotfound";
+
 
 export default function Content() {
     return (<>
@@ -35,7 +38,11 @@ export default function Content() {
                         <Route path="/member/login" element={<MemberLogin/>}></Route>
 
                     {/* 리뷰 페이지 */}
-                        <Route path="/review/search" element={<ReviewSearch/>}></Route>
+                        <Route path="/review/:reviewNo" element={<ReviewUpdate/>}></Route>
+
+                    {/* 에러 페이지 */}
+                        <Route path="/error/403" element={<NeedPermission/>}></Route>
+                        <Route path="*" element={<TargetNotfound/>}></Route>
                 </Routes>
             </div>
         </div>
