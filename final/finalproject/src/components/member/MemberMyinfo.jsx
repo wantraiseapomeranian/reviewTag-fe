@@ -1,15 +1,17 @@
-import { useAtom } from "jotai"
-import { loginIdState, loginLevelState } from "../../utils/jotai"
-import { useEffect, useState } from "react";
+import { useAtom, useSetAtom } from "jotai"
+import { clearLoginState, loginIdState, loginLevelState } from "../../utils/jotai"
+import { useCallback, useEffect, useState } from "react";
 import axios from "axios";
 import "./MemberMypage.css";
-import { Link, useParams } from "react-router-dom";
+import { Link, useNavigate, useParams } from "react-router-dom";
 
 
 
 export default function MemberMyinfo(){
     const {loginId} = useParams();
     const [memberData, setMemberData] = useState({});
+        const clearLogin = useSetAtom(clearLoginState);
+    const navigate = useNavigate();
     //effect
     useEffect(()=>{
         if(loginId === null) return;
@@ -18,6 +20,16 @@ export default function MemberMyinfo(){
             setMemberData(response.data);
         })
     },[]);
+
+    //callback
+    const deleteMember = useCallback(async()=>{
+        const choice = window.confirm("정말 탈퇴하시겠습니까?");
+        if(choice === false) return;
+
+        await axios.delete(`/member/${loginId}`);
+        navigate("/");
+        clearLogin();
+    })
     return(<>
         <h1 className="text-center"> {loginId}님의 정보</h1>
 
@@ -58,7 +70,7 @@ export default function MemberMyinfo(){
             <div className="col">
                     <Link to={`/member/edit/${loginId}`} className="btn btn-secondary me-2">기본정보 수정</Link>
                     <Link to={`/member/password/${loginId}`} className="btn btn-secondary me-2">비밀번호 변경</Link>
-                    <Link to="#" className="btn btn-danger">탈퇴</Link>
+                    <div className="btn btn-danger" onClick={deleteMember}>탈퇴</div>
             </div>
         </div>
         </div>
