@@ -117,6 +117,8 @@ return(<>
                         <Link className="nav-link" to="/member/mypage/myinfo">
                             <span>마이페이지</span>
                         </Link>
+                    </li>
+                    <li className="nav-item" onClick={closeMenu}>
                         <Link className="nav-link" onClick={logout}>
                             <span>로그아웃</span>
                         </Link>

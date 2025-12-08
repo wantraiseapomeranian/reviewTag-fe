@@ -14,12 +14,11 @@ export default function MemberMyinfo(){
         if(loginid === null) return;
         axios.get(`/member/mypage/${loginid}`)
         .then(response=>{
-            console.log(response.data);
             setMemberData(response.data);
         })
-    },[]);
+    },[loginid]);
     return(<>
-        <h1> {loginid}님의 정보</h1>
+        <h1 className="text-center"> {loginid}님의 정보</h1>
 
         <div className="mypage-table-wrapper">
         <table className="table table-hover mypage-table">
