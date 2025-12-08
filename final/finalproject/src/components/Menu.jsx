@@ -4,6 +4,8 @@ import { accessTokenState, adminState, clearLoginState, loginCompleteState, logi
 import { useCallback, useEffect, useRef, useState } from "react";
 import axios from "axios";
 import './Menu.css'
+import { FaHome } from "react-icons/fa";
+import { MdMovie } from "react-icons/md";
 
 
 export default function Menu() {
@@ -83,23 +85,21 @@ return(<>
                 <ul className="navbar-nav me-auto">
                     <li className="nav-item" onClick={closeMenu}>
                         <Link className="nav-link"  to="/">
-                            <span>홈</span>
+                            <span><FaHome /></span>
                         </Link>
                     </li>
                     <li className="nav-item" onClick={closeMenu}>
                         <Link className="nav-link"  to="/contents/test2">
-                            <span>영화</span>
+                            <span><MdMovie /></span>
                         </Link>
                     </li>
-                    <li className="nav-item" onClick={closeMenu}>
-                        <Link className="nav-link"  to="/review/insert">
-                            <span>리뷰등록</span>
-                        </Link>
-                    </li>
-                    <li className="nav-item" onClick={closeMenu}>
-                        <Link className="nav-link"  to="/review/search">
-                            <span>리뷰검색</span>
-                        </Link>
+                    <li className="nav-item dropdown ">
+                        <a className="nav-link dropdown-toggle" data-bs-toggle="dropdown" href="#" role="button"
+                            aria-haspopup="true" aria-expanded="false"><span>리뷰</span></a>
+                        <div className="dropdown-menu">
+                            <Link className="nav-link"  to="/review/insert"><span>리뷰등록</span> </Link>
+                            <Link className="nav-link"  to="/review/search"><span>리뷰검색</span></Link>
+                        </div>
                     </li>
                      <li className="nav-item" onClick={closeMenu}>
                         <Link className="nav-link"  to="#">
