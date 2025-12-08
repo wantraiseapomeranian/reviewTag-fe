@@ -1,0 +1,8 @@
+.fullStar {
+    color: rgb(255, 201, 25);
+    font-size: 40px;
+}
+.emptyStar {
+    color: rgb(214, 214, 214);
+    font-size: 40px;
+}

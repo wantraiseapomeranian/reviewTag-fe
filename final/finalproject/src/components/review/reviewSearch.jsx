@@ -1,4 +1,4 @@
-export default function reviewSearch() {
+export default function ReviewSearch() {
     //state
     
     //render

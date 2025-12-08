@@ -25,7 +25,9 @@ export default function Content() {
 
                     {/* contents */}
                     <Route path="/contents/test" element={<Test/>}></Route>
-                    <Route path="/contents/test2" element={<SearchAndSave/>}></Route>
+                    <Route path="/contents/test2" element={<SearchAndSave/>}>
+                        <Route path="/contents/test2/review" element={<ReviewWrite/>}></Route>
+                    </Route>
 
                    {/* 회원 페이지 */}
                         <Route path="/member/join" element={<MemberJoin/>}></Route>
@@ -33,7 +35,6 @@ export default function Content() {
                         <Route path="/member/login" element={<MemberLogin/>}></Route>
 
                     {/* 리뷰 페이지 */}
-                        <Route path="/review/insert" element={<ReviewWrite/>}></Route>
                         <Route path="/review/search" element={<ReviewSearch/>}></Route>
                 </Routes>
             </div>
