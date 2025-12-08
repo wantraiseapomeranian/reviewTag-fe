@@ -22,6 +22,7 @@ import MemberMyinfo from "./member/MemberMyinfo";
 import MemberMyreview from "./member/MemberMyreview";
 import MemberEdit from "./member/MemberEdit";
 import MemberEditPassword from "./member/MemberEditPassword";
+import ReviewSearch from "./review/ReviewUpdate";
 
 
 

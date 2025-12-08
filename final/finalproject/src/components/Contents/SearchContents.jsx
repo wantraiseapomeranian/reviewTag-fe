@@ -1,9 +1,9 @@
 import axios from "axios";
 import { Button } from "bootstrap";
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { FaQuestion } from "react-icons/FA";
+import { FaQuestion } from "react-icons/fa";
 import { FaBookmark, FaHeart, FaPencil } from "react-icons/fa6";
-import { RiArrowGoBackFill } from "react-icons/RI";
+import { RiArrowGoBackFill } from "react-icons/ri";
 import { Link, useNavigate } from "react-router-dom";
 
 const TMDB_IMAGE_BASE_URL = "https://image.tmdb.org/t/p/w500";
