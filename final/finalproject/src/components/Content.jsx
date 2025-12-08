@@ -10,10 +10,8 @@ import ReviewSearch from "./review/ReviewSearch";
 import WriteReview from "./review/WriteReview";
 import GenreList from "./Contents/GenreList";
 import ContentsListByGenre from "./Contents/ContentsListByGenre";
-<<<<<<< HEAD
 import ContentsDetail from "./Contents/ContentsDetail";
 import SearchContents from "./Contents/SearchContents";
-=======
 import MemberMypage from "./member/MemberMypage";
 import MemberMyquiz from "./member/MemberMyquiz";
 import MemberMymovie from "./member/MemberMymovie";
@@ -21,7 +19,7 @@ import MemberMyinfo from "./member/MemberMyinfo";
 import MemberMyreview from "./member/MemberMyreview";
 import MemberEdit from "./member/MemberEdit";
 import MemberEditPassword from "./member/MemberEditPassword";
->>>>>>> origin/main
+
 
 export default function Content() {
     return (<>
