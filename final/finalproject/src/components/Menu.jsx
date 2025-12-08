@@ -87,13 +87,8 @@ return(<>
                         </Link>
                     </li>
                     <li className="nav-item" onClick={closeMenu}>
-                        <Link className="nav-link"  to="/contents/test">
-                            <span>영화</span>
-                        </Link>
-                    </li>
-                    <li className="nav-item" onClick={closeMenu}>
                         <Link className="nav-link"  to="/contents/test2">
-                            <span>영화2</span>
+                            <span>영화</span>
                         </Link>
                     </li>
                     <li className="nav-item" onClick={closeMenu}>
