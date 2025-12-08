@@ -1,4 +1,4 @@
-import { FaAsterisk, FaEye, FaEyeSlash, FaUser } from "react-icons/FA6";
+import { FaAsterisk, FaEye, FaEyeSlash, FaUser } from "react-icons/fa6";
 import axios from "axios";
 import { useCallback, useMemo, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom"

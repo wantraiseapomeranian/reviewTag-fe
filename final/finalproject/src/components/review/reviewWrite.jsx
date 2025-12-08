@@ -6,7 +6,7 @@ import "./review.css";
 import { useParams } from "react-router-dom";
 import { FaShieldAlt } from "react-icons/fa";
 import { FaHeart } from "react-icons/fa";
-import { FaShare } from "react-icons/FA6";
+import { FaShare } from "react-icons/fa6";
 import { useEffectEvent } from "react";
 
 

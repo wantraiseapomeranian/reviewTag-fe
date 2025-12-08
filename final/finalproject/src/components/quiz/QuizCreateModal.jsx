@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { quizApi } from "../../api/quizApi";
 import Swal from "sweetalert2";
 import "bootstrap/dist/css/bootstrap.min.css";
-import { FaRegCircle, FaXmark } from "react-icons/FA6";
+import { FaRegCircle, FaXmark } from "react-icons/fa6";
 import "./QuizCreateModal.css"; 
 
 export default function QuizCreateModal({ show, onClose, contentsId }) {

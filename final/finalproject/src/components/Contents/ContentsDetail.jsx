@@ -1,6 +1,6 @@
 import axios from "axios";
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { FaBookmark, FaHeart, FaPencil } from "react-icons/FA6";
+import { FaBookmark, FaHeart, FaPencil } from "react-icons/fa6";
 import { FaQuestion } from "react-icons/fa";
 import { useNavigate, useParams } from "react-router-dom";
 

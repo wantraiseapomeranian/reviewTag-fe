@@ -1,8 +1,8 @@
 import axios from "axios";
 import { Button } from "bootstrap";
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { FaQuestion } from "react-icons/fa";
-import { FaBookmark, FaHeart, FaPencil } from "react-icons/FA6";
+import { FaQuestion } from "react-icons/FA";
+import { FaBookmark, FaHeart, FaPencil } from "react-icons/fa6";
 import { RiArrowGoBackFill } from "react-icons/RI";
 import { Link, useNavigate } from "react-router-dom";
 

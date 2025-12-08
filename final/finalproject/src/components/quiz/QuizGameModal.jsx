@@ -5,7 +5,7 @@ import { quizApi } from "./api/quizApi";
 import Swal from "sweetalert2";
 import "./QuizGameModal.css";
 import withReactContent from 'sweetalert2-react-content';
-import { FaRegCircle, FaXmark } from "react-icons/FA6";
+import { FaRegCircle, FaXmark } from "react-icons/fa6";
 
 // SweetAlert와 리액트 연결
 const MySwal = withReactContent(Swal);
