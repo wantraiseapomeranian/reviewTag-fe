@@ -1,7 +1,7 @@
 import { useState } from "react"
 import axios from "axios";
 
-
+//장르저장
 export default function Test() {
     const [status, setStatus] = useState("idle");
     const [message, setMessage] = useState("버튼을 눌러 장르 데이터를 수집");
@@ -51,6 +51,12 @@ export default function Test() {
 
     //render
     return (<>
-
+        <div className="row mt-4">
+            <div className="col">
+                <h1>TMDB 테스트</h1>
+            </div>
+        </div>
+        <button onClick={handleCollectGenres} disabled={status==="loading"}
+            className={`btn btn-primary`}>눌러</button>
     </>)
 }
