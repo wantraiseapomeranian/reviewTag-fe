@@ -4,7 +4,7 @@ import { useCallback, useMemo, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom"
 //Daum 우편번호/주소검색 API
 import { useDaumPostcodePopup } from 'react-daum-postcode';
-
+import "./Member.css";
 
 export default function member(){
     //도구
@@ -306,8 +306,10 @@ export default function member(){
 
     //render
     return (<>
-        <h2>회원가입</h2>
-
+        <div className="d-flex justify-content-center">
+        <div className="member-form">
+        <h2 className="text-center">회원가입</h2>
+        <hr/>
         {/* 아이디 */}
         <div className="row mt-4">
             <label className="col-sm-3 col-form-label">아이디<FaAsterisk className="text-danger"/></label>
@@ -493,7 +495,7 @@ export default function member(){
                 </button>
             </div>
         </div>
-
-
+</div>
+</div>
     </>)
 }

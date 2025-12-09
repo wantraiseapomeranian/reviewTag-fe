@@ -1,0 +1,88 @@
+/* 전체 회원가입 폼 */
+.member-form {
+  background: rgb(56, 56, 56);
+  border-radius: 12px;
+  padding: 2rem;
+  color: #ffffff;
+  font-family: 'Arial', 'Helvetica', sans-serif;
+}
+
+/* 필수 표시 */
+.member-form .text-danger {
+  color: #fd6565 !important;
+}
+
+/* 입력 필드 */
+.member-form .form-control {
+  background: rgb(255, 255, 255);
+  border-radius: 8px;
+  transition: all 0.3s ease;
+}
+
+/* 입력 포커스 */
+.member-form .form-control:focus {
+  background:rgba(255, 255, 255, 0.856);
+}
+
+/* 유효성 메시지 */
+.member-form .valid-feedback {
+  color: #7cff90; /* 초록빛 강조 */
+}
+
+.member-form .invalid-feedback {
+  color: #e67474; /* 붉은색 강조 */
+}
+
+/* 버튼 스타일 */ 
+.member-form .btn {
+  background: #f86d6d;
+  border: none;
+  color: #fff;
+  font-weight: 600;
+  border-radius: 8px;
+  transition: all 0.3s ease;
+}
+
+.member-form .btn:hover {
+  background: #ff4d4d;
+}
+
+/* 작은 버튼 (우편번호, 검색, 삭제 등) */
+.member-form .btn-secondary {
+  background: rgba(0, 0, 0, 0.5);
+  border: none;
+  color: #fff;
+}
+
+.member-form .btn-secondary:hover {
+  background: rgba(150, 150, 150, 0.5);
+  border: none;
+}
+
+
+
+/* 마이페이지용 */
+.mypage-table-wrapper {
+    max-width: 600px;
+    margin: 30px auto;
+    border-radius: 12px;
+    background: #fff;
+    padding: 20px;
+    box-shadow: 0 4px 18px rgba(0,0,0,0.08);
+}
+
+.mypage-table-wrapper h2 {
+    font-size: 1.4rem;
+    margin-bottom: 20px;
+    font-weight: 600;
+}
+
+.mypage-table td:first-child {
+    width: 150px;
+    font-weight: 600;
+    color: #555;
+}
+
+.mypage-table td:last-child {
+    color: #222;
+}

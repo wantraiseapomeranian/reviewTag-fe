@@ -54,6 +54,7 @@ export default function member(){
     //생년월일
         const checkMemberBirth = useCallback(e=>{
             const regex = /^(19[0-9]{2}|20[0-9]{2})-((02-(0[1-9]|1[0-9]|2[0-9]))|((0[469]|11)-(0[1-9]|1[0-9]|2[0-9]|30))|((0[13578]|1[02])-(0[1-9]|1[0-9]|2[0-9]|3[01])))$/
+            if(member.memberContact === null) return;
             const valid = member.memberContact.length === 0 || regex.test(member.memberBirth); 
             setMemberClass({...memberClass, memberBirth : valid ? "is-valid" : "is-invalid"});
         },[member, memberClass])
@@ -102,6 +103,7 @@ export default function member(){
 
     //주소 초기화 버튼이 표시되어야 하는지 판정
     const hasAnyCharacter = useMemo(()=>{
+        if(member.memberPost === null) return;
         if(member.memberPost.length > 0 ) return true;
         if(member.memberAddress1.length > 0 ) return true;
         if(member.memberAddress2.length > 0 ) return true;
@@ -143,11 +145,13 @@ export default function member(){
 
     //render
     return (<>
-        <h2>회원 기본정보 수정</h2>
 
+        <div className="member-form ">
+        <h2 className="text-center">회원 기본정보 수정</h2>
+        <hr/>
 
         {/* 생년월일 */}
-        <div className="row mt-4">
+        <div className="row">
             <label className="col-sm-3 col-form-label">생년월일</label>
             <div className="col-sm-9">
                 <input type="text" className={`form-control ${memberClass.memberBirth}`} 
@@ -234,7 +238,7 @@ export default function member(){
                 </button>
             </div>
         </div>
-
+</div>
 
     </>)
 }

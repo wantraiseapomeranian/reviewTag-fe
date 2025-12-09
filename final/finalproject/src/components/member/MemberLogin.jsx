@@ -4,7 +4,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import {useAtom} from "jotai";
 import { accessTokenState, loginIdState, loginLevelState, refreshTokenState } from "../../utils/jotai";
-
+import "./Member.css";
 export default function MemberLogin(){
     //통합 state
     const [loginId , setLoginId] = useAtom(loginIdState);
@@ -53,34 +53,41 @@ export default function MemberLogin(){
 
     //render
     return(<>
-        <div className="row mt-4">
+        <div className="row">
+        <div className="member-form col-sm-8 offset-2">
+        <div className="row">
             <div className="col">
-                <h1>로그인</h1>
+                <h1 className="text-center">로그인</h1>
             </div>
         </div>
-        
+        <hr/>
         <div className="row mt-4">
-            <label className="col-sm-3 col-form-label">ID</label>
-            <div className="col-sm-9">
+            <div className="col-md-1"></div>
+            <label className="col-md-3 col-sm-3 col-form-label">ID</label>
+            <div className="col-sm-7">
                 <input type="text" className="form-control" name="memberId" value={member.memberId}
                     onChange={changeStrValue}/>
             </div>
         </div>
         <div className="row mt-4">
-            <label className="col-sm-3 col-form-label">비밀번호</label>
-            <div className="col-sm-9">
+            <div className="col-md-1"></div>
+            <label className="col-md-3 col-sm-3 col-form-label">비밀번호</label>
+            <div className="col-sm-7">
                 <input type="password" className="form-control" name="memberPw" value={member.memberPw}
                     onChange={changeStrValue}/>
             </div>
         </div>
 
         <div className="row mt-4">
-            <div className="col">
+             <div className="col-md-4 col-sm-3"></div>
+            <div className="col-sm-7">
                 <button type="button" className="btn btn-success w-100 btn-lg"
                         onClick={sendLogin}
                         > 로그인
                 </button>
             </div>
         </div>
+</div>
+</div>
     </>)
 }
