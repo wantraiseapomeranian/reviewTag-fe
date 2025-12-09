@@ -34,6 +34,11 @@ export default function WriteReview() {
     //상태 메세지 state
     const [statusMessage, setStatusMessage] = useState("");
 
+    const reviewData = {
+        ...review,
+        contentsId: contentsId
+    };
+
 
     //effect
     useEffect(() => {
@@ -58,7 +63,7 @@ export default function WriteReview() {
         return path ? `${TMDB_IMAGE_BASE_URL}${path}` : 'https://placehold.co/500x750/cccccc/333333?text=No+Image';
     }, []);
 
-    const sendData = useCallback(async() => {
+    const sendData = useCallback(async () => {
         if (reviewClassInValid) {
             setReviewClass("is-invalid");
             return;
@@ -69,7 +74,7 @@ export default function WriteReview() {
         }
 
         try {
-            const response = await axios.post("/review/insert", review);
+            const response = await axios.post("/review/", reviewData);
             if (response.status === 200) {
                 toast.success("등록 완료");
                 setReview({
@@ -177,10 +182,10 @@ export default function WriteReview() {
 
                 </div>
 
-                <div className="row mt-4">
+                {/* 리뷰 영역 시작 */}
+                <div className="row mt-5">
                     <div className="col text-center">
-                        <span>시청하신 콘텐츠는 어떠셨나요?</span><br />
-                        <span>평점을 남겨주세요</span><br />
+                        <span className="how">이 작품 어떠셨나요?</span><br />
 
                         <div className="mt-3" value={review.reviewRating}>
                             {[1, 2, 3, 4, 5].map((num) => (
@@ -193,41 +198,57 @@ export default function WriteReview() {
                             ))}
                         </div>
                     </div>
-                    <div className="row mt-4">
+                    <div className="row mt-2">
                         <div className="col text-center">
                             <br />
-                            <input type="checkbox" className="me-2"
-                                checked={review.reviewSpoiler === "Y"}
-                                onChange={e => {
-                                    setReview({
-                                        ...review,
-                                        reviewSpoiler: e.target.checked ? "Y" : "N"
-                                    })
-                                }} />
-                            <span>감상평에 스포일러가 포함되어있나요?</span><br />
+                            <div className="form-check form-switch d-inline-block mx-auto">
+                                <input type="checkbox" className="me-2 form-check-input spo"
+                                    checked={review.reviewSpoiler === "Y"}
+                                    onChange={e => {
+                                        setReview({
+                                            ...review,
+                                            reviewSpoiler: e.target.checked ? "Y" : "N"
+                                        })
+                                    }} />
+                                <span className="spo">스포일러 포함</span><br />
+                            </div>
                         </div>
                     </div>
-                    <div className="row mt-3 text-center">
-                        <br />
-                        <textarea className={`col-8 mx-auto d-block ${reviewClass}`}
-                            placeholder="영화와 상관 없는 내용은 약관에 의해 제재를 받을 수 있습니다. 10글자 이상 입력해주세요"
-                            value={review.reviewText}
-                            onChange={e => {
-                                setReview({
-                                    ...review,
-                                    reviewText: e.target.value
-                                })
-                            }}
-                            onBlur={() => {
-                                setReviewClass(
-                                    reviewClassInValid ? "is-invalid" : ""
-                                );
-                            }}
-                        />
-                        <div className="invalid-feedback">무의미한 자음/모음의 연속입력은 불가능합니다</div>
+
+
+
+
+
+                    <div className="row mt-4 justify-content-center">
+                        <div className="col-10 col-md-12">
+                            <textarea
+                                className={`form-control textAA ${reviewClass}`}
+                                placeholder="작품과 관련된 감상을 10글자 이상 작성해주세요. 자유롭게 의견을 남겨보세요."
+                                value={review.reviewText}
+                                onChange={e =>
+                                    setReview({
+                                        ...review,
+                                        reviewText: e.target.value
+                                    })
+                                }
+                                onBlur={() => {
+                                    setReviewClass(reviewClassInValid ? "is-invalid" : "");
+                                }}
+                            />
+                            <div className="invalid-feedback">무의미한 자음/모음의 연속입력은 불가능합니다</div>
+
+                            <div className="success text-center">
+                            <button
+                                className="mt-5 btn btn-success"
+                                disabled={!reviewValid || invalidRating}
+                                onClick={sendData}
+                            >
+                                리뷰 작성하기
+                            </button>
+                            </div>
+                        </div>
                     </div>
-                    <button className="mt-4 btn btn-success d-grid gap-2 col-8 mx-auto"
-                        disabled={!reviewValid || invalidRating} onClick={sendData}>등록하기</button>
+
                 </div>
             </div>
         </div>

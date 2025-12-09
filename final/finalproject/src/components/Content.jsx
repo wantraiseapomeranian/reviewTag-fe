@@ -42,7 +42,7 @@ export default function Content() {
                     {/* contents */}
                     <Route path="/contents/test" element={<Test/>}></Route>
 
-                    <Route path="/contents/test2" element={<SearchAndSave/>}>
+                    <Route path="/contents/test2" element={<SearchAndSave/>}> 
                         <Route path="/contents/test2/review/:contentsId" element={<ReviewWrite/>}></Route>
                     </Route>
 
@@ -68,10 +68,13 @@ export default function Content() {
                     <Route path="/review/insert" element={<ReviewWrite/>}></Route>
                     <Route path="/review/:reviewNo" element={<ReviewUpdate/>}></Route>
 
+                    {/* 보류 */}
                     <Route path="/review/search" element={<ReviewSearch/>}></Route>
+
+                    {/* 리뷰작성 */}
                     <Route path="/review/write/:contentsId" element={<WriteReview/>}></Route>
 
-                    
+                    {/* 리뷰 조회 */}
                     <Route path="/contents/searchForReview" element={<SearchAndSave/>}>
                         <Route path="/contents/searchForReview/review/:contentsId" element={<ReviewWrite/>}></Route>
                     </Route>
