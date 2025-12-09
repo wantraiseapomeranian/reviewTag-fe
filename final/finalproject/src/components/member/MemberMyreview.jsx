@@ -3,7 +3,8 @@ import { loginIdState } from "../../utils/jotai";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import axios from "axios";
 import { Link } from "react-router-dom";
-
+import "./member.css";
+import { FaStar } from "react-icons/fa";
 export default function MemberMymovie(){
 //통합 state
 const [loginid, setLoginId] = useAtom(loginIdState);
@@ -39,19 +40,32 @@ return(<>
     <div className="row mt-2" key={review.reviewNo}>
         <hr/>
         <div className="col-3">
-            <img src={getPosterUrl(review.contentsPosterPath)} 
-                style={{ height: "250px", objectFit: "cover", borderRadius: "4px", }}/>
+            <Link to={`/contents/detail/${review.reviewContents}`} className="reviewTitle">
+                <img src={getPosterUrl(review.contentsPosterPath)}  style={{ width: "180px", objectFit: "cover", borderRadius: "4px", }}/>
+            </Link>
         </div>
         <div className="col-1"></div>
-        <div className="col-7 ms-4 mt-2 text-light">
-            <h3><Link to={`/contents/detail/${review.reviewContents}`}>{review.contentsTitle}</Link></h3>
-            평점: {review.reviewRating}
-            <hr/>
-            <br/>
-            <p>내용: {review.reviewText}</p>
-            <br/>
-            <hr/>
-            <p>좋아요: {review.reviewLike} | 작성시간: {review.reviewWtime}</p>
+        <div className="col-7 ms-4 mt-2 text-light ">
+            <div className="row">
+                <div className="col-8">
+                    <Link to={`/contents/detail/${review.reviewContents}`} className="reviewTitle">{review.contentsTitle}</Link>
+                </div>
+                <div className="col-4 ">
+                    <div className="d-flex flex-nowrap">
+                    {[1, 2, 3, 4, 5].map((num) => (
+                        <FaStar key={num} className={num <= review.reviewRating ? "fullStarReview" : "emptyStarReview"}/>
+                    ))}
+                    </div>
+                    <div className="d-flex flex-nowrap justify-content-center">
+                     <span>00,000원</span>
+                     </div>
+                </div>
+            </div>
+            <div className="bg-light text-dark p-3" style={{ minHeight: '10rem' }}> {review.reviewText}</div>
+            <div className="mt-2 d-flex justify-content-between">
+                <span>좋아요: {review.reviewLike}</span>
+                <span>{review.reviewWtime}</span>
+            </div>
         </div>
 
     </div>

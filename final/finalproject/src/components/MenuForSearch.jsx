@@ -6,6 +6,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { FaSearch } from "react-icons/fa";
 import { useRef } from "react";
 import { MdMovie } from "react-icons/md";
+import axios from "axios";
 
 
 export default function ManuForSearch() {

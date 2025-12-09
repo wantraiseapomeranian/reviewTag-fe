@@ -86,3 +86,20 @@
 .mypage-table td:last-child {
     color: #222;
 }
+
+.fullStarReview {
+    color: rgb(255, 201, 25);
+    font-size: 18px;
+    margin-right: 0.2em;
+}
+.emptyStarReview {
+    color: rgb(214, 214, 214);
+    font-size: 18px;
+    margin-right: 0.2em;
+}
+
+.reviewTitle {
+  font-size: 30px;
+  text-decoration: none;
+  color : rgb(255, 149, 149);
+}
