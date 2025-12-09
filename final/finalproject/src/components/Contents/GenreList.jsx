@@ -23,11 +23,11 @@ export default function GenreList() {
 
     //render
     return(<>
-        <div className="row">
+        <div className="row genre-form">
             <div className="col dark-bg-wrapper p-4 rounded">
-                    <button className="btn btn-danger me-2 mt-2" >전체</button>
+                    <button className="btn me-2 mt-2" ><Link to="#"  className="text-decoration-none link-body-emphasis">전체</Link></button>
                     {genre.map(genreDto=>(
-                        <button className="btn btn-danger me-2 mt-2" key={genreDto.genreId}>
+                        <button className="btn me-2 mt-2" key={genreDto.genreId}>
                             <Link to={`/contents/listByGenre/${genreDto.genreName}`} className="text-decoration-none link-body-emphasis">
                             {genreDto.genreName}
                             </Link>

@@ -49,20 +49,24 @@ export default function MemberMyinfo(){
                     <td>{memberData.memberLevel}</td>
                 </tr>
                 <tr>
-                    <td>생년월일</td>
-                    <td>{memberData.memberBirth}</td>
+                    <td>포인트</td>
+                    <td>{memberData.memberPoint}</td>
                 </tr>
                 <tr>
-                    <td>전화번호</td>
-                    <td>{memberData.memberContact}</td>
-                </tr>
-                                <tr>
                     <td>이메일</td>
                     <td>{memberData.memberEmail}</td>
                 </tr>
                 <tr>
-                    <td>포인트</td>
-                    <td>{memberData.memberPoint}</td>
+                    <td>생년월일</td>
+                    <td>{memberData.memberBirth}</td>
+                </tr>
+                <tr>
+                    <td>연락처</td>
+                    <td>{memberData.memberContact}</td>
+                </tr>
+                <tr>
+                    <td>주소</td>
+                    <td>{memberData.memberAddress1} - {memberData.memberAddress2}</td>
                 </tr>
             </tbody>
         </table>
