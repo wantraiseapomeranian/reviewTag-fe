@@ -8,15 +8,18 @@
 
 .sub-navbar {
     position: fixed;
+    width: 100%;
     /* 화면에 고정 */
     top: 56px;
     /* Menu 높이만큼 아래로 내림 (Menu 높이에 따라 조절 필요) */
     left: 0;
-    width: 100%;
+    
     /* 너비 꽉 채우기 */
     z-index: 1020;
     /* Menu(1030)보다 낮게 설정하여 겹칠 때 아래로 가게 함 */
-    background-color: #3d3d3d !important;
+    background-color: #212529;
+    /* ▼▼▼ 이렇게 수정하세요 ▼▼▼ */
+
 }
 
 .search.btn.btn-success {

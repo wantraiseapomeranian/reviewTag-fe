@@ -43,16 +43,16 @@ export default function ManuForSearch() {
 
     return (<>
         <div className="sub-navbar p-3">
-            <div className="container">
+            
 
                 {/* 검색영역 */}
                 <div className="row justify-content-center">
-                    <div className="col-5 col-md-5 d-flex text-nowrap">
+                    <div className="col-12 col-md-5 d-flex text-nowrap">
                         <div className="input-group">
 
                             {/* 검색창 */}
                             <input type="text" className="form-control" value={query}
-                                placeholder="제목을 입력하고 컨텐츠를 찾아보세요" onChange={e => setQuery(e.target.value)}
+                                placeholder="제목" onChange={e => setQuery(e.target.value)}
                                 onKeyDown={(e) => { if (e.key === "Enter") handleSearch(); }} />
                             {/* 검색 버튼 */}
                             <button className="search btn btn-success" onClick={handleSearch}
@@ -69,7 +69,7 @@ export default function ManuForSearch() {
 
 
 
-            </div>
+            
         </div>
 
     </>)

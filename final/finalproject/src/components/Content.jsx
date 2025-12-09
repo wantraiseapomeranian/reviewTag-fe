@@ -42,6 +42,7 @@ export default function Content() {
                     
                     {/* contents */}
                     <Route path="/contents/test" element={<Test/>}></Route>
+                    {/* 컨텐츠 검색 후 리뷰 */}
                     <Route path="/contents/test2" element={<SearchAndSave/>}> 
                         <Route path="/contents/test2/review/:contentsId" element={<ReviewWrite/>}></Route>
                     </Route>

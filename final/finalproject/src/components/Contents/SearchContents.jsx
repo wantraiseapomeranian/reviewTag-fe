@@ -253,7 +253,7 @@ export default function SearchContents() {
                             </div>
                         </div>
                         <div className="text-end mb-3">
-                            <button className="search btn btn-success" onClick={writeReview}><FaPencil className="mb-1 me-1" />리뷰등록</button>
+                            <button className="btn btn-success" onClick={writeReview}><FaPencil className="mb-1 me-1" />리뷰등록</button>
                             <button className="btn btn-warning ms-2"><FaQuestion className="mb-1 me-1" /> 퀴즈</button>
                         </div>
                     </div>

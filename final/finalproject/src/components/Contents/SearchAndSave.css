@@ -31,7 +31,7 @@
 }
 
 .simple-item:hover {
-    background-color: #ffcccc;
+    background-color: #ea8685;
     cursor: pointer;
 }
 
@@ -48,7 +48,7 @@
 }
 
 .search.btn.btn-success {
-  background-color: #ffffff !important;
+  background-color: #ffffff;
   border-color: #ffffff;
   color: #7ed6df;
 }
