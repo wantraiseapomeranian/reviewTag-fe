@@ -48,7 +48,7 @@ export default function ManuForSearch() {
                 {/* 검색영역 */}
                 <div className="row justify-content-center">
                     <div className="col-12 col-md-5 d-flex text-nowrap">
-                        <div className="input-group">
+                        <div className="input-group p-3" style={{backgroundColor:"#2C3A47"}}>
 
                             {/* 검색창 */}
                             <input type="text" className="form-control" value={query}
