@@ -99,7 +99,7 @@ return(<>
                             <Link className="nav-link"  to="/contents/genreList"><span>장르</span></Link>
                         </div>
                     </li>
-                    {/* 리뷰 */}
+                    {/* 리뷰 메뉴사용x
                     <li className="nav-item dropdown ">
                         <a className="nav-link dropdown-toggle" data-bs-toggle="dropdown" href="#" role="button"
                             aria-haspopup="true" aria-expanded="false"><span>리뷰</span></a>
@@ -108,7 +108,7 @@ return(<>
                             <Link className="nav-link"  to="/review/insert"><span>리뷰등록</span> </Link>
                             <Link className="nav-link"  to="/review/search"><span>리뷰검색</span></Link>
                         </div>
-                    </li>
+                    </li> */}
                     {/* 퀴즈 */}
                      <li className="nav-item" onClick={closeMenu}>
                         <Link className="nav-link"  to="#">
@@ -122,7 +122,7 @@ return(<>
                     {isLogin === true ? (<>  {/* 로그인 시 나와야 하는 화면 */}
                     <li className="nav-item" onClick={closeMenu}>
                         <Link className="nav-link" to={`/member/mypage/myinfo/${loginId}`}>
-                            <span>마이페이지</span>
+                            <span>MY</span>
                         </Link>
                     </li>
                     <li className="nav-item" onClick={closeMenu}>

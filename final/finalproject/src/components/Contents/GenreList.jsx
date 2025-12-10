@@ -39,11 +39,11 @@ export default function GenreList() {
     //render
     return(<>
         <div className="row genre-form">
-            <div className="col dark-bg-wrapper p-4 rounded">
+            <div className="col p-4 rounded">
                     {/* <button className="btn me-2 mt-2"><Link to="/contents/genreList/listByGenre/전체" className="text-decoration-none link-body-emphasis">전체</Link></button> */}
                     {genre.map(genreDto=>(
                         <button className="btn me-2 mt-2" key={genreDto.genreId}>
-                            <Link to={`/contents/genreList/listByGenre/${genreDto.genreName}`} className="text-decoration-none link-body-emphasis">
+                            <Link to={`/contents/genreList/listByGenre/${genreDto.genreName}`} className="genreLink" >
                             {genreDto.genreName}
                             </Link>
                         </button>

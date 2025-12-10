@@ -10,6 +10,7 @@ export default function MemberMymovie(){
 const [loginid, setLoginId] = useAtom(loginIdState);
 
 //state
+const [hasReview, setHasReview] = useState(false);
 const [myReview, setMyReview] = useState([]);
 const TMDB_IMAGE_BASE_URL = "https://image.tmdb.org/t/p/w500";
     
@@ -17,6 +18,9 @@ const TMDB_IMAGE_BASE_URL = "https://image.tmdb.org/t/p/w500";
 const loadData = useCallback(async ()=>{
     const {data} = await axios.get(`/member/myreview/${loginid}`)
     setMyReview(data);
+    if(data.length !== 0) {
+        setHasReview(true);
+    }
 }, [loginid]);
 
 //effect
@@ -34,6 +38,12 @@ const loadData = useCallback(async ()=>{
 //render
 return(<>
     <h1 className="text-center"> {loginid}님의 리뷰</h1>
+
+    {hasReview === false && (
+        <div className="row mt-4">
+            <Link to="/review/write" className="col-6 offset-3 btn btn-secondary">신규 리뷰작성</Link>
+        </div>
+    )} 
 
 
     {myReview.map((review) => (

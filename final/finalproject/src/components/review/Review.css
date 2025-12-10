@@ -1,36 +1,111 @@
 .fullStar {
-    color: rgb(255, 201, 25);
+    color: gold;
     font-size: 45px;
-    margin-right: 0.2em;
-    margin-right: 0.2em;
 }
+
 .emptyStar {
     color: rgb(214, 214, 214);
     font-size: 45px;
-    margin-right: 0.2em;
-    margin-right: 0.2em;
 }
 
-.review-wrapper{
+.update>.fullStar {
+    color: rgb(221, 188, 0);
+    font-size: 35px;
+    margin-left: 0.15em;
+}
+
+.update>.emptyStar {
+    color: rgb(214, 214, 214);
+    font-size: 35px;
+    margin-left: 0.15em;
+}
+
+.rating-box {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+}
+
+.rating-number {
+    font-size: 35px;
+    color: #e94a00;
+    font-weight: bold;
+    font-family: sans-serif;
+    
+}
+
+.rating-number2 {
+    font-size: 25px;
+    margin-left: 6px;
+    color: #535f9e;
+    font-weight: bold;
+    font-family: sans-serif;
+}
+
+.review-wrapper {
     background-color: #f1f2f6;
 }
 
 .border {
     border-color: black;
 }
+
 .how {
     font-size: 18px;
 }
+
 .spo {
     font-size: 18px;
 }
-.btn-success, .d-grid {
-    padding: 1em; 
-    font-size: 20px;
+
+.my-review {
+    font-size: 18px;
     font-weight: bold;
-    border-radius: 0.8em;
-    background-color: rgb(15, 126, 0);
-    border-color: rgb(15, 126, 0);
+}
+
+.my-review-space {
+    background-color: #ccdaf7;
+    padding: 1.2em;
+    border-radius: 0.9em;
+    color: #16175f;
+}
+
+.text-space {
+    border-color: #868686;
+    background-color: #868686;
+    padding: 1.2em;
+    border-radius: 0.9em;
+}
+
+.success>.btn-success {
+    padding: 1em !important;
+    font-size: 20px !important;
+    font-weight: bold !important;
+    border-radius: 0.8em !important;
+    /* background-color: rgb(214,93,93) !important; */
+    border-color: #198754 !important;
+    margin-left: 0.5em !important;
+}
+
+.success>.btn-success:active {
+    filter: brightness(85%) !important;
+    transform: translateY(1px);
+}
+
+.primary>.btn-primary {
+    padding: 1em !important;
+    font-size: 20px !important;
+    font-weight: bold !important;
+    border-radius: 0.8em !important;
+    /* background-color: rgb(214,93,93) !important; */
+    border-color: #0d6efd !important;
+    margin-left: 0.5em !important;
+}
+
+.primary>.btn-primary:active {
+    filter: brightness(85%) !important;
+    transform: translateY(1px);
 }
 
 /* 켜짐 상태 (Checked) 트랙 배경색 변경 */
@@ -47,33 +122,50 @@
 
 input:focus::placeholder,
 textarea:focus::placeholder {
-  color: transparent;
+    color: transparent;
 }
 
 .textAA {
     height: 200px;
     font-size: 20px !important;
-    border-radius: 0.8em;
+    border-radius: 0.8em !important;
     resize: none !important;
     padding: 1em !important;
     margin-left: 0.5em !important;
 }
+
 .textAA:focus {
-    box-shadow: 0 0 0 0.15rem #198754 !important;
+    box-shadow: 0 0 0 0.15rem #0d6efd !important;
     border: none !important;
-} 
+}
+
+.textAAA {
+    height: 200px;
+    font-size: 20px !important;
+    border-radius: 0.8em !important;
+    resize: none !important;
+    padding: 1em !important;
+    margin-left: 0.5em !important;
+}
+
+.textAAA:focus {
+    box-shadow: 0 0 0 0.15rem #0d6efd !important;
+    border: none !important;
+}
 
 .cate_btn {
     border-radius: 1.5em !important;
+}
+
+.fd {
+    margin-left: 0.8em;
 }
 
 .mini-button {
     border-color: transparent;
     background-color: transparent;
 }
+
 .user-review {
     padding: 10px;
 }
-
-
-

@@ -198,9 +198,5 @@ export default function ReviewWriter() {
 
 
         </div>
-
-
-
-
     </>)
 }

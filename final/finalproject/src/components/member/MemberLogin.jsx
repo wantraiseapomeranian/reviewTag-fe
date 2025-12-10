@@ -14,6 +14,8 @@ export default function MemberLogin(){
     // 도구
     const navigate = useNavigate();
     //state
+    const [loginResult, setLoginResult] = useState(null);
+
     const [member, setMember] = useState({
         memberId : "", memberPw : ""
     })
@@ -38,14 +40,16 @@ export default function MemberLogin(){
             setLoginLevel(data.loginLevel);
             setAccessToken(data.accessToken);
             setRefreshToken(data.refreshToken);
-            // 화면이동
+            // state저장
             setLogin(true);
+            setLoginResult(true)
             console.log("로그인 성공");
+            // 화면이동
             navigate("/");
         }
         catch(err){
-            console.log(err);
             setLogin(false);
+            setLoginResult(false);
             console.log("로그인 실패");
         }
     },[member])
@@ -69,7 +73,7 @@ export default function MemberLogin(){
                     onChange={changeStrValue}/>
             </div>
         </div>
-        <div className="row mt-4">
+        <div className="row mt-3">
             <div className="col-md-1"></div>
             <label className="col-md-3 col-sm-3 col-form-label">비밀번호</label>
             <div className="col-sm-7">
@@ -78,12 +82,20 @@ export default function MemberLogin(){
             </div>
         </div>
 
-        <div className="row mt-4">
+
+
+        <div className="row mt-2">
              <div className="col-md-4 col-sm-3"></div>
             <div className="col-sm-7">
-                <button type="button" className="btn btn-success w-100 btn-lg"
-                        onClick={sendLogin}
-                        > 로그인
+                {loginResult === false && (
+                    <div className="row">
+                        <div className="col fs-6 text-center text-danger">
+                            아이디 또는 비밀번호가 잘못되었습니다
+                        </div>
+                    </div>
+                )}
+                <button type="button" className="mt-2 btn btn-success w-100 btn-lg"
+                        onClick={sendLogin}> 로그인
                 </button>
             </div>
         </div>
