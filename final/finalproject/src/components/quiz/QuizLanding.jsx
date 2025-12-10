@@ -12,12 +12,12 @@ import "./QuizLanding.css"
 import QuizGameModal from './QuizGameModal';
 import QuizCreateModal from './QuizCreateModal';
 
-export default function QuizLanding () {
-    
+export default function QuizLanding() {
+
     //URL에서 ID 직접 가져오기
     const { contentsId } = useParams();
-    console.log("QuizLanding contentsId:", contentsId);
-    
+    //console.log("QuizLanding contentsId:", contentsId);
+
     //통합 state
     const loginId = useAtomValue(loginIdState);
 
@@ -27,35 +27,64 @@ export default function QuizLanding () {
 
     //랭킹 데이터 관리
     const [topRanker, setTopRanker] = useState(null);
-    const [myStats, setMyStats] = useState({ totalSolved: 0, bestScore: 0, rankPercent: 0 });
+    const [myStats, setMyStats] = useState({ totalSolved: 0, bestScore: 0, rankPercent: 0, accuracy: 0 });
 
     useEffect(() => {
         if (!contentsId) return;
 
-        const fetchRanking = async () => {
+        const loadAllData = async () => {
             try {
-                //axios 연결
+                //랭킹 1위 가져오기
                 const rankingList = await quizApi.getRanking(contentsId);
 
                 if (rankingList && rankingList.length > 0) {
-                    const numberOne = rankingList[0]; 
+                    const numberOne = rankingList[0];
                     setTopRanker({
-                        nickname: numberOne.memberNickname || "익명의 고수", 
-                        score: numberOne.totalScore || 0,
-                        avatar: numberOne.memberImg || "https://via.placeholder.com/100"
+                        nickname: numberOne.memberNickname || "익명의 고수",
+                        score: numberOne.score || 0,
+                        //avatar: numberOne.memberImg || "https://via.placeholder.com/100"
                     });
                 } else {
-                    // 데이터가 비어있으면 초기화 (다른 영화 갔다가 돌아올 때 대비)
                     setTopRanker(null);
                 }
+
+                //나의 통계 가져오기
+                if (loginId) {
+                    const statsData = await quizApi.getMyStats(contentsId, loginId);
+
+                    if (statsData) {
+                        //console.log("📊 내 통계 데이터:", statsData);
+                        // 상위 % 계산 (내등수 / 전체인원)
+                        let percent = 0;
+                        if (statsData.totalUsers > 0) {
+                            //기본 퍼센트 계산
+                            const rawPercent = (statsData.myRank / statsData.totalUsers) * 100;
+
+                            //소수점 올림 처리
+                            percent = Math.ceil(rawPercent);
+
+                            //계산된 값이 1 이하면
+                            if (statsData.myRank === 1) {
+                                percent = 1;
+                            }
+                        }
+
+                        setMyStats({
+                            totalSolved: statsData.totalSolved, // 푼 문제 수
+                            bestScore: statsData.myScore,       // 획득 점수
+                            rankPercent: percent,                // 상위 N%
+                            accuracy: statsData.accuracy
+                        });
+                    }
+                }
+
             } catch (error) {
-                console.error("랭킹 로딩 실패:", error);
-                setTopRanker(null);
+                console.error("데이터 로딩 실패:", error);
             }
         };
 
-        fetchRanking();
-    }, [contentsId]);
+        loadAllData();
+    }, [contentsId, loginId]);
 
     const handleRequireLogin = (actionCallback) => {
         //console.log("1. handleRequireLogin 실행됨. 로그인ID:", loginId);
@@ -128,32 +157,37 @@ export default function QuizLanding () {
         }
     };
 
-return (
+    return (
         <div className="container p-4 quiz-text-light">
-            
-            {/* --- 1. 랭킹 섹션 --- */}
+
+            {/* --- 랭킹 섹션 --- */}
             <div className="card border-0 mb-4 quiz-dark-card text-center shadow-sm">
                 <div className="card-body py-5">
+                    {/* topRanker 데이터가 있을 때만 출력 */}
                     {topRanker ? (
                         <>
                             <div className="mb-3 position-relative d-inline-block">
                                 <FaCrown size={40} className="text-warning position-absolute start-50 translate-middle-x rank-crown-pos" />
-                                <img 
+                                {/* <img 
                                     src={topRanker.avatar} 
                                     alt="Rank 1" 
                                     className="rounded-circle rank-avatar" 
-                                />
+                                /> */}
                             </div>
-                            
+
+                            {/* 닉네임 출력 */}
                             <h3 className="fw-bold mt-2">{topRanker.nickname}</h3>
+
                             <p className="opacity-75 mb-0">
-                                이 영화의 퀴즈 마스터 🏆 <br/>
+                                이 영화의 퀴즈 마스터 🏆 <br />
                                 <span className="badge bg-warning text-dark mt-2">
-                                     점수 {topRanker.score}점
+                                    {/* 점수 출력 */}
+                                    점수 {topRanker.score}점
                                 </span>
                             </p>
                         </>
                     ) : (
+                        /* 랭킹 데이터가 없을 때 */
                         <div className="py-4 opacity-75">
                             <FaCrown className="rank-empty-icon" />
                             <h5>아직 퀴즈 마스터가 없습니다!</h5>
@@ -168,11 +202,11 @@ return (
             {/* --- 2. 버튼 섹션 --- */}
             <div className="row g-3 mb-4">
                 <div className="col-md-6">
-                    <button 
+                    <button
                         className="btn btn-primary w-100 shadow-sm quiz-btn-custom"
                         onClick={() => handleRequireLogin(handleQuizChallenge)}
                     >
-                        <FaGamepad size={32} className="mb-2" />
+                        <FaGamepad size={32} className="mb-2 me-2" />
                         <span className="fs-5 fw-bold">퀴즈 도전하기</span>
                         <br />
                         <small className="opacity-75 mt-1">내 지식을 테스트해보세요!</small>
@@ -180,11 +214,11 @@ return (
                 </div>
 
                 <div className="col-md-6">
-                    <button 
+                    <button
                         className="btn btn-success w-100 shadow-sm quiz-btn-custom"
                         onClick={() => handleRequireLogin(() => setShowCreateModal(true))}
                     >
-                        <FaPenNib size={32} className="mb-2" />
+                        <FaPenNib size={32} className="mb-2 me-2" />
                         <span className="fs-5 fw-bold">문제 출제하기</span>
                         <br />
                         <small className="opacity-75 mt-1">직접 문제를 만들어보세요!</small>
@@ -195,24 +229,37 @@ return (
 
             {/* --- 3. 통계 섹션 --- */}
             <div className="card border-0 shadow-sm quiz-dark-card">
-                {/* stats-header-dark 클래스 적용 확인 */}
                 <div className="card-header fw-bold border-0 pt-3 stats-header-dark">
                     <FaChartBar className="me-2" />
                     나의 퀴즈 기록
                 </div>
                 <div className="card-body">
                     <div className="row text-center">
-                        <div className="col-4 stats-divider">
+                        {/* 푼 문제 */}
+                        <div className="col-3 stats-divider">
                             <h5 className="fw-bold text-primary">{myStats.totalSolved}</h5>
-                            <small className="opacity-75">푼 문제 수</small>
+                            <small className="opacity-75">푼 문제</small>
                         </div>
-                        <div className="col-4 stats-divider">
-                            <h5 className="fw-bold text-success">{myStats.bestScore}점</h5>
-                            <small className="opacity-75">최고 점수</small>
+
+                        {/* 점수 */}
+                        <div className="col-3 stats-divider">
+                            <h5 className="fw-bold text-success">{myStats.bestScore}</h5>
+                            <small className="opacity-75">점수</small>
                         </div>
-                        <div className="col-4">
-                            <h5 className="fw-bold text-info">Top {myStats.rankPercent}%</h5>
-                            <small className="opacity-75">나의 순위</small>
+
+                        {/* 정답률 */}
+                        <div className="col-3 stats-divider">
+                            {/* 100%면 초록색, 아니면 노란색 등 색상 포인트 */}
+                            <h5 className={`fw-bold ${myStats.accuracy === 100 ? 'text-success' : 'text-warning'}`}>
+                                {myStats.accuracy}%
+                            </h5>
+                            <small className="opacity-75">정답률</small>
+                        </div>
+
+                        {/* 순위 */}
+                        <div className="col-3">
+                            <h5 className="fw-bold text-info">상위 {myStats.rankPercent}%</h5>
+                            <small className="opacity-75">순위</small>
                         </div>
                     </div>
                 </div>
@@ -220,13 +267,13 @@ return (
 
             {/* 모달들 */}
             {showGameModal && (
-                <QuizGameModal 
-                    show={showGameModal} 
+                <QuizGameModal
+                    show={showGameModal}
                     onClose={() => setShowGameModal(false)}
                     contentsId={contentsId}
                 />
             )}
-            
+
             {showCreateModal && (
                 <QuizCreateModal
                     show={showCreateModal}

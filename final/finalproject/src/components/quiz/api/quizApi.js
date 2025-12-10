@@ -63,8 +63,8 @@ export const quizApi = {
   },
 
   // 전체 랭킹 확인
-  getRanking: async () => {
-    const response = await axios.get('/quiz/log/ranking');
+  getRanking: async (contentsId) => {
+    const response = await axios.get(`/quiz/log/list/ranking/${contentsId}`);
     return response.data;
   },
 
@@ -72,5 +72,11 @@ export const quizApi = {
   reportQuiz: async (quizReportDto) => {
     const response = await axios.post('/quiz/report/', quizReportDto);
     return response.data;
-  }
+  },
+
+  //나의 통계 가져오기
+  getMyStats: async (contentsId, memberId) => {
+        const response = await axios.get(`/quiz/log/stats/${contentsId}/${memberId}`);
+        return response.data;
+    },
 };

@@ -113,12 +113,12 @@ export default function QuizGameModal({ show, onClose, contentsId }) {
 
 
     //보기 버튼 클릭
-    const handleOptionClick = useCallback((optionValue) => {
+    const handleOptionClick = useCallback((optionNumber) => {
         const currentQuiz = quizList[currentIndex];
         // 기존 답안 복사 후 현재 문제 ID에 대한 답만 업데이트
         setUserAnswers(prev => ({
             ...prev,
-            [currentQuiz.quizId]: optionValue
+            [currentQuiz.quizId]: String(optionNumber)
         }));
     }, [quizList, currentIndex, setUserAnswers]);
 
@@ -173,7 +173,15 @@ export default function QuizGameModal({ show, onClose, contentsId }) {
             // 로직 수행
             const logList = quizList.map(quiz => {
                 const myAnswer = userAnswers[quiz.quizId];
-                const isCorrect = (myAnswer === quiz.quizAnswer) ? 'Y' : 'N';
+
+                const dbAnswer = quiz.quizAnswer;
+
+                //디버깅용
+                //console.group(`문제 ID: ${quiz.quizId}`);
+                //console.log(`내 답안: '${myAnswer}' (${typeof myAnswer})`);
+                //console.log(`찐 정답: '${dbAnswer}' (${typeof dbAnswer})`);
+
+                const isCorrect = (myAnswer.trim() === quiz.quizAnswer.trim()) ? 'Y' : 'N';
                 return {
                     quizLogQuizId: quiz.quizId,
                     quizLogIsCorrect: isCorrect
@@ -247,7 +255,7 @@ export default function QuizGameModal({ show, onClose, contentsId }) {
 
                 try {
                     // API 호출
-                    await quizApi.submitReport(payload);
+                    await quizApi.reportQuiz(payload);
 
                     // 성공 알림
                     await MySwal.fire({
@@ -323,8 +331,11 @@ export default function QuizGameModal({ show, onClose, contentsId }) {
                         <div className="d-grid gap-3 col-10 col-md-8 mx-auto">
                             {/* options 배열을 순회하며 버튼 생성 */}
                             {options.map((option, idx) => {
+
+                                //보기
+                                const optionNumber = idx + 1;
                                 // 사용자가 선택한 답인지 확인 (선택됨: true / 아님: false)
-                                const isSelected = userAnswers[currentQuiz.quizId] === option;
+                                const isSelected = userAnswers[currentQuiz.quizId] === String(optionNumber);
                                 // 현재 문제가 OX 퀴즈인지 확인
                                 const isOX = currentQuiz.quizQuestionType === 'OX';
 
@@ -333,15 +344,14 @@ export default function QuizGameModal({ show, onClose, contentsId }) {
                                         key={idx}
                                         // 선택 여부에 따라 버튼 색상 변경 (Primary / Secondary )
                                         className={`btn py-3 fs-5 ${isSelected ? 'btn-primary' : 'btn-outline-secondary'}`}
-                                        onClick={() => handleOptionClick(option)}
+                                        onClick={() => handleOptionClick(optionNumber)}
                                     >
                                         {/* OX 퀴즈일 때와 일반 퀴즈일 때 내용을 다르게 보여줌 */}
                                         {isOX ? (
                                             // [OX 퀴즈] 아이콘 + 텍스트 조합
                                             <span className={`icon-wrapper ${!isSelected ? (option === 'O' ? 'text-success' : 'text-danger') : ''}`}>
                                                 {/* O면 초록색 원, X면 빨간색 엑스 아이콘 표시 */}
-                                                {option === 'O' ? <FaRegCircle className="me-2" /> : <FaXmark className="me-2" />}
-                                                {option}
+                                                {option === 'O' ? <FaRegCircle className="me-2" /> : <FaXmark className="me-2 2x" />}
                                             </span>
                                         ) : (
                                             // [일반 퀴즈] 텍스트만 표시
