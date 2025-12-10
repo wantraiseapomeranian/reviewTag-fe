@@ -4,6 +4,9 @@ import { FaBookmark, FaHeart, FaPencil } from "react-icons/fa6";
 import { FaQuestion } from "react-icons/fa";
 import { useNavigate, useParams } from "react-router-dom";
 import "./SearchAndSave.css"
+import { useAtom } from "jotai";
+import { loginIdState } from "../../utils/jotai";
+import { toast } from "react-toastify";
 
 const TMDB_IMAGE_BASE_URL = "https://image.tmdb.org/t/p/w500";
 
@@ -16,7 +19,10 @@ const INITIAL_DETAIL = {
 };
 
 export default function ContentsDetail() {
-    
+    //통합 state
+    const [loginId, setLoginId] = useAtom(loginIdState);
+
+
     const {contentsId} = useParams();
 
     const navigate = useNavigate();
@@ -45,6 +51,29 @@ export default function ContentsDetail() {
         setContentsDetail(data);
         setIsLoading(false);
     }, []);
+
+        
+    // 북마크 함수
+    const addWatchlist = useCallback(async(e)=>{
+        if(loginId ==="") {
+            toast.error("로그인이 필요한 기능입니다");
+            return;
+        }
+    const watchlistData = {
+        watchlistContent: contentsId,
+        watchlistMember: loginId,
+        watchlistType: "찜",
+    };
+     try{
+        await axios.post("/watchlist/",watchlistData);
+        console.log("성공");
+        toast.success("찜목록에 추가되었습니다");
+     }
+     catch(err){
+        console.error(err);
+        toast.error("찜목록 추가 실패");
+     }
+    },[contentsId, loginId]);
 
     //[포스터 이미지 url 생성 함수]
     const getPosterUrl = useCallback((path) => {
@@ -85,7 +114,7 @@ export default function ContentsDetail() {
         {/* 상세정보 카드 */}
         {!isLoading && contentsDetail.contentsId && (
             <div className="row p-3 shadow rounded dark-bg-wrapper">
-                <div className="text-end">
+                <div className="text-end"  onClick={addWatchlist}>
                     <span className="badge bg-danger px-3 btn"><h5><FaBookmark/></h5></span>    
                 </div>
                 {/* 이미지 영역 */}
