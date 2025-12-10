@@ -291,6 +291,7 @@ export default function ContentsDetail() {
                     <span>{statusMessage}</span>
                 )}
 
+
                 {/* 상세정보 카드 */}
                 {!isLoading && contentsDetail.contentsId && (
                     <>

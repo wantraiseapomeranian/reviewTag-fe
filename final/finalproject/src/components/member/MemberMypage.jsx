@@ -6,7 +6,7 @@ import { Link, Outlet, useParams } from "react-router-dom";
 
 export default function MemberMypage(){
     //통합 state
-    const {loginId} = useParams();
+    const [loginId, setLoginId] = useAtom(loginIdState);
     const [loginLevel, setLoginLevel] = useAtom(loginLevelState);
 
 
