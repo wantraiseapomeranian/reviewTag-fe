@@ -51,7 +51,7 @@ return(<>
         <hr/>
         <div className="col-3">
             <Link to={`/contents/detail/${review.reviewContents}`} className="reviewTitle">
-                <img src={getPosterUrl(review.contentsPosterPath)}  style={{ width: "180px", objectFit: "cover", borderRadius: "4px", }}/>
+                <img src={getPosterUrl(review.contentsPosterPath)}  style={{ width: "180px", objectFit: "cover", borderRadius: "4px" }}/>
             </Link>
         </div>
         <div className="col-1"></div>
@@ -71,7 +71,7 @@ return(<>
                      </div>
                 </div>
             </div>
-            <div className="bg-light text-dark p-3" style={{ minHeight: '10rem' }}> {review.reviewText}</div>
+            <div className="bg-light text-dark p-3" style={{ minHeight: '10rem', borderRadius: "10px" }}> {review.reviewText}</div>
             <div className="mt-2 d-flex justify-content-between">
                 <span>좋아요: {review.reviewLike}</span>
                 <span>{review.reviewWtime}</span>
