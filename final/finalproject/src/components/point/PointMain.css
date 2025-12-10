@@ -1,0 +1,117 @@
+/* === 1. 달력 전체 래퍼 === */
+.attendance-calendar-wrapper {
+    background-color: #ffffff;
+    border-radius: 12px;
+    border: 1px solid #e9ecef;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+}
+
+/* === 2. 리액트 달력 커스텀 (기본 스타일 덮어쓰기) === */
+.custom-calendar {
+    width: 100%;
+    border: none !important;
+    font-family: inherit;
+    background: transparent;
+}
+
+/* 상단 년/월 네비게이션 */
+.custom-calendar .react-calendar__navigation {
+    margin-bottom: 1.5rem;
+}
+.custom-calendar .react-calendar__navigation button {
+    font-size: 1.2rem;
+    font-weight: 800;
+    color: #495057;
+}
+.custom-calendar .react-calendar__navigation button:enabled:hover,
+.custom-calendar .react-calendar__navigation button:enabled:focus {
+    background-color: #f8f9fa;
+    border-radius: 8px;
+}
+
+/* 요일 (일, 월, 화...) */
+.custom-calendar .react-calendar__month-view__weekdays {
+    text-align: center;
+    font-weight: bold;
+    font-size: 0.95rem;
+    color: #868e96;
+    text-decoration: none;
+    margin-bottom: 0.5rem;
+}
+.react-calendar__month-view__weekdays__weekday abbr {
+    text-decoration: none;
+    cursor: default;
+}
+
+/* 날짜 타일 (네모 칸) */
+.custom-calendar .react-calendar__tile {
+    height: 90px; /* 도장이 들어갈 넉넉한 높이 */
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    padding-top: 10px !important;
+    position: relative;
+    overflow: visible !important; /* 도장이 칸을 삐져나가도 잘리지 않게 */
+    font-size: 1.1rem;
+    border-radius: 12px;
+    transition: background-color 0.2s;
+    color: #495057;
+}
+
+/* 오늘 날짜 표시 */
+.custom-calendar .react-calendar__tile--now {
+    background: #e7f5ff !important;
+    color: #1971c2 !important;
+    font-weight: bold;
+    border: 1px solid #a5d8ff;
+}
+
+/* 주말 색상 (선택 사항) */
+.react-calendar__month-view__days__day--weekend {
+    color: #fa5252;
+}
+
+/* 클릭/활성 상태 배경 제거 (도장이 주인공이므로) */
+.custom-calendar .react-calendar__tile--active,
+.custom-calendar .react-calendar__tile:enabled:hover,
+.custom-calendar .react-calendar__tile:enabled:focus {
+    background: rgba(0,0,0,0.03) !important;
+    color: inherit !important;
+}
+
+/* === 3. 달력 안에 찍히는 '참잘했어요' 도장 === */
+.small-stamp {
+    position: absolute;
+    top: 55%;
+    left: 50%;
+    transform: translate(-50%, -50%) rotate(-15deg);
+    
+    width: 50px;
+    height: 50px;
+    border: 2px solid #e03131; /* 진한 빨강 */
+    border-radius: 50%;
+    color: #e03131;
+    
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    font-size: 11px;
+    font-weight: 800;
+    line-height: 1.2;
+    
+    background-color: rgba(255, 255, 255, 0.9);
+    box-shadow: 0 2px 6px rgba(224, 49, 49, 0.2);
+    
+    /* 찍히는 애니메이션 */
+    animation: stamp-pop 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+    z-index: 5;
+    pointer-events: none;
+}
+
+@keyframes stamp-pop {
+    0% { transform: translate(-50%, -50%) scale(0) rotate(0deg); opacity: 0; }
+    80% { transform: translate(-50%, -50%) scale(1.1) rotate(-15deg); opacity: 1; }
+    100% { transform: translate(-50%, -50%) scale(1) rotate(-15deg); opacity: 1; }
+}   

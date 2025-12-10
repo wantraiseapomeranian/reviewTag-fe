@@ -3,6 +3,7 @@ import axios from "axios";
 import ProductAdd from "./ProductAdd";
 import ProductEdit from "./ProductEdit";
 
+// ★ 3단계 등급 시스템 ('관리자', '우수회원', '일반회원') 복원
 function getScore(level) {
     if (level === "관리자") return 99;
     if (level === "우수회원") return 2;
@@ -19,6 +20,9 @@ export default function StoreView({ loginLevel, loginNickname, refreshPoint }) {
     
     const myScore = getScore(loginLevel);
 
+    // ★ 찜 목록 상태 추가
+    const [wishList, setWishList] = useState([]); 
+
     const loadItems = useCallback(async () => {
         try {
             const resp = await axios.get("/point/store/");
@@ -34,12 +38,22 @@ export default function StoreView({ loginLevel, loginNickname, refreshPoint }) {
         } catch (e) { console.error(e); }
     }, [loginLevel]);
 
+    // ★ 찜 목록 ID 로드 함수
+    const loadWishList = useCallback(async () => {
+        if (!loginLevel) return;
+        try {
+            const resp = await axios.get("/point/store/wish/check");
+            setWishList(resp.data);
+        } catch (e) { console.error(e); }
+    }, [loginLevel]);
+
     useEffect(() => {
         loadItems();
         loadMyItems();
-    }, [loadItems, loadMyItems]);
+        loadWishList(); // ★ 찜 목록 로드 추가
+    }, [loadItems, loadMyItems, loadWishList]);
 
-    // [구매]
+    // [구매] (기존 코드와 동일)
     const handleBuy = async (item) => {
         if (!window.confirm(`[${item.pointItemName}] 을(를) 구매하시겠습니까?`)) return;
         try {
@@ -51,7 +65,7 @@ export default function StoreView({ loginLevel, loginNickname, refreshPoint }) {
         }
     };
 
-    // [선물]
+    // [선물] (기존 코드와 동일)
     const handleGift = async (item) => {
         const targetId = window.prompt("선물을 받을 친구의 ID를 입력하세요.");
         if (!targetId) return;
@@ -65,7 +79,7 @@ export default function StoreView({ loginLevel, loginNickname, refreshPoint }) {
         }
     };
 
-    // [삭제]
+    // [삭제] (기존 코드와 동일)
     const handleDelete = async (item) => {
         if (!window.confirm(`[${item.pointItemName}] 삭제하시겠습니까?`)) return;
         try {
@@ -74,25 +88,30 @@ export default function StoreView({ loginLevel, loginNickname, refreshPoint }) {
             loadItems();
         } catch (e) { alert("삭제 실패"); }
     };
+    
+    // ★ 찜 토글 핸들러
+    const handleToggleWish = async (itemNo) => {
+        if (!loginLevel) {
+            alert("로그인 후 이용 가능합니다.");
+            return;
+        }
+        try {
+            await axios.post("/point/store/wish/toggle", { itemNo });
+            loadWishList(); // 찜 상태 갱신
+        } catch (e) { 
+            console.error("찜 토글 실패:", e);
+            alert("찜하기에 실패했습니다."); 
+        }
+    };
 
     return (
         <>
-            {/* 환영 메시지 */}
-            <div className="alert alert-primary d-flex align-items-center shadow-sm mb-4" role="alert">
-                <span className="fs-2 me-3">👋</span>
-                <div>
-                    <h5 className="alert-heading mb-0 fw-bold">
-                        안녕하세요, <span className="text-primary">{loginNickname || "회원"}</span>님!
-                    </h5>
-                    <small className="text-muted">
-                        현재 등급은 <span className="badge bg-secondary">{loginLevel}</span> 입니다.
-                    </small>
-                </div>
-            </div>
+
 
             {/* 상단 헤더 */}
             <div className="d-flex justify-content-between align-items-center mb-3">
                 <h5 className="text-muted fw-bold">🛒 전체 상품 ({items.length})</h5>
+                {/* ★ 관리자 체크 복원 */}
                 {loginLevel === "관리자" && (
                     <button className="btn btn-dark btn-sm shadow-sm" onClick={() => setShowAddModal(true)}>
                         + 상품 등록
@@ -110,20 +129,35 @@ export default function StoreView({ loginLevel, loginNickname, refreshPoint }) {
                 ) : (
                     items.map((item) => {
                         const reqScore = getScore(item.pointItemReqLevel);
-                        const canAccess = (myScore >= reqScore); // 관리자도 true가 됨 (99 >= req)
+                        const canAccess = (myScore >= reqScore); 
                         const ownedCount = myItems.filter(i => i.pointInventoryItemNo === item.pointItemNo).length;
                         
                         const isUnique = item.pointItemUniques === 1;
                         const isAlreadyOwned = isUnique && ownedCount > 0;
+                        
+                        // ★ 찜 여부 확인 추가
+                        const isWished = wishList.includes(item.pointItemNo); 
 
                         return (
                             <div className="col-md-3 mb-4" key={item.pointItemNo}>
                                 <div className={`card h-100 shadow-sm border-0 ${!canAccess && loginLevel !== "관리자" ? "bg-light opacity-75" : ""}`}>
                                     
+                                    {/* ★ 찜 버튼 (우측 상단) */}
+                                    <button 
+                                        className="btn border-0 position-absolute top-0 end-0 m-2 fs-4"
+                                        style={{ zIndex: 10, background: 'transparent' }}
+                                        onClick={(e) => {
+                                            e.stopPropagation(); 
+                                            handleToggleWish(item.pointItemNo);
+                                        }}
+                                    >
+                                        {isWished ? "❤️" : "🤍"}
+                                    </button>
+
                                     {/* 이미지 영역 */}
                                     <div className="bg-secondary d-flex justify-content-center align-items-center text-white position-relative overflow-hidden" style={{ height: '160px' }}>
                                         {item.pointItemSrc ? (
-                                            <img src={item.pointItemSrc} alt={item.pointItemName} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                                            <img src={item.pointItemSrc} alt={item.pointItemName} style={{ width: '90%', height: '90%', objectFit: 'cover' }} />
                                         ) : (
                                             <span className="fs-5">No Image</span>
                                         )}
@@ -160,7 +194,7 @@ export default function StoreView({ loginLevel, loginNickname, refreshPoint }) {
 
                                             <div className="w-100 d-grid gap-2">
                                                 
-                                                {/* 1. 구매/선물 버튼 (등급 되면 누구나 보임) */}
+                                                {/* 1. 구매/선물 버튼 */}
                                                 {canAccess ? (
                                                     <div className="d-flex gap-1">
                                                         <button 
@@ -184,7 +218,7 @@ export default function StoreView({ loginLevel, loginNickname, refreshPoint }) {
                                                     </button>
                                                 )}
 
-                                                {/* 2. ★ 관리자 전용 버튼 (관리자일 때만 추가로 보임) ★ */}
+                                                {/* 2. 관리자 전용 버튼 복원 */}
                                                 {loginLevel === "관리자" && (
                                                     <div className="btn-group mt-1">
                                                         <button className="btn btn-success btn-sm py-0" style={{fontSize:'0.8rem'}} onClick={() => setEditTarget(item)}>

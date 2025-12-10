@@ -26,26 +26,36 @@ export default function InventoryView({ onRefund }) {
         return Object.values(groups);
     }, [myInven]);
 
-    // 1. [사용] 핸들러
+   // 1. [사용] 핸들러
     const handleUse = async (group) => {
         const targetNo = group.inventoryIds[0];
         let extraValue = null;
 
-        // ★ 아이템 유형별 로직 분기
+        // ★ 아이템 유형별 로직
         if (group.pointInventoryItemType === "CHANGE_NICK") {
-            // 닉네임 변경권일 경우 입력 받기
-            extraValue = window.prompt("변경할 새로운 닉네임을 입력하세요.");
-            if (!extraValue) return; // 취소 시 중단
+            
+            // 1) 입력 받기
+            extraValue = window.prompt("변경할 닉네임을 입력하세요. (한글/숫자 2~10자)");
+            if (!extraValue) return; // 취소
+
+            // 2) ★ 정규식 검사 (한글 + 숫자만 허용) ★
+            // 조건: 한글(가-힣), 숫자(0-9) 포함 / 길이 2~10자 / 영문 불가 / 공백 불가
+            const regex = /^[가-힣0-9]{2,10}$/;
+
+            if (!regex.test(extraValue)) {
+                alert("닉네임 형식이 올바르지 않습니다.\n- 한글과 숫자만 가능 (영문 불가)\n- 2~10글자\n- 특수문자 및 공백 불가");
+                return; // 중단
+            }
         } 
         else if (group.pointInventoryItemType === "FOOD") {
              alert("기프티콘 바코드를 확인합니다. (준비중)");
              return;
         }
         else {
-            // 그 외 (즉시 사용 가능한 아이템 등)
             if(!window.confirm(`[${group.pointItemName}] 아이템을 사용하시겠습니까?`)) return;
         }
 
+        // 3) 서버 전송
         try {
             const resp = await axios.post("/point/store/inventory/use", { 
                 inventoryNo: targetNo, 
@@ -53,13 +63,16 @@ export default function InventoryView({ onRefund }) {
             });
 
             if (resp.data === "success") {
-                alert("아이템을 사용했습니다! ✨");
-                loadInven();
-                if (onRefund) onRefund(); // 정보 갱신 (닉네임 바뀌었으니)
+                alert("아이템 사용 완료! (닉네임이 변경되었습니다 ✨)");
+                loadInven(); // 목록 갱신
+                if (onRefund) onRefund(); // 상단 닉네임/포인트 갱신
             } else {
-                alert("사용 실패: " + resp.data.split(":")[1]);
+                alert("사용 실패: " + resp.data);
             }
-        } catch (e) { alert("오류 발생"); }
+        } catch (e) { 
+            console.error(e);
+            alert("오류가 발생했습니다."); 
+        }
     };
 
     // 2. [환불] 핸들러

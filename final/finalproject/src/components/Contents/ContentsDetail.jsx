@@ -238,9 +238,6 @@ export default function ContentsDetail() {
             ? review.reviewEtime.replace('T', ' ').substring(0, 16)
             : review.reviewWtime.replace('T', ' ').substring(0, 16);
 
-        console.log(review);
-        console.log(review.reviewWriter);
-
         return (
             <div className="row mt-4 p-3 shadow rounded dark-bg-wrapper">
                 <div className="col mt-2">
@@ -279,7 +276,7 @@ export default function ContentsDetail() {
                             style={{ cursor: "pointer", transition: "0.3s" }}
                             onClick={handleLikeToggle}
                         >
-                            <span className="fs-4 me-1">👍🏻</span>
+                            <span className="fs-4 me-2">👍🏻</span>
                             <span className="fs-5">{likeCount}</span>
                         </span>
                     </div>
@@ -291,7 +288,7 @@ export default function ContentsDetail() {
     //render
     return (
         <>
-            <div className="container">
+            <div className="container mt-4">
                 {isLoading && (
                     <span>{statusMessage}</span>
                 )}
