@@ -22,10 +22,12 @@ export default function ContentsDetail() {
     //통합 state
     const [loginId, setLoginId] = useAtom(loginIdState);
 
-
     const {contentsId} = useParams();
 
     const navigate = useNavigate();
+
+    // 북마크 확인용 state
+    const [hasWatchlist, setHasWatchList] = useState(false);
 
     //영화 정보 state
     const [contentsDetail, setContentsDetail] = useState(INITIAL_DETAIL);
@@ -43,6 +45,10 @@ export default function ContentsDetail() {
             setStatusMessage("로딩중...")
         }
     }, [isLoading]);
+
+    useEffect(()=>{
+        checkWatchlist();
+    },[loginId, contentsId])
     
     //callback
     const loadData = useCallback(async () => {
@@ -52,8 +58,33 @@ export default function ContentsDetail() {
         setIsLoading(false);
     }, []);
 
+    // 북마크 확인(check) 함수
+    const checkWatchlist = useCallback(async()=>{
+        if(loginId ==="")  return;
+        const watchlistCheckData = {
+            watchlistContent: contentsId,
+            watchlistMember: loginId,
+        };
+        console.log(watchlistCheckData);
+        try{
+            const {data} = await axios.post("/watchlist/check", watchlistCheckData);
+            if(data.hasWatchlist===true){
+                console.log("북마크 등록되어있음");
+                setHasWatchList(true);
+                // 기타 추가 기능 구현
+            } else {
+                console.log("북마크 없음");
+                setHasWatchList(false);
+            }
+        }
+        catch(err){
+            console.log("북마크 확인 error");
+            console.error(err);
+        }
+    }, [contentsId, loginId]);
+
         
-    // 북마크 함수
+    // 북마크 등록 함수
     const addWatchlist = useCallback(async(e)=>{
         if(loginId ==="") {
             toast.error("로그인이 필요한 기능입니다");
@@ -114,9 +145,15 @@ export default function ContentsDetail() {
         {/* 상세정보 카드 */}
         {!isLoading && contentsDetail.contentsId && (
             <div className="row p-3 shadow rounded dark-bg-wrapper">
-                <div className="text-end"  onClick={addWatchlist}>
-                    <span className="badge bg-danger px-3 btn"><h5><FaBookmark/></h5></span>    
-                </div>
+                {hasWatchlist===true ? (
+                    <div className="text-end"  onClick={addWatchlist}>
+                        <span className="badge bg-success px-3 btn"><h5><FaBookmark/></h5></span>    
+                    </div>
+                ) : (
+                    <div className="text-end"  onClick={addWatchlist}>
+                        <span className="badge bg-danger px-3 btn"><h5><FaBookmark/></h5></span>    
+                    </div>
+                )}
                 {/* 이미지 영역 */}
                 <div className="col-4 col-sm-3 p-4 black-bg-wrapper text-light rounded">
                     <img src={getPosterUrl(contentsDetail.contentsPosterPath)} style={{ height: "350px", objectFit: "cover", borderRadius: "4px", }}
