@@ -33,7 +33,9 @@ const loadData = useCallback(async ()=>{
     const getPosterUrl = useCallback((path) => {
         return path ? `${TMDB_IMAGE_BASE_URL}${path}` : 'https://placehold.co/500x750/cccccc/333333?text=No+Image';
     }, []);
-
+    const getFormattedDate = useCallback((text) => {
+        return text.substr(0, 10);
+    }, []);
 
 //render
 return(<>
@@ -74,7 +76,7 @@ return(<>
             <div className="bg-light text-dark p-3" style={{ minHeight: '10rem', borderRadius: "10px" }}> {review.reviewText}</div>
             <div className="mt-2 d-flex justify-content-between">
                 <span>좋아요: {review.reviewLike}</span>
-                <span>{review.reviewWtime}</span>
+                <span>{getFormattedDate(review.reviewWtime)}</span>
             </div>
         </div>
 
