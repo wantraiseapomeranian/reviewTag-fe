@@ -79,6 +79,7 @@ export default function ContentsDetail() {
         setIsLoading(true);
         try {
             const { data } = await axios.get(`/review/list/${contentsId}`);
+            console.log("넘어오는데이터:",data);
             const reviewlist = [
                 ...data.map(review => ({ ...review }))
             ];
@@ -237,11 +238,15 @@ export default function ContentsDetail() {
             ? review.reviewEtime.replace('T', ' ').substring(0, 16)
             : review.reviewWtime.replace('T', ' ').substring(0, 16);
 
+        console.log(review);
+        console.log(review.reviewWriter);
+
         return (
             <div className="row mt-4 p-3 shadow rounded dark-bg-wrapper">
                 <div className="col mt-2">
                     <div className="d-flex justify-content-between">
                         <h4 className="text-light">
+                            
                             {review.reviewWriter}{review.reviewEtime ? " (수정됨)" : ""}
                         </h4>
                         <p className="text-light">{formattedDate}</p>

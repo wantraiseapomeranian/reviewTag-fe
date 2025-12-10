@@ -1,0 +1,13 @@
+.series-wrapper {
+    box-shadow: 0 0 25px rgba(253, 101, 101, 0.8);
+    border: 3px solid #ffffff !important;
+    border-radius: 0.8em;
+    background-color: transparent;
+}
+
+.content-wrapper {
+    box-shadow: 0 0 10px rgb(185, 61, 61);
+    border: 1px solid #000000 !important;
+    border-radius: 0.8em;
+    background-color: transparent;
+}
