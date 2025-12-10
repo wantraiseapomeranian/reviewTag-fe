@@ -6,6 +6,8 @@ import { FaStar } from "react-icons/fa";
 import "./review.css";
 import { accessTokenState, loginIdState, loginLevelState, refreshTokenState } from "../../utils/jotai";
 import { useAtom } from "jotai";
+import { times } from "lodash";
+import { BsThreeDotsVertical } from "react-icons/bs";
 
 const TMDB_IMAGE_BASE_URL = "https://image.tmdb.org/t/p/w500";
 
@@ -22,14 +24,15 @@ export default function WriteReview() {
 
     //state
     const [loginId, setLoginId] = useAtom(loginIdState);
-    // const [accessToken, setAccessToken] = useAtom(accessTokenState);
-    // const [refreshToken, setRefreshToken] = useAtom(refreshTokenState);
+    const [accessToken, setAccessToken] = useAtom(accessTokenState);
+    const [refreshToken, setRefreshToken] = useAtom(refreshTokenState);
 
 
     const [review, setReview] = useState({
         reviewRating: 0,
         reviewSpoiler: "N",
-        reviewText: ""
+        reviewText: "",
+        reviewLike: 0
     });
     const [reviewClass, setReviewClass] = useState("");
     //영화 정보 state
@@ -48,7 +51,8 @@ export default function WriteReview() {
 
     const reviewData = {
         ...review,
-        contentsId: contentsId
+        contentsId: contentsId,
+        loginId: loginId
     };
 
 
@@ -66,16 +70,19 @@ export default function WriteReview() {
     // 전체 리뷰 조회
     useEffect(() => {
         const fetchAll = async () => {
-            
             try {
-                const { data } = await axios.get(`review/contents/${contentsId}`);
-            setAllReviews(data);
-        } catch (error) {
-            console.error("전체 리뷰 조회 실패:", error);
-        }
+                const { data } = await axios.get(`/review/reviewContents/${contentsId}`, {
+                    headers: {
+                        Authorization: `Bearer ${accessToken}`
+                    }
+                });
+                setAllReviews(data);
+            } catch (error) {
+                console.error("전체 리뷰 조회 실패:", error);
             }
-        fetchAll();
-    }, [contentsId]);
+        }
+        if (accessToken) fetchAll(); // 토큰이 있어야 호출
+    }, [contentsId, accessToken]);
 
     // 로그인 시 내 리뷰 조회
     useEffect(() => {
@@ -116,16 +123,24 @@ export default function WriteReview() {
         }
 
         try {
-            const response = await axios.post("/review/", reviewData);
+            const response = await axios.post("/review/", reviewData, {
+                headers: {
+                    Authorization: `Bearer ${accessToken}`
+                }
+            });
             if (response.status === 200) {
                 toast.success("등록 완료");
                 setIsUpdateReview(true);
+                setMyReview(reviewData)
             }
         }
         catch (error) {
             console.error("오류발생 : ", error);
+            toast.error("리뷰 등록 실패");
         }
-    }, [review]);
+    }, [review, loginId, accessToken]);
+
+    // setMyReview(reviewData);
 
     const reviewValid = useMemo(() => {
         const regex = /^(?=.*\S).{10,}$/
@@ -186,7 +201,7 @@ export default function WriteReview() {
                     {/* 이미지 영역 */}
                     <div className="col-4 col-sm-4">
                         <img src={getPosterUrl(contentsDetail.contentsPosterPath)} style={{ height: "350px", objectFit: "cover", borderRadius: "4px", }}
-                            alt={`${contentsDetail.contentsTitle} 포스터`} className="text-center w-100"/>
+                            alt={`${contentsDetail.contentsTitle} 포스터`} className="text-center w-100" />
                     </div>
                     {/* 텍스트 영역 */}
                     <div className="col-8 col-sm-8">
@@ -292,14 +307,13 @@ export default function WriteReview() {
                 {(loginId && myReview) && (
                     <div className="update-review">
                         <div className="row mt-4">
-                            <div className="col">
+                            <div className="col d-flex justify-content-between">
                                 <span className="my-review">내가 쓴 리뷰</span>
                             </div>
                         </div>
                         <div className="my-review-space mt-4">
                             <div className="d-flex justify-content-between">
-                                <span className="mt-2">내 별점 평가</span>
-                                <span className="rating-number2">{review.reviewRating}.0</span>
+                                <span className="ms-1 mt-1">내 별점 평가</span>
                                 <div className="update" value={review.reviewRating}>
                                     {[1, 2, 3, 4, 5].map((num) => (
                                         <FaStar
@@ -311,7 +325,19 @@ export default function WriteReview() {
                                     ))}
                                 </div>
                             </div>
-                            <textarea className={`col-6 mt-3 form-control mx-auto textAAA ${reviewClass}`}
+                        </div>
+
+                        <div className="col textAAA mt-3 mx-auto d-flex justify-content-between align-items-start">
+                            <div className="col-6 mt-2 ms-2">{contentsDetail.contentsTitle}</div>
+                            <div className="d-flex align-items-center">
+                                <span className="rating-number2 me-1">{review.reviewRating}.0</span>
+                                <div className="ms-3 me-1 updateT">작성시간</div>
+                                {/* 버튼 누르면 리뷰 수정하기/삭제하기 모달 구현 예정*/}
+                                <div><button className="ms-1 updateB me-1"><BsThreeDotsVertical /></button></div>
+                            </div>
+                            
+                         
+                            {/* <textarea className={`col-6 mt-3 form-control textA3 ${reviewClass}`}
                                 placeholder="작품과 관련된 감상을 10글자 이상 작성해주세요. 자유롭게 의견을 남겨보세요."
                                 value={review.reviewText}
                                 onChange={e =>
@@ -323,17 +349,17 @@ export default function WriteReview() {
                                 onBlur={() => {
                                     setReviewClass(reviewClassInValid ? "is-invalid" : "");
                                 }}
-                            />
-                            <div className="invalid-feedback">자음·모음만 반복된 입력은 사용할 수 없어요</div>
-                            <div className="primary text-center">
-                                <button
+                            /> */}
+                        </div>
+                        <div className="invalid-feedback">자음·모음만 반복된 입력은 사용할 수 없어요</div>
+                        <div className="primary text-center">
+                            {/* <button
                                     className="mt-5 btn btn-primary col-10 col-sm-10"
                                     disabled={!reviewValid || invalidRating}
                                     onClick={sendData}
                                 >
                                     리뷰 수정하기
-                                </button>
-                            </div>
+                                </button> */}
                         </div>
                     </div>
                 )}

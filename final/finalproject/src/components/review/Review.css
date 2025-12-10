@@ -10,14 +10,14 @@
 
 .update>.fullStar {
     color: rgb(221, 188, 0);
-    font-size: 35px;
-    margin-left: 0.15em;
+    font-size: 30px;
+    margin-left: 0.2em;
 }
 
 .update>.emptyStar {
     color: rgb(214, 214, 214);
-    font-size: 35px;
-    margin-left: 0.15em;
+    font-size: 30px;
+    margin-left: 0.2em;
 }
 
 .rating-box {
@@ -36,9 +36,8 @@
 }
 
 .rating-number2 {
-    font-size: 25px;
-    margin-left: 6px;
-    color: #535f9e;
+    font-size: 20px;
+    color: #d6daee;
     font-weight: bold;
     font-family: sans-serif;
 }
@@ -46,7 +45,15 @@
 .review-wrapper {
     background-color: #212529;
 }
-
+.updateB {
+    background-color: transparent;
+    border: none;
+    color: #d6daee;
+    font-size: 25px;
+}
+.updateT {
+    color: #d6daee;
+}
 .border {
     border-color: black;
 }
@@ -65,10 +72,10 @@
 }
 
 .my-review-space {
-    background-color: #ccdaf7;
-    padding: 1.2em;
+    background-color: #7986a3;
+    padding: 0.8em;
     border-radius: 0.9em;
-    color: #16175f;
+    color: #fff;
 }
 
 .text-space {
@@ -121,7 +128,7 @@
 }
 
 input:focus::placeholder,
-textarea:focus::placeholder {
+textAA:focus::placeholder {
     color: transparent;
 }
 
@@ -141,7 +148,7 @@ textarea:focus::placeholder {
 }
 
 .textAA:focus {
-    box-shadow: 0 0 0 0.15rem #0d6efd !important;
+    box-shadow: 0 0 0 0.15rem #198754 !important;
     border: none !important;
 }
 
@@ -150,13 +157,14 @@ textarea:focus::placeholder {
     font-size: 20px !important;
     border-radius: 0.8em !important;
     resize: none !important;
-    padding: 1em !important;
+    padding: 0.5em !important;
     margin-left: 0.5em !important;
-}
-
-.textAAA:focus {
-    box-shadow: 0 0 0 0.15rem #0d6efd !important;
+    background-color: #686c7e !important;
     border: none !important;
+    color: #fff !important;
+}
+.textA3 {
+    height: 100px;
 }
 
 .cate_btn {
