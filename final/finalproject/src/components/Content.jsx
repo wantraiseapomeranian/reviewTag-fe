@@ -25,6 +25,7 @@ import MemberEditPassword from "./member/MemberEditPassword";
 import ReviewSearch from "./review/ReviewUpdate";
 import SearchResult from "./Contents/SearchResult";
 import PointMain from "./Point/PointMain";
+import SlideContents from "./Contents/SlideContents";
 
 
 export default function Content() {
@@ -52,7 +53,8 @@ export default function Content() {
                     </Route>
                     <Route path="/contents/detail/:contentsId" element={<ContentsDetail/>}></Route>
                     <Route path="/contents/searchResult/:query" element={<SearchResult/>}></Route>
-
+                    <Route path="/contents/slide" element={<SlideContents/>}></Route>
+                    
 
                     {/* 회원 페이지 */}
                     <Route path="/point/main" element={<PointMain/>}></Route>

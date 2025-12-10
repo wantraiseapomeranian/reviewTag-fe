@@ -137,7 +137,7 @@ export default function ContentsListByGenre() {
                 </div>
             </div>
         ) : (
-            <div className="container m-4">
+            <div className="container">
                 <div className="row mt-4">
                     <div className="col">
                         <h3 className="text-light">🎬 '{genreName}' 부문 컨텐츠 </h3>
