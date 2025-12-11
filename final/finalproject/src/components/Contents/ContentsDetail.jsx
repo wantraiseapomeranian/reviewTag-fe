@@ -122,7 +122,6 @@ export default function ContentsDetail() {
             watchlistContent: contentsId,
             watchlistMember: loginId,
         };
-        console.log(watchlistCheckData);
         try {
             const { data } = await axios.post("/watchlist/check", watchlistCheckData);
             if (data.hasWatchlist === true) {
@@ -286,6 +285,7 @@ export default function ContentsDetail() {
             ? review.reviewEtime.replace('T', ' ').substring(0, 16)
             : review.reviewWtime.replace('T', ' ').substring(0, 16);
 
+            console.log(review);
         return (
             <div className="row mt-4 p-3 review-card">
                 <div className="col mt-2">
@@ -293,7 +293,7 @@ export default function ContentsDetail() {
                         to={`/review/${contentsId}/${review.reviewNo}`}>
                         <div className="d-flex justify-content-between">
                             <h4 className="text-light">
-                                {review.reviewWriter}{review.reviewEtime ? " (수정됨)" : ""}
+                                {review.memberNickname}({review.reviewWriter}){review.reviewEtime ? " (수정됨)" : ""}
                             </h4>
                             <p className="text-light">{formattedDate}</p>
                         </div>
