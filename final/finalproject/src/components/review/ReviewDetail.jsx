@@ -5,6 +5,10 @@ import { accessTokenState, loginIdState, refreshTokenState } from "../../utils/j
 import { useParams } from "react-router-dom";
 import axios from "axios";
 import "./review.css";
+import { FaStar } from "react-icons/fa";
+import { FaHeart } from "react-icons/fa";
+import { FaShare } from "react-icons/fa6";
+import { IoHeartCircleSharp } from "react-icons/io5";
 
 const TMDB_IMAGE_BASE_URL = "https://image.tmdb.org/t/p/w500";
 
@@ -175,25 +179,37 @@ export default function ReviewDetail() {
     //render
     return (<>
         <div className="container">
-            <div className="row mb-3">
-                <div className="col  d-flex justify-content-center">
+            <div className="row">
+                <div className="col d-flex justify-content-between align-items-center">
                     {/* 본인이면  mainTitleB 버튼 나와서 수정, 삭제  모달*/}
-                    <h5 className="mainTitle">리뷰</h5>
-                </div>
-                <div className="col d-flex justify-content-end">
+                    <span className="mainTitle mx-auto">리뷰</span>
                     <button className="mainTitleB" type="button"><BsThreeDotsVertical /></button>
                 </div>
-                <div>
-                    <span>{reviewData.reviewWriter}</span>
-                    <span>몇일 전!!</span>
+                <div className="mt-4 mb-4">
+                    <span className="userId">{reviewData.reviewWriter}</span>
+                    <span className="time ms-3">몇일 전!!</span>
                 </div>
-                <div>{contentsDetail.contentsTitle}</div>
-                <div>{review.reviewRating}별점</div>
-                <div>{review.reviewPrice}가격 없으면 공백</div>
-                <hr />
-                <div>{review.reviewText}</div>
-                <div className="col">
-                    <span>{review.reviewLike}좋아요</span>
+                <div className="col title mb-2">
+                    {contentsDetail.contentsTitle}
+                </div>
+                <div className="d-flex align-items-center mb-3">
+                    <span className="me-2">내 평가</span>
+                    <span><FaStar className="littleStar me-1 mb-1" />{review.reviewRating}</span>
+                    <span className="ms-3">{review.reviewPrice}원</span>
+                </div>
+                <hr className="HR" />
+                <div className="reviewText">{review.reviewText}</div>
+                <div className="col iconBox">
+                    <div>
+                        <span><IoHeartCircleSharp className="me-2 iconH" />
+                            <span style={{fontSize:"20px"}}>{review.reviewLike}개</span>
+                        </span>
+                    </div>
+                    <hr className="HR"/>
+                    <div>
+                        <span><FaHeart className="me-2 icon ms-1" />좋아요</span>
+                        <span className="ms-4"><FaShare className="me-2 icon" />공유하기</span>
+                    </div>
                 </div>
             </div>
         </div>

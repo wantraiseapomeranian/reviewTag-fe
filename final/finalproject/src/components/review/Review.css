@@ -277,9 +277,39 @@ textAA:focus::placeholder {
 }
 .mainTitle {
     font-weight: bold !important;
+    font-size: 20px;
 }
 .mainTitleB {
     background-color: transparent;
     border: none;
     color: #fff;
+}
+.userId {
+    font-size: 20px;
+}
+.time {
+    color: gray;
+}
+.title {
+    font-size: 22px;
+    font-weight: bold;
+}
+.littleStar {
+    color: rgb(221, 221, 221);
+}
+.reviewText {
+    font-weight: bold;
+    font-size: 18px;
+    height: 800px;
+}
+.iconH {
+    font-size: 25px;
+}
+.icon {
+    font-size: 18px;
+}
+.iconBox {
+    background-color: rgb(54, 54, 54);
+    padding: 1em;
+    border-radius: 0.8em;
 }
