@@ -4,29 +4,29 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import axios from "axios";
 import { Link } from "react-router-dom";
 import "./member.css";
-import { FaStar } from "react-icons/fa";
-export default function MemberMymovie(){
-//통합 state
-const [loginid, setLoginId] = useAtom(loginIdState);
-const [loginNickname, setLoginNickname] = useAtom(loginNicknameState);
+import { FaHeart, FaStar } from "react-icons/fa";
+export default function MemberMymovie() {
+    //통합 state
+    const [loginid, setLoginId] = useAtom(loginIdState);
+    const [loginNickname, setLoginNickname] = useAtom(loginNicknameState);
 
 
-//state
-const [hasReview, setHasReview] = useState(false);
-const [myReview, setMyReview] = useState([]);
-const TMDB_IMAGE_BASE_URL = "https://image.tmdb.org/t/p/w500";
-    
-//callback
-const loadData = useCallback(async ()=>{
-    const {data} = await axios.get(`/member/myreview/${loginid}`)
-    setMyReview(data);
-    if(data.length !== 0) {
-        setHasReview(true);
-    }
-}, [loginid]);
+    //state
+    const [hasReview, setHasReview] = useState(false);
+    const [myReview, setMyReview] = useState([]);
+    const TMDB_IMAGE_BASE_URL = "https://image.tmdb.org/t/p/w500";
 
-//effect
-    useEffect(()=>{
+    //callback
+    const loadData = useCallback(async () => {
+        const { data } = await axios.get(`/member/myreview/${loginid}`)
+        setMyReview(data);
+        if (data.length !== 0) {
+            setHasReview(true);
+        }
+    }, [loginid]);
+
+    //effect
+    useEffect(() => {
         loadData();
     }, [loadData]);
 
@@ -39,49 +39,55 @@ const loadData = useCallback(async ()=>{
         return text.substr(0, 10);
     }, []);
 
-//render
-return(<>
-    <h1 className="text-center"> {loginNickname}님의 리뷰</h1>
+    const getFormattedPrice = useCallback((price) => {
+        return price.toLocaleString('ko-KR');
+    }, []);
 
-    {hasReview === false && (
+    //render
+    return (<>
+        <h1 className="text-center"> {loginNickname}님의 리뷰</h1>
+
+        {hasReview === false && (
+            <div className="row mt-4">
+                <Link to="/review/write" className="col-6 offset-3 btn btn-secondary">신규 리뷰작성</Link>
+            </div>
+        )}
+
         <div className="row mt-4">
-            <Link to="/review/write" className="col-6 offset-3 btn btn-secondary">신규 리뷰작성</Link>
-        </div>
-    )} 
-
- <div className="row mt-2">
-    {myReview.map((review) => (
-        <div className="col-6 mt-2" key={review.reviewNo}>
-            <hr/>
-            <Link to={`/review/${review.reviewContents}/${review.reviewNo}`} className="reviewWrapper">
-                <div className="row mt-2">
-                    <div className="col-4 d-flex justify-content-center">
-                        <img className="img-fluid" src={getPosterUrl(review.contentsPosterPath)}  style={{ height: "200px", objectFit: "cover", borderRadius: "4px" }}/>
-                    </div>
-                    <div className="col-8 text-light ">
-                            <div className="card-title fs-3 text-truncate">
-                                {review.contentsTitle}
+            {myReview.map((review) => (
+                <div className="col-6 col-sm-12 mx-2 my-2 mypage-review-card justify-content-between" key={review.reviewNo}>
+                    <Link to={`/review/${review.reviewContents}/${review.reviewNo}`} className="reviewWrapper">
+                        <div className="row mt-2">
+                            <div className="col-4 d-flex justify-content-center">
+                                <img className="img-fluid" src={getPosterUrl(review.contentsPosterPath)} style={{ height: "200px", objectFit: "cover", borderRadius: "4px" }} />
                             </div>
-                            <div>
-                                <div className="d-flex flex-nowrap  justify-content-start">
-                                {[1, 2, 3, 4, 5].map((num) => (
-                                    <FaStar key={num} className={num <= review.reviewRating ? "fullStarReview" : "emptyStarReview"}/>
-                                ))}
+                            <div className="col-8 text-light ">
+                                <div className="card-title fs-4 text-truncate">
+                                    {review.contentsTitle}
                                 </div>
-                                <div className="d-flex flex-nowrap justify-content-end">
-                                    <span>평가가치 : <span className="text-danger fs-5">{review.reviewPrice}</span> 원</span>
+                                <div className="mt-2">
+                                    <div className="d-flex flex-nowrap">
+                                        {[1, 2, 3, 4, 5].map((num) => (
+                                            <FaStar key={num} className={num <= review.reviewRating ? "fullStarReview" : "emptyStarReview"} />
+                                        ))}
+                                    </div>
+                                    <div className="d-flex flex-nowrap mt-2">
+                                        <span>평가가치 : 
+                                            <span className="review-price-text me-2 ms-1">{getFormattedPrice(review.reviewPrice)}</span>
+                                            원</span>
+                                    </div>
+                                    <div className="d-flex flex-nowrap mt-2">
+                                        <span>작성일 :  <span className="text-muted">{getFormattedDate(review.reviewWtime)}</span></span>
+                                    </div>
+                                </div>
+                                <div className="mt-4">
+                                    <span className="text-light px-4 py-2 rounded-pill myreview-like"><FaHeart className="text-danger mb-1 me-1" /> {review.reviewLike}</span>
                                 </div>
                             </div>
-                            <div  style={{ height: "80px"}}></div>
-                            <div className="mt-2 d-flex justify-content-between">
-                                <span className="text-warning">좋아요: {review.reviewLike}</span>
-                                <span className="text-secondary">{getFormattedDate(review.reviewWtime)}</span>
-                            </div>
-                    </div>         
+                        </div>
+                    </Link>
                 </div>
-            </Link>
+            ))}
         </div>
-    ))}
-    </div>
     </>)
 }

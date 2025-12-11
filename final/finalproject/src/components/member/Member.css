@@ -21,19 +21,21 @@
 
 /* 입력 포커스 */
 .member-form .form-control:focus {
-  background:rgba(255, 255, 255, 0.856);
+  background: rgba(255, 255, 255, 0.856);
 }
 
 /* 유효성 메시지 */
 .member-form .valid-feedback {
-  color: #7cff90; /* 초록빛 강조 */
+  color: #7cff90;
+  /* 초록빛 강조 */
 }
 
 .member-form .invalid-feedback {
-  color: #e67474; /* 붉은색 강조 */
+  color: #e67474;
+  /* 붉은색 강조 */
 }
 
-/* 버튼 스타일 */ 
+/* 버튼 스타일 */
 .member-form .btn {
   background: #f86d6d;
   border: none;
@@ -63,47 +65,70 @@
 
 /* 마이페이지용 */
 .mypage-table-wrapper {
-    max-width: 600px;
-    margin: 30px auto;
-    border-radius: 12px;
-    background: #fff;
-    padding: 20px;
-    box-shadow: 0 4px 18px rgba(0,0,0,0.08);
+  max-width: 600px;
+  margin: 30px auto;
+  border-radius: 12px;
+  background: #fff;
+  padding: 20px;
+  box-shadow: 0 4px 18px rgba(0, 0, 0, 0.08);
 }
 
 .mypage-table-wrapper h2 {
-    font-size: 1.4rem;
-    margin-bottom: 20px;
-    font-weight: 600;
+  font-size: 1.4rem;
+  margin-bottom: 20px;
+  font-weight: 600;
 }
 
 .mypage-table td:first-child {
-    width: 150px;
-    font-weight: 600;
-    color: #555;
+  width: 150px;
+  font-weight: 600;
+  color: #555;
 }
 
 .mypage-table td:last-child {
-    color: #222;
+  color: #222;
 }
 
 .fullStarReview {
-    color: rgb(255, 201, 25);
-    font-size: 18px;
-    margin-right: 0.2em;
+  color: rgb(255, 201, 25);
+  font-size: 18px;
+  margin-right: 0.2em;
 }
+
 .emptyStarReview {
-    color: rgb(214, 214, 214);
-    font-size: 18px;
-    margin-right: 0.2em;
+  color: rgb(214, 214, 214);
+  font-size: 18px;
+  margin-right: 0.2em;
 }
 
 .reviewTitle {
   font-size: 30px;
   text-decoration: none;
-  color : rgb(255, 149, 149);
+  color: rgb(255, 149, 149);
 }
 
 .reviewWrapper {
   text-decoration: none;
+}
+
+.mypage-review-card {
+  border-radius: 0.8em !important;
+  padding: 0.2em !important;
+  background-color: rgb(80, 79, 79) !important;
+  border: none !important;
+  color: #fff !important;
+  max-width: 700px !important;
+  min-width: 450px !important;
+}
+.mypage-review-card:hover { 
+  filter: brightness(0.9);
+}
+
+.review-price-text {
+  color: rgb(255, 149, 149);
+}
+
+.myreview-like {
+   background-color: rgba(255, 255, 255, 0.1);
+   backdrop-filter: blur(5px);
 }
