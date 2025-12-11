@@ -91,13 +91,8 @@ return(<>
                     </li>
 
                     {/* contents */}
-                    <li className="nav-item dropdown ">
-                        <a className="nav-link dropdown-toggle" data-bs-toggle="dropdown" href="#" role="button"
-                            aria-haspopup="true" aria-expanded="false"><span><MdMovie /></span></a>
-                        <div className="dropdown-menu">
-                            <Link className="nav-link"  to="/contents/searchTitle"><span>검색</span> </Link>
-                            <Link className="nav-link"  to="/contents/genreList"><span>장르</span></Link>
-                        </div>
+                    <li className="nav-item" onClick={closeMenu}>    
+                        <Link className="nav-link"  to="/contents/genreList"><span className="fs-5"><MdMovie className="mb-2" /></span></Link>
                     </li>
                     {/* 리뷰 메뉴사용x
                     <li className="nav-item dropdown ">
