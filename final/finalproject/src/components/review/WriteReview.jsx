@@ -1,6 +1,6 @@
 import axios from "axios";
 import { useCallback, useEffect, useMemo, useState } from "react"
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { toast } from "react-toastify";
 import { FaStar } from "react-icons/fa";
 import "./review.css";
@@ -9,6 +9,7 @@ import { useAtom } from "jotai";
 import { BsThreeDotsVertical } from "react-icons/bs";
 import { FaHeart } from "react-icons/fa";
 import { FaShare } from "react-icons/fa6";
+
 
 const TMDB_IMAGE_BASE_URL = "https://image.tmdb.org/t/p/w500";
 
@@ -59,6 +60,7 @@ export default function WriteReview() {
         reviewWriter: loginId
     };
 
+    const navigate = useNavigate();
 
     //effect
     useEffect(() => {
@@ -70,23 +72,6 @@ export default function WriteReview() {
             setStatusMessage("로딩중...")
         }
     });
-
-    // // 전체 리뷰 조회
-    // useEffect(() => {
-    //     const fetchAll = async () => {
-    //         try {
-    //             const { data } = await axios.get(`/review/reviewContents/${contentsId}`, {
-    //                 headers: {
-    //                     Authorization: `Bearer ${accessToken}`
-    //                 }
-    //             });
-    //             setAllReviews(data);
-    //         } catch (error) {
-    //             console.error("전체 리뷰 조회 실패:", error);
-    //         }
-    //     }
-    //     if (accessToken) fetchAll(); // 토큰이 있어야 호출
-    // }, [contentsId, accessToken]);
 
     // 로그인 시 내 리뷰 조회
     useEffect(() => {
@@ -136,13 +121,14 @@ export default function WriteReview() {
                 toast.success("등록 완료");
                 setIsUpdateReview(true);
                 setMyReview(reviewData)
+                navigate(`/contents/detail/${contentsId}`);
             }
         }
         catch (error) {
             console.error("오류발생 : ", error);
             toast.error("리뷰 등록 실패");
         }
-    }, [review, loginId, accessToken]);
+    }, [review, loginId, accessToken, contentsId]);
 
     // setMyReview(reviewData);
 
@@ -461,9 +447,7 @@ export default function WriteReview() {
                     </div>
 
                     {/* 스포 리뷰  spoCheck*/}
-                    <div className="mt-4">
-                    </div>
-                    <div className="col textAA3 mt-1 mx-auto spoCheck">
+                    {/* <div className="col textAA3 mt-1 mx-auto spoCheck">
                         <div className="row d-flex justify-content-center align-items-center mt-4">
                             <div className="col-auto mt-5">
                                 <h3 className="spoText" >스포일러가 포함된 리뷰입니다</h3>
@@ -472,7 +456,7 @@ export default function WriteReview() {
                         <div className="d-flex">
                             <button className="spoButton me-4 mt-2"><h5 style={{ fontWeight: "bold" }}>확인하기</h5></button>
                         </div>
-                    </div>
+                    </div> */}
 
                 </div>
 

@@ -1,0 +1,30 @@
+.HR {
+    color: #969bb3 ;
+}
+
+.review-card {
+    height: 270px !important;
+    font-size: 20px !important;
+    border-radius: 0.8em !important;
+    resize: none !important;
+    padding: 0.5em !important;
+    margin-left: 0.5em !important;
+    background-color: #3e3e42 !important;
+    border: none !important;
+    color: #fff !important;
+}
+
+.myreview-card {
+    height: 270px !important;
+    font-size: 20px !important;
+    border-radius: 0.8em !important;
+    resize: none !important;
+    padding: 0.5em !important;
+    margin-left: 0.5em !important;
+    background-color: #686c7e !important;
+    border: none !important;
+    color: #fff !important;
+}
+
+
+

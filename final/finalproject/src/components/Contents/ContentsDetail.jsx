@@ -1,17 +1,19 @@
 import axios from "axios";
 import { useCallback, useEffect, useMemo, useState } from "react";
 
-import { FaQuestion } from "react-icons/fa";
-import { useNavigate, useParams, Outlet, useLocation } from "react-router-dom";
+import { FaQuestion, FaShare } from "react-icons/fa";
+import { useNavigate, useParams, Outlet, useLocation, Link } from "react-router-dom";
 
 import { FaBookmark, FaChevronUp, FaHeart, FaPencil, FaRegEye, FaStar } from "react-icons/fa6";
 import { FcMoneyTransfer } from "react-icons/fc";
 
-import "./SearchAndSave.css"
+import "./SearchAndSave.css";
+import "./Contents.css";
 import { useAtom } from "jotai";
 import { loginIdState } from "../../utils/jotai";
 import { toast } from "react-toastify";
 import { set } from "lodash";
+import { BsThreeDotsVertical } from "react-icons/bs";
 
 const TMDB_IMAGE_BASE_URL = "https://image.tmdb.org/t/p/w500";
 
@@ -48,13 +50,15 @@ export default function ContentsDetail() {
     const [statusMessage, setStatusMessage] = useState("");
     //리뷰 목록 state
     const [reviewList, setReviewList] = useState([]);
+    //나의 리뷰 state
+    const [myReview, setMyReview] = useState(null);
 
     //effect
     //처음에 컨텐츠 정보와 리뷰 리스트를 불러오는 effect
     useEffect(() => {
         loadData();
         loadReview();
-    }, []);
+    }, [contentsId]);
 
     //북마크시 contentsLike를 갱신하기 위한 effect
     useEffect(() => {
@@ -72,6 +76,19 @@ export default function ContentsDetail() {
         checkWatchlist();
     }, [loginId, contentsId]);
 
+    // 로그인 시 내 리뷰 조회
+    useEffect(() => {
+        if (!loginId) return;
+        setIsLoading(true);
+        const fetchMyReview = async () => {
+            const { data } = await axios.get(`/review/user/${contentsId}/${loginId}`);
+            setMyReview(data); // 없으면 null
+        };
+        fetchMyReview();
+        setIsLoading(false);
+    }, [loginId, contentsId]);
+
+
     //callback
     //contents 상세 정보
     const loadData = useCallback(async () => {
@@ -86,7 +103,7 @@ export default function ContentsDetail() {
         setIsLoading(true);
         try {
             const { data } = await axios.get(`/review/list/${contentsId}`);
-            console.log("넘어오는데이터:", data);
+            // console.log("넘어오는데이터:", data);
             const reviewlist = [
                 ...data.map(review => ({ ...review }))
             ];
@@ -208,6 +225,15 @@ export default function ContentsDetail() {
         return formattedDate;
     }, [contentsDetail.contentsReleaseDate]);
 
+    //나의 리뷰 날짜 형식 변경
+    const myReviewDate = useMemo(() => {
+        if (!myReview) return "";
+        const formattedDate = myReview.reviewEtime
+            ? myReview.reviewEtime.replace('T', ' ').substring(0, 16)
+            : myReview.reviewWtime.replace('T', ' ').substring(0, 16);
+        return formattedDate
+    }, [myReview]);
+
     /// 리뷰 목록 모듈화
     function ReviewItem({ review, loginId }) {
         const [isLiked, setIsLiked] = useState(false);
@@ -240,57 +266,93 @@ export default function ContentsDetail() {
             }
         };
 
+        // 공유
+        const handleShare = async () => {
+            try {
+                const shareUrl = `${window.location.origin}/review/${contentsId}/${review.reviewNo}`;
+
+                // 클립보드에 복사
+                await navigator.clipboard.writeText(shareUrl);
+                // 성공 토스트 메시지
+                toast.success("클립보드에 링크 복사!");
+            }
+            catch (error) {
+                console.error("복사실패: ", error);
+            }
+        };
+
         // 날짜 포맷
         const formattedDate = review.reviewEtime
             ? review.reviewEtime.replace('T', ' ').substring(0, 16)
             : review.reviewWtime.replace('T', ' ').substring(0, 16);
 
         return (
-            <div className="row mt-4 p-3 shadow rounded dark-bg-wrapper">
+            <div className="row mt-4 p-3 review-card">
                 <div className="col mt-2">
-                    <div className="d-flex justify-content-between">
-                        <h4 className="text-light">
+                    <Link className="text-decoration-none link-body-emphasis text-light"
+                        to={`/review/${contentsId}/${review.reviewNo}`}>
+                        <div className="d-flex justify-content-between">
+                            <h4 className="text-light">
+                                {review.reviewWriter}{review.reviewEtime ? " (수정됨)" : ""}
+                            </h4>
+                            <p className="text-light">{formattedDate}</p>
+                        </div>
 
-                            {review.reviewWriter}{review.reviewEtime ? " (수정됨)" : ""}
-                        </h4>
-                        <p className="text-light">{formattedDate}</p>
-                    </div>
+                        {/* 별점 */}
+                        <div className="mt-1 d-flex align-items-center">
+                            {[1, 2, 3, 4, 5].map((num) => (
+                                <FaStar key={num} style={{ color: num <= review.reviewRating ? "#ffc107" : "#444", marginRight: "2px" }} />
+                            ))}
+                            <span className="ms-2 text-light me-2">{review.reviewRating}점 • </span>
 
-                    {/* 별점 */}
-                    <div className="mt-1">
-                        {[1, 2, 3, 4, 5].map((num) => (
-                            <FaStar key={num} style={{ color: num <= review.reviewRating ? "#ffc107" : "#444", marginRight: "2px" }} />
-                        ))}
-                        <span className="ms-2 text-light small me-2">{review.reviewRating}점</span>
-                        • <span className="ms-2"><FcMoneyTransfer className="me-1" />{review.reviewPrice} 원</span>
-                    </div>
+                            <span className="ms-2 text-light"><FcMoneyTransfer className="me-1" />{review.reviewPrice} 원</span>
+                        </div>
 
-                    {/* 내용 (스포일러) */}
-                    <div className="mt-4">
-                        {review.reviewSpoiler === "Y" && !showSpoiler ? (
-                            <p onClick={() => setShowSpoiler(true)} className="text-danger fw-bold" style={{ cursor: "pointer" }}>
-                                🚨 스포일러가 포함된 리뷰입니다. (클릭하여 보기)
-                            </p>
-                        ) : (
-                            <p className="break-word text-light">{review.reviewText}</p>
-                        )}
-                    </div>
-
+                        {/* 내용 (스포일러) */}
+                        <div className="mt-4">
+                            {review.reviewSpoiler === "Y" && !showSpoiler ? (
+                                <p onClick={() => setShowSpoiler(true)} className="text-danger fw-bold" style={{ cursor: "pointer" }}>
+                                    🚨 스포일러가 포함된 리뷰입니다. (클릭하여 보기)
+                                </p>
+                            ) : (
+                                <p className="break-word text-light text-truncate">{review.reviewText}</p>
+                            )}
+                        </div>
+                        <hr className="HR mt-5" />
+                    </Link>
                     {/* 좋아요 버튼 */}
-                    <div className="text-end">
-                        <span
-                            className={`d-inline-block px-2 pb-2 pt-1 rounded ${isLiked ? "bg-danger" : ""}`}
-                            style={{ cursor: "pointer", transition: "0.3s" }}
-                            onClick={handleLikeToggle}
-                        >
-                            <span className="fs-4 me-2">👍🏻</span>
+                    <div className="text-start">
+                        <span style={{ cursor: "pointer", }} onClick={handleLikeToggle}>
+                            <span className="fs-4 me-2">
+                                <FaHeart className={`${isLiked ? "text-danger" : ""}`} style={{ transition: "0.3s", }} />
+                            </span>
                             <span className="fs-5">{likeCount}</span>
                         </span>
+                        <button type="button" className="shareButton" onClick={handleShare}>
+                            <FaShare className="share ms-4" />
+                            <span className="ms-2">공유</span>
+                        </button>
                     </div>
                 </div>
+
             </div>
         );
     }
+
+    // 공유
+    const handleShare = async () => {
+        try {
+            const shareUrl = `${window.location.origin}/review/${contentsId}/${myReview.reviewNo}`;
+
+            // 클립보드에 복사
+            await navigator.clipboard.writeText(shareUrl);
+            // 성공 토스트 메시지
+            toast.success("클립보드에 링크 복사!");
+        }
+        catch (error) {
+            console.error("복사실패: ", error);
+        }
+    };
 
     //render
     return (
@@ -326,7 +388,7 @@ export default function ContentsDetail() {
                                     <div>방영일 : {formattedDate}</div>
                                     <div>평점 : {contentsDetail.contentsVoteAverage.toFixed(1)} / 10</div>
                                     <div className="mt-4 text-center">
-                                        <div className="d-inline-flex align-items-center justify-content-center px-4 py-2 rounded-pill">
+                                        <div className="d-inline-flex align-items-center justify-content-center px-4 py-2 rounded-pill like-wrapper">
                                             <FaRegEye className="me-2 text-info fs-3" />
                                             <span className="fw-bold fs-5">{contentsDetail.contentsLike.toLocaleString()}</span>
                                         </div>
@@ -370,6 +432,61 @@ export default function ContentsDetail() {
                     </>
                 )}
 
+                {/* 내 리뷰 */}
+                {!isLoading && myReview && (
+                    <div className="mt-4">
+                        <div className="row mt-5">
+                            <div className="col">
+                                <h3 className="text-light">내 리뷰</h3>
+                            </div>
+                            <hr className="mt-2 HR mb-4" />
+                        </div>
+                        <div className="row mt-4 p-3 myreview-card">
+                            <div className="col mt-2">
+                                <Link className="text-decoration-none link-body-emphasis text-light"
+                                    to={`/review/${contentsId}/${myReview.reviewNo}`}>
+                                    <div className="d-flex justify-content-between">
+                                        <h4 className="text-light">
+                                            {contentsDetail.contentsTitle}{myReview.reviewEtime ? " (수정됨)" : ""}
+                                        </h4>
+                                        <p className="text-light">{myReviewDate}</p>
+                                    </div>
+
+                                    {/* 별점 */}
+                                    <div className="mt-1 d-flex align-items-center">
+                                        {[1, 2, 3, 4, 5].map((num) => (
+                                            <FaStar key={num} style={{ color: num <= myReview.reviewRating ? "#ffc107" : "#444", marginRight: "2px" }} />
+                                        ))}
+                                        <span className="ms-2 text-light me-2">{myReview.reviewRating}점 • </span>
+
+                                        <span className="ms-2 text-light"><FcMoneyTransfer className="me-1" />{myReview.reviewPrice} 원</span>
+                                    </div>
+
+                                    {/* 내용 (스포일러) */}
+                                    <div className="mt-4">
+                                        <p className="break-word text-light text-truncate">{myReview.reviewText}</p>
+                                    </div>
+                                    <hr className="HR mt-5" />
+                                </Link>
+                                {/* 공유 버튼 */}
+                                <div className="text-start">
+                                    <span>
+                                        <span className="fs-4 me-2">
+                                            <FaHeart className="text-danger"/>
+                                        </span>
+                                        <span className="fs-5">{myReview.reviewLike}</span>
+                                    </span>
+                                    <button type="button" className="shareButton" onClick={handleShare}>
+                                        <FaShare className="share ms-4" />
+                                        <span className="ms-2">공유</span>
+                                    </button>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+                )}
+
                 {/* 리뷰 목록 */}
                 {!isLoading && reviewList && reviewList.length > 0 && (
                     <div className="mt-5">
@@ -377,6 +494,7 @@ export default function ContentsDetail() {
                             <div className="col">
                                 <h3 className="text-light">리뷰</h3>
                             </div>
+                            <hr className="mt-2 HR mb-4" />
                         </div>
                         {reviewList.map((review) => (
                             <ReviewItem
