@@ -5,6 +5,7 @@ import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
 import { Link } from "react-router-dom";
 import "./Home.css";
+import { FaHeart, FaRegEye } from "react-icons/fa6";
 
 
 const TMDB_IMAGE_BASE_URL = "https://image.tmdb.org/t/p/w500";
@@ -93,15 +94,24 @@ export default function Home() {
 
     //[카드 렌더링 함수]
     const renderCard = (content) => (
-        <div key={content.contentsId} className="px-2 mb-4 ">
+        <div key={content.contentsId} className="px-2 mb-4 mt-2">
             <div className="card h-100 text-white content-wrapper" style={{ backgroundColor: "#212529" }}>
                 <Link className="text-decoration-none link-body-emphasis" to={`/contents/detail/${content.contentsId}`}>
-                    <img
-                        src={getPosterUrl(content.contentsPosterPath)}
-                        className="card-img-top"
-                        alt={content.contentsTitle}
-                        style={{ height: "350px", objectFit: "cover" }}
-                    />
+                    {/* 이미지 & 뱃지 영역 */}
+                    <div className="position-relative">
+                        <img src={getPosterUrl(content.contentsPosterPath)}
+                            className="card-img-top"
+                            alt={content.contentsTitle}
+                            style={{ height: "350px", objectFit: "cover" }}/>
+                        {/* 북마크 수 뱃지 */}
+                        <div className="position-absolute top-0 end-0 m-2 px-2 py-2 rounded bg-black bg-opacity-75 text-white shadow-sm"
+                            style={{ fontSize: "0.9rem", backdropFilter: "blur(2px)" }}>
+                            <span className="fw-bold fs-5">
+                                <FaRegEye className="text-info me-2 mb-1" />
+                                {content.contentsLike ? content.contentsLike.toLocaleString() : 0}
+                            </span>
+                        </div>
+                    </div>
                     <div className="card-body shadow">
                         <h5 className="card-title text-truncate text-light">{content.contentsTitle}</h5>
                         <p className="card-text">
@@ -122,19 +132,14 @@ export default function Home() {
         </div>
     );
 
-    
+
     return (<>
-    <div className="container mt-4"> 
-            <div className="row">
-                <div className="col">
-                    <h2>홈</h2>
-                    <h3>환영합니다</h3>
-                </div>
-            </div>
+        <div className="container mt-5">
+
 
             {/* 1. TV 시리즈 슬라이더 */}
-            <div className="mb-5 mt-4">
-                <h3 className="mb-3 text-white">📺 인기 TV 시리즈</h3>
+            <div className="mt-4">
+                <h3 className="mb-4 text-white">📺 인기 TV 시리즈</h3>
                 <div className="p-2 pt-3 rounded series-wrapper" >
                     {tvList.length > 0 ? (
                         <Slider {...settings}>
@@ -146,9 +151,15 @@ export default function Home() {
                 </div>
             </div>
 
+            <div className="row mt-4">
+                <div className="col">
+
+                </div>
+            </div>
+
             {/* 2. 영화 슬라이더 */}
-            <div className="mb-5">
-                <h3 className="mb-3 text-white">🎬 최신 영화</h3>
+            <div className="mt-4">
+                <h3 className="mb-4 text-white">🎬 최신 영화</h3>
                 <div className="p-2 pt-3 rounded  series-wrapper">
                     {movieList.length > 0 ? (
                         <Slider {...settings}>

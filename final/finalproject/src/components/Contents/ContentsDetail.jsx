@@ -4,7 +4,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { FaQuestion } from "react-icons/fa";
 import { useNavigate, useParams, Outlet, useLocation } from "react-router-dom";
 
-import { FaBookmark, FaChevronUp, FaHeart, FaPencil, FaStar } from "react-icons/fa6";
+import { FaBookmark, FaChevronUp, FaHeart, FaPencil, FaRegEye, FaStar } from "react-icons/fa6";
 import { FcMoneyTransfer } from "react-icons/fc";
 
 import "./SearchAndSave.css"
@@ -20,7 +20,7 @@ const INITIAL_DETAIL = {
     contentsId: null, contentsTitle: "", contentsType: "",
     contentsOverview: "", contentsPosterPath: "", contentsBackdropPath: "",
     contentsVoteAverage: 0, contentsRuntime: 0, contentsReleaseDate: "",
-    contentsDirector: "", contentsMainCast: "", genreNames: [],
+    contentsDirector: "", contentsMainCast: "", genreNames: [], contentsLike: 0,
 };
 
 export default function ContentsDetail() {
@@ -50,11 +50,18 @@ export default function ContentsDetail() {
     const [reviewList, setReviewList] = useState([]);
 
     //effect
+    //처음에 컨텐츠 정보와 리뷰 리스트를 불러오는 effect
     useEffect(() => {
         loadData();
         loadReview();
     }, []);
 
+    //북마크시 contentsLike를 갱신하기 위한 effect
+    useEffect(() => {
+        loadData();
+    }, [loginId, hasWatchlist]);
+
+    //loading 상태에 따라 loadingMeassge를 변경하는 effect
     useEffect(() => {
         if (isLoading === true) {
             setStatusMessage("로딩중...")
@@ -79,7 +86,7 @@ export default function ContentsDetail() {
         setIsLoading(true);
         try {
             const { data } = await axios.get(`/review/list/${contentsId}`);
-            console.log("넘어오는데이터:",data);
+            console.log("넘어오는데이터:", data);
             const reviewlist = [
                 ...data.map(review => ({ ...review }))
             ];
@@ -243,7 +250,7 @@ export default function ContentsDetail() {
                 <div className="col mt-2">
                     <div className="d-flex justify-content-between">
                         <h4 className="text-light">
-                            
+
                             {review.reviewWriter}{review.reviewEtime ? " (수정됨)" : ""}
                         </h4>
                         <p className="text-light">{formattedDate}</p>
@@ -288,7 +295,7 @@ export default function ContentsDetail() {
     //render
     return (
         <>
-            <div className="container mt-4">
+            <div className="container mt-5">
                 {isLoading && (
                     <span>{statusMessage}</span>
                 )}
@@ -297,8 +304,9 @@ export default function ContentsDetail() {
                 {/* 상세정보 카드 */}
                 {!isLoading && contentsDetail.contentsId && (
                     <>
-                        <div className="row p-3 shadow rounded dark-bg-wrapper">
-                            <div className="text-end mt-4" >
+                        <div className="row mt-4 p-3 shadow rounded dark-bg-wrapper">
+
+                            <div className="text-end" onClick={changeWatchlist}>
                                 {hasWatchlist === false ? (
                                     <span className="badge bg-danger px-3 btn" onClick={changeWatchlist} style={{ cursor: "pointer" }}><h5><FaBookmark className="text-light" /></h5></span>
                                 ) : (
@@ -317,6 +325,12 @@ export default function ContentsDetail() {
                                     <div>장르 : {renderGenres}</div>
                                     <div>방영일 : {formattedDate}</div>
                                     <div>평점 : {contentsDetail.contentsVoteAverage.toFixed(1)} / 10</div>
+                                    <div className="mt-4 text-center">
+                                        <div className="d-inline-flex align-items-center justify-content-center px-4 py-2 rounded-pill like-wrapper">
+                                            <FaRegEye className="me-2 text-info fs-3" />
+                                            <span className="fw-bold fs-5">{contentsDetail.contentsLike.toLocaleString()}</span>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
 
@@ -365,10 +379,10 @@ export default function ContentsDetail() {
                             </div>
                         </div>
                         {reviewList.map((review) => (
-                            <ReviewItem 
-                                key={review.reviewNo} 
-                                review={review} 
-                                loginId={loginId} 
+                            <ReviewItem
+                                key={review.reviewNo}
+                                review={review}
+                                loginId={loginId}
                             />
                         ))}
                     </div>

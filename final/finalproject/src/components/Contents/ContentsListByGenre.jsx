@@ -2,6 +2,7 @@ import axios from "axios";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { throttle, debounce } from "lodash";
+import { FaRegEye } from "react-icons/fa6";
 
 const TMDB_IMAGE_BASE_URL = "https://image.tmdb.org/t/p/w500";
 
@@ -131,9 +132,9 @@ export default function ContentsListByGenre() {
 
     return (<>
         {loading.current ? (
-            <div className="row mt-4">
+            <div className="row mt-4 ms-3">
                 <div className="col">
-                    <span>로딩중...🏃‍♀️</span>
+                    <span className="fs-3">로딩중...🏃‍♀️</span>
                 </div>
             </div>
         ) : (
@@ -154,12 +155,21 @@ export default function ContentsListByGenre() {
                             <div className="col-6 col-md-3 mb-3" key={content.contentsId}>
                                 <div className="card h-100 bg-dark text-white border-secondary">
                                     <Link className="text-decoration-none link-body-emphasis" to={`/contents/detail/${content.contentsId}`} >
-                                        <img
-                                            src={getPosterUrl(content.contentsPosterPath)}
-                                            className="card-img-top"
-                                            alt={content.contentsTitle}
-                                            style={{ height: "350px", objectFit: "cover" }}
-                                        />
+                                        {/* 이미지 & 뱃지 영역 */}
+                                        <div className="position-relative">
+                                            <img src={getPosterUrl(content.contentsPosterPath)}
+                                                className="card-img-top"
+                                                alt={content.contentsTitle}
+                                                style={{ height: "350px", objectFit: "cover" }} />
+                                            {/* 북마크 수 뱃지 */}
+                                            <div className="position-absolute top-0 end-0 m-2 px-2 py-2 rounded bg-black bg-opacity-75 text-white shadow-sm"
+                                                style={{ fontSize: "0.9rem", backdropFilter: "blur(2px)" }}>
+                                                <span className="fw-bold fs-5">
+                                                    <FaRegEye className="text-info me-2 mb-1" />
+                                                    {content.contentsLike ? content.contentsLike.toLocaleString() : 0}
+                                                </span>
+                                            </div>
+                                        </div>
                                         <div className="card-body">
                                             <h5 className="card-title text-truncate text-light">{content.contentsTitle}</h5>
                                             <p className="card-text">
