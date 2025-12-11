@@ -104,6 +104,6 @@
   color : rgb(255, 149, 149);
 }
 
-.card {
-
+.reviewWrapper {
+  text-decoration: none;
 }

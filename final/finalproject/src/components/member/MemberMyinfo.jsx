@@ -1,5 +1,5 @@
 import { useAtom, useSetAtom } from "jotai"
-import { clearLoginState, loginIdState, loginLevelState } from "../../utils/jotai"
+import { clearLoginState, loginIdState, loginLevelState, loginNicknameState } from "../../utils/jotai"
 import { useCallback, useEffect, useState } from "react";
 import axios from "axios";
 import "./Member.css";
@@ -9,6 +9,8 @@ import { Link, useNavigate, useParams } from "react-router-dom";
 
 export default function MemberMyinfo(){
     const {loginId} = useParams();
+    const [loginNickname, setLoginNickname] = useAtom(loginNicknameState);
+    
     const [memberData, setMemberData] = useState({});
         const clearLogin = useSetAtom(clearLoginState);
     const navigate = useNavigate();
@@ -31,7 +33,7 @@ export default function MemberMyinfo(){
         clearLogin();
     })
     return(<>
-        <h1 className="text-center"> {loginId}님의 정보</h1>
+        <h1 className="text-center"> {loginNickname}님의 정보</h1>
 
         <div className="mypage-table-wrapper">
         <table className="table table-hover mypage-table">

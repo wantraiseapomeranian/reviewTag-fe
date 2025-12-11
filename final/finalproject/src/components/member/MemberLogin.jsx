@@ -3,12 +3,13 @@ import { useCallback } from "react";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import {useAtom} from "jotai";
-import { accessTokenState, loginIdState, loginLevelState, refreshTokenState } from "../../utils/jotai";
+import { accessTokenState, loginIdState, loginLevelState, loginNicknameState, refreshTokenState } from "../../utils/jotai";
 import "./Member.css";
 export default function MemberLogin(){
     //통합 state
     const [loginId , setLoginId] = useAtom(loginIdState);
     const [loginLevel , setLoginLevel] = useAtom(loginLevelState);
+    const [loginNickname, setLoginNickname] = useAtom(loginNicknameState);
     const [accessToken , setAccessToken] = useAtom(accessTokenState);
     const [refreshToken , setRefreshToken] = useAtom(refreshTokenState);
     // 도구
@@ -34,10 +35,11 @@ export default function MemberLogin(){
 
             // Authorization에 accesstoken 저장
             axios.defaults.headers.common["Authorization"] = `Bearer ${data.accessToken}`;
-            
+            console.log(data);
             //통합 state 저장
             setLoginId(data.loginId);
             setLoginLevel(data.loginLevel);
+            setLoginNickname(data.loginNickname);
             setAccessToken(data.accessToken);
             setRefreshToken(data.refreshToken);
             // state저장

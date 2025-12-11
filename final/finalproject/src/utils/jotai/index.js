@@ -3,9 +3,9 @@ import { atomWithStorage } from "jotai/utils";
 
 export const loginIdState = atomWithStorage("loginIdState", "", sessionStorage);
 export const loginLevelState = atomWithStorage("loginLevelState", "", sessionStorage);
+export const loginNicknameState = atomWithStorage("loginNicknameStoreage","", sessionStorage);
 export const accessTokenState = atomWithStorage("accessTokenState", "", sessionStorage);
 export const refreshTokenState= atomWithStorage("refreshTokenState", "", sessionStorage);
-
 
 export const loginState = atom(get=>{
     const loginId = get(loginIdState);
@@ -26,6 +26,7 @@ export const clearLoginState = atom(
     (get, set)=>{
         set(loginIdState, "");
         set(loginLevelState, "");
+        set(loginNicknameState, "");
         set(accessTokenState, "");
         set(refreshTokenState, "");
     }
