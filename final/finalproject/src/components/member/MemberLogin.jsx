@@ -57,6 +57,7 @@ export default function MemberLogin(){
 
     //render
     return(<>
+    <div className="container">
         <div className="row">
         <div className="member-form col-sm-8 offset-2">
         <div className="row">
@@ -99,6 +100,7 @@ export default function MemberLogin(){
                 </button>
             </div>
         </div>
+</div>
 </div>
 </div>
     </>)
