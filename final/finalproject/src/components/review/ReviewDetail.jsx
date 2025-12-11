@@ -2,13 +2,14 @@ import { useAtom } from "jotai";
 import { BsThreeDotsVertical } from "react-icons/bs";
 import { useCallback, useEffect, useMemo, useState } from "react"
 import { accessTokenState, loginIdState, refreshTokenState } from "../../utils/jotai";
-import { useParams } from "react-router-dom";
+import { Link, useParams } from "react-router-dom";
 import axios from "axios";
 import "./review.css";
 import { FaStar } from "react-icons/fa";
 import { FaHeart } from "react-icons/fa";
 import { FaShare } from "react-icons/fa6";
 import { IoHeartCircleSharp } from "react-icons/io5";
+import { toast } from "react-toastify";
 
 const TMDB_IMAGE_BASE_URL = "https://image.tmdb.org/t/p/w500";
 
@@ -19,10 +20,8 @@ const INITIAL_DETAIL = {
     contentsDirector: "", contentsMainCast: "", genreNames: [],
 };
 
-
 export default function ReviewDetail() {
     const { contentsId, reviewNo } = useParams();
-
 
     //state
     const [loginId, setLoginId] = useAtom(loginIdState);
@@ -174,7 +173,25 @@ export default function ReviewDetail() {
     }, [contentsDetail.contentsReleaseDate]);
 
 
+    //공유하기(링크복사)
+    const [link, setLink] = useState("");
+    const copyLink = ()=> {
+        const currentUrl = window.location.href;
+        setLink(currentUrl);
+        navigator.clipboard.writeText(currentUrl)
+            .then(()=> alert("링크가 복사되었습니다!"))
+            .catch(err=>console.error("복사 실패", err));
+    };
 
+    //좋아요
+    const [like, setLike] = useState(false);
+    const [likeCount, setLikeCount] = useState(reviewData.reviewLike);
+
+    const clickLike = ()=> {
+        //클릭하는거에 따라 좋아요 수가 올라가고 내려가게 
+        setLike(prev => !prev);
+        setLikeCount(prev => like ? prev - 1 : prev + 1);
+    }
 
     //render
     return (<>
@@ -200,15 +217,15 @@ export default function ReviewDetail() {
                 <hr className="HR" />
                 <div className="reviewText">{review.reviewText}</div>
                 <div className="col iconBox">
-                    <div>
+                    <div className="ms-2">
                         <span><IoHeartCircleSharp className="me-2 iconH" />
-                            <span style={{fontSize:"20px"}}>{review.reviewLike}개</span>
+                            <span style={{fontSize:"20px"}}>{review.reviewLike+likeCount}개</span>
                         </span>
                     </div>
                     <hr className="HR"/>
-                    <div>
-                        <span><FaHeart className="me-2 icon ms-1" />좋아요</span>
-                        <span className="ms-4"><FaShare className="me-2 icon" />공유하기</span>
+                    <div className="mb-1">
+                        <button onClick={clickLike} style={{color: like ? "#7188faff" : "white"}} type="button" className="mainTitleB"><FaHeart className="me-2 icon ms-1" />좋아요</button>
+                        <button onClick={copyLink}  type="button" className="ms-2 mainTitleB"><FaShare className="me-2 icon" />공유하기</button>
                     </div>
                 </div>
             </div>

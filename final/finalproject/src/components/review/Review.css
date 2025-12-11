@@ -310,6 +310,6 @@ textAA:focus::placeholder {
 }
 .iconBox {
     background-color: rgb(54, 54, 54);
-    padding: 1em;
+    padding: 0.9em;
     border-radius: 0.8em;
 }
