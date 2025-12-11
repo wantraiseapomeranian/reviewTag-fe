@@ -153,30 +153,13 @@ export default function WriteReview() {
 
     const handleStarClick = (num) => {
         setRating(num);  // 클릭한 별 번호로 rating 설정
-        setPrice(num * 3000); //별의 개수로 price 설정
+        const calcPrice = num * 3000;
+        setPrice(calcPrice.toLocaleString('ko-KR')); //별의 개수로 price를 콤마 찍어서 설정
+
         setReview(prev => ({
             ...prev,
             reviewRating: num,
-            reviewPrice: price
-        }));
-    };
-
-    const handleStarByPrice = (e) => {
-        let currentPrice = parseInt(price) || 0;
-        let newRating = 0;
-
-        if(currentPrice>=15000) {
-            newRating = 5;
-        }
-        else {
-            newRating = Math.floor(currentPrice/3000);
-        }
-
-        setRating(newRating);
-        setReview(prev => ({
-            ...prev,
-            reviewRating: newRating,
-            reviewPrice: currentPrice
+            reviewPrice: calcPrice
         }));
     };
 
@@ -185,7 +168,25 @@ export default function WriteReview() {
         const regex = /[^0-9]+/g;
         const replacement = e.target.value.replace(regex, "");
         const number = replacement.length == 0 ? "" : parseInt(replacement);
-        setPrice(number);
+
+        const formattedNumber = number === 0 ? "" : number.toLocaleString('ko-KR');
+        setPrice(formattedNumber);
+
+        let newRating =  0;
+        if (number >= 15000) {
+            newRating = 5;
+        } else {
+            newRating = Math.floor(number / 3000);
+        }
+
+        setRating(newRating);
+
+        setReview(prev => ({
+            ...prev,
+            reviewPrice: number,
+            reviewRating: newRating
+        }));
+
     }, [price]);
 
     //Memo
@@ -224,12 +225,12 @@ export default function WriteReview() {
 
                 <div className="row mt-4 p-4 shadow review-wrapper rounded">
                     {/* 이미지 영역 */}
-                    <div className="col-4 col-sm-4">
+                    <div className="col-12 col-md-4">
                         <img src={getPosterUrl(contentsDetail.contentsPosterPath)} style={{ height: "550px", objectFit: "cover", borderRadius: "4px", }}
                             alt={`${contentsDetail.contentsTitle} 포스터`} className="text-center w-100" />
                     </div>
                     {/* 텍스트 영역 */}
-                    <div className="col-8 col-sm-8">
+                    <div className="col-12 col-md-8">
                         <div>
                             <h3>{contentsDetail.contentsTitle}</h3>
                         </div>
@@ -286,7 +287,7 @@ export default function WriteReview() {
                             <div className="mt-1 ms-3 input-group price-wrapper text-center w-25">
                                 <input type="text" inputMode="numerice"
                                     className="price form-control price-bar text-light"
-                                    value={price} onChange={changeNum} onBlur={handleStarByPrice} />
+                                    value={price} onChange={changeNum}/>
                                 <span className="input-group-text price-label text-light">원</span>
                             </div>
                             </div>
