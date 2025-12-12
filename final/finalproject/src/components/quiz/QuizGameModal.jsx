@@ -5,7 +5,8 @@ import { quizApi } from "./api/quizApi";
 import Swal from "sweetalert2";
 import "./QuizGameModal.css";
 import withReactContent from 'sweetalert2-react-content';
-import { FaRegCircle, FaXmark } from "react-icons/fa6";
+import { FaDoorOpen, FaRegCircle, FaTrophy, FaXmark } from "react-icons/fa6";
+import { FaRedo } from "react-icons/fa";
 
 // SweetAlert와 리액트 연결
 const MySwal = withReactContent(Swal);
@@ -63,6 +64,10 @@ export default function QuizGameModal({ show, onClose, contentsId }) {
     const [quizList, setQuizList] = useAtom(quizListAtom);
     const [userAnswers, setUserAnswers] = useAtom(userAnswersAtom);
 
+    // 게임 상태 관리 (PLAYING / RESULT)
+    const [gameState, setGameState] = useState('PLAYING');
+    // 점수 결과 저장
+    const [scoreResult, setScoreResult] = useState({ correct: 0, total: 0, points: 0 });
 
     //effect
     useEffect(() => {
@@ -87,7 +92,7 @@ export default function QuizGameModal({ show, onClose, contentsId }) {
         return () => {
             window.removeEventListener('keydown', handleEscKey);
         };
-    }, [show, onClose]);
+    }, [show, onClose]); 
 
 
     //callback
@@ -95,6 +100,7 @@ export default function QuizGameModal({ show, onClose, contentsId }) {
     const loadQuizGame = useCallback(async () => {
         try {
             // 서버에서 랜덤 5문제 가져오기
+            setGameState('PLAYING');
             const data = await quizApi.getQuizGame(contentsId);
             setQuizList(data);     // 퀴즈 문제 데이터를 저장
             setCurrentIndex(0);    // 인덱스 초기화
@@ -171,17 +177,14 @@ export default function QuizGameModal({ show, onClose, contentsId }) {
 
         try {
             // 로직 수행
+            let correctCount = 0;
             const logList = quizList.map(quiz => {
                 const myAnswer = userAnswers[quiz.quizId];
 
-                const dbAnswer = quiz.quizAnswer;
-
-                //디버깅용
-                //console.group(`문제 ID: ${quiz.quizId}`);
-                //console.log(`내 답안: '${myAnswer}' (${typeof myAnswer})`);
-                //console.log(`찐 정답: '${dbAnswer}' (${typeof dbAnswer})`);
-
                 const isCorrect = (myAnswer.trim() === quiz.quizAnswer.trim()) ? 'Y' : 'N';
+
+                if (isCorrect === 'Y') correctCount++;
+
                 return {
                     quizLogQuizId: quiz.quizId,
                     quizLogIsCorrect: isCorrect
@@ -190,16 +193,24 @@ export default function QuizGameModal({ show, onClose, contentsId }) {
 
             await quizApi.submitQuizLog(logList);
 
-            //성공 알림
-            await Swal.fire({
-                title: "제출 완료!",
-                text: "결과 페이지로 이동합니다.",
-                icon: "success",
-                confirmButtonColor: "#59cc9d",
-                confirmButtonText: "확인"
+            //결과 상태 업데이트 및 화면 전환
+            setScoreResult({
+                correct: correctCount,
+                total: quizList.length,
+                points: correctCount * 20
             });
+            setGameState('RESULT');
 
-            onClose(); // 모달 닫기
+            //성공 알림
+            // await Swal.fire({
+            //     title: "제출 완료!",
+            //     text: "결과 페이지로 이동합니다.",
+            //     icon: "success",
+            //     confirmButtonColor: "#59cc9d",
+            //     confirmButtonText: "확인"
+            // });
+
+            // onClose(); // 모달 닫기
 
         } catch (error) {
             console.error(error);
@@ -211,7 +222,7 @@ export default function QuizGameModal({ show, onClose, contentsId }) {
             });
         }
 
-    }, [quizList, userAnswers, onClose]);
+    }, [quizList, userAnswers]);
 
     //신고 버튼 핸들러
     const handleReport = () => {
@@ -242,7 +253,7 @@ export default function QuizGameModal({ show, onClose, contentsId }) {
                 return currentReportData;
             }
         }).then(async (result) => {
-            
+
             if (result.isConfirmed) {
                 const { type, content } = result.value;
 
@@ -283,7 +294,7 @@ export default function QuizGameModal({ show, onClose, contentsId }) {
 
 
     // 데이터가 로딩되지 않았으면 아무것도 그리지 않음
-    if (!show || !currentQuiz) return null;
+    if (!show || (!currentQuiz && gameState === 'PLAYING')) return null;
 
 
     // 보기 배열 생성 (MULTI: 4개, OX: 2개)
@@ -302,108 +313,143 @@ export default function QuizGameModal({ show, onClose, contentsId }) {
             <div className="modal-dialog modal-dialog-centered modal-lg">
                 <div className="modal-content">
 
-                    {/* 모달 헤더 */}
-                    <div className="modal-header bg-light d-flex justify-content-between align-items-center">
-                        <h5 className="modal-title fw-bold">
-                            Quiz ({currentIndex + 1} / {quizList.length})
-                        </h5>
-                        
-                        {/* 우측 상단 버튼 그룹 (신고 + 닫기) */}
-                        <div className="d-flex align-items-center gap-2">
-                            <button 
-                                type="button" 
-                                className="btn btn-outline-danger btn-sm btn-report" 
-                                onClick={handleReport}
-                            >
-                                🚨 신고
-                            </button>
-                            <button type="button" className="btn-close" onClick={onClose}></button>
+                    {/* 결과 화면 */}
+                    {gameState === 'RESULT' ? (
+                        <div className="modal-body p-5 text-center animate__animated animate__fadeIn">
+                            <div className="mb-4">
+                                <FaTrophy size={80} className="text-warning mb-3 drop-shadow" />
+                                <h2 className="fw-bold">퀴즈 종료!</h2>
+                                <p className="text-muted">수고하셨습니다 🎉</p>
+                            </div>
+
+                            <div className="card bg-light border-0 mb-4 mx-auto" style={{ maxWidth: '400px' }}>
+                                <div className="card-body">
+                                    <div className="row g-0">
+                                        <div className="col-6 border-end">
+                                            <div className="text-muted small">정답</div>
+                                            <div className="fs-3 fw-bold text-success">
+                                                {scoreResult.correct} <span className="fs-6 text-muted">/ {scoreResult.total}</span>
+                                            </div>
+                                        </div>
+                                        <div className="col-6">
+                                            <div className="text-muted small">획득 포인트</div>
+                                            <div className="fs-3 fw-bold text-primary">
+                                                +{scoreResult.points} P
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div className="d-grid gap-2 col-8 mx-auto">
+                                <button className="btn btn-primary btn-lg shadow-sm" onClick={loadQuizGame}>
+                                    <FaRedo className="me-2" /> 다시 도전하기
+                                </button>
+                                <button className="btn btn-outline-secondary" onClick={onClose}>
+                                    <FaDoorOpen className="me-2" /> 나가기
+                                </button>
+                            </div>
                         </div>
-                    </div>
+                    ) : (
+                        <>
+                        {/* 플레이 화면 */}
+                            <div className="modal-header bg-light d-flex justify-content-between align-items-center">
+                                <h5 className="modal-title fw-bold">
+                                    Quiz ({currentIndex + 1} / {quizList.length})
+                                </h5>
 
-                    {/* 모달 바디 (Body) */}
-                    <div className="modal-body p-4 text-center">
-
-                        {/* 문제 질문 텍스트 */}
-                        <h3 className="mb-4 fw-bold">{currentQuiz.quizQuestion}</h3>
-
-                        {/* 보기 버튼들이 들어갈 그리드 컨테이너 */}
-                        <div className="d-grid gap-3 col-10 col-md-8 mx-auto">
-                            {/* options 배열을 순회하며 버튼 생성 */}
-                            {options.map((option, idx) => {
-
-                                //보기
-                                const optionNumber = idx + 1;
-                                // 사용자가 선택한 답인지 확인 (선택됨: true / 아님: false)
-                                const isSelected = userAnswers[currentQuiz.quizId] === String(optionNumber);
-                                // 현재 문제가 OX 퀴즈인지 확인
-                                const isOX = currentQuiz.quizQuestionType === 'OX';
-
-                                return (
+                                {/* 우측 상단 버튼 그룹 (신고 + 닫기) */}
+                                <div className="d-flex align-items-center gap-2">
                                     <button
-                                        key={idx}
-                                        // 선택 여부에 따라 버튼 색상 변경 (Primary / Secondary )
-                                        className={`btn py-3 fs-5 ${isSelected ? 'btn-primary' : 'btn-outline-secondary'}`}
-                                        onClick={() => handleOptionClick(optionNumber)}
+                                        type="button"
+                                        className="btn btn-outline-danger btn-sm btn-report"
+                                        onClick={handleReport}
                                     >
-                                        {/* OX 퀴즈일 때와 일반 퀴즈일 때 내용을 다르게 보여줌 */}
-                                        {isOX ? (
-                                            // [OX 퀴즈] 아이콘 + 텍스트 조합
-                                            <span className={`icon-wrapper ${!isSelected ? (option === 'O' ? 'text-success' : 'text-danger') : ''}`}>
-                                                {/* O면 초록색 원, X면 빨간색 엑스 아이콘 표시 */}
-                                                {option === 'O' ? <FaRegCircle className="me-2" /> : <FaXmark className="me-2 2x" />}
-                                            </span>
-                                        ) : (
-                                            // [일반 퀴즈] 텍스트만 표시
-                                            option
-                                        )}
+                                        🚨 신고
                                     </button>
-                                );
-                            })}
-                        </div>
-                    </div>
+                                    <button type="button" className="btn-close" onClick={onClose}></button>
+                                </div>
+                            </div>
 
-                    <div className="modal-footer justify-content-between">
+                            {/* 모달 바디 (Body) */}
+                            <div className="modal-body p-4 text-center">
 
-                        {/* 이전 버튼 */}
-                        <div className="modal-footer-btn-wrapper">
-                            {/* 첫 번째 문제(index 0)가 아닐 때만 '이전' 버튼 표시 */}
-                            {currentIndex > 0 && (
-                                <button className="btn btn-secondary w-100" onClick={handlePrev}>
-                                    &lt; 이전
-                                </button>
-                            )}
-                        </div>
+                                {/* 문제 질문 텍스트 */}
+                                <h3 className="mb-4 fw-bold">{currentQuiz.quizQuestion}</h3>
 
-                        {/* 진행 상태 */}
-                        <div>
-                            {quizList.map((_, idx) => (
-                                <span
-                                    key={idx}
-                                    // 현재 문제 번호면 bg-primary, 아니면 bg-secondary
-                                    className={`badge rounded-pill mx-1 ${idx === currentIndex ? 'bg-primary' : 'bg-secondary'}`}
-                                >
-                                    {idx + 1}
-                                </span>
-                            ))}
-                        </div>
+                                {/* 보기 버튼들이 들어갈 그리드 컨테이너 */}
+                                <div className="d-grid gap-3 col-10 col-md-8 mx-auto">
+                                    {/* options 배열을 순회하며 버튼 생성 */}
+                                    {options.map((option, idx) => {
 
-                        {/* 다음 또는 제출 버튼 */}
-                        <div className="modal-footer-btn-wrapper">
-                            {currentIndex < quizList.length - 1 ? (
-                                // 마지막 문제가 아니면 [다음] 버튼
-                                <button className="btn btn-success w-100" onClick={handleNext}>
-                                    다음 &gt;
-                                </button>
-                            ) : (
-                                // 마지막 문제면 [제출] 버튼
-                                <button className="btn btn-danger w-100" onClick={handleSubmit}>
-                                    제출
-                                </button>
-                            )}
-                        </div>
-                    </div>
+                                        //보기
+                                        const optionNumber = idx + 1;
+                                        // 사용자가 선택한 답인지 확인
+                                        const isSelected = userAnswers[currentQuiz.quizId] === String(optionNumber);
+                                        // 현재 문제가 OX 퀴즈인지 확인
+                                        const isOX = currentQuiz.quizQuestionType === 'OX';
 
+                                        return (
+                                            <button
+                                                key={idx}
+                                                className={`btn py-3 fs-5 ${isSelected ? 'btn-primary' : 'btn-outline-secondary'}`}
+                                                onClick={() => handleOptionClick(optionNumber)}
+                                            >
+                                                {/* OX 퀴즈일 때와 일반 퀴즈일 때 내용을 다르게 보여줌 */}
+                                                {isOX ? (
+                                                    <span className={`icon-wrapper ${!isSelected ? (option === 'O' ? 'text-success' : 'text-danger') : ''}`}>
+                                                        {option === 'O' ? <FaRegCircle className="me-2" /> : <FaXmark className="me-2 2x" />}
+                                                    </span>
+                                                ) : (
+                                                    option
+                                                )}
+                                            </button>
+                                        );
+                                    })}
+                                </div>
+                            </div>
+
+                            <div className="modal-footer justify-content-between">
+
+                                {/* 이전 버튼 */}
+                                <div className="modal-footer-btn-wrapper">
+                                    {/* 첫 번째 문제(index 0)가 아닐 때만 '이전' 버튼 표시 */}
+                                    {currentIndex > 0 && (
+                                        <button className="btn btn-secondary w-100" onClick={handlePrev}>
+                                            &lt; 이전
+                                        </button>
+                                    )}
+                                </div>
+
+                                {/* 진행 상태 */}
+                                <div>
+                                    {quizList.map((_, idx) => (
+                                        <span
+                                            key={idx}
+                                            className={`badge rounded-pill mx-1 ${idx === currentIndex ? 'bg-primary' : 'bg-secondary'}`}
+                                        >
+                                            {idx + 1}
+                                        </span>
+                                    ))}
+                                </div>
+
+                                {/* 다음 또는 제출 버튼 */}
+                                <div className="modal-footer-btn-wrapper">
+                                    {currentIndex < quizList.length - 1 ? (
+                                        // 마지막 문제가 아니면 [다음] 버튼
+                                        <button className="btn btn-success w-100" onClick={handleNext}>
+                                            다음 &gt;
+                                        </button>
+                                    ) : (
+                                        // 마지막 문제면 [제출] 버튼
+                                        <button className="btn btn-danger w-100" onClick={handleSubmit}>
+                                            제출
+                                        </button>
+                                    )}
+                                </div>
+                            </div>
+                        </>
+                    )}
                 </div>
             </div>
         </div>
