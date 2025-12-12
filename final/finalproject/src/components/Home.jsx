@@ -308,7 +308,7 @@ export default function Home() {
 
             {/* TV 시리즈 슬라이더 */}
             <div className="mt-4">
-                <h3 className="mb-4 text-white">📺 인기 TV 시리즈</h3>
+                <h3 className="mb-4 text-white">📺 최신 TV 시리즈</h3>
                 <div className="p-2 pt-3 rounded series-wrapper" >
                     {tvList.length > 0 ? (
                         <Slider {...settings}>

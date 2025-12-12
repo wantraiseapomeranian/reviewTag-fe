@@ -87,7 +87,7 @@ export default function SearchResult() {
             <div>
                 <div className="row mt-5">
                     <div className="col">
-                        <p className="text-light">{statusMessage}</p>
+                        <p className="text-light fs-4">{statusMessage}</p>
                     </div>
                 </div>
                 <div className="row">
@@ -99,11 +99,11 @@ export default function SearchResult() {
                                     <div className="d-flex align-items-center">
                                         <img src={getPosterUrl(result.posterPath)}
                                             alt={result.title}
-                                            style={{ width: "60px", height: "85px", objectFit: "cover", borderRadius: "4px" }}
+                                            style={{ width: "70px", height: "95px", objectFit: "cover", borderRadius: "4px" }}
                                             className="me-3" />
                                         <div style={{ flex: 1, minWidth: 0 }}>
-                                            <div className="text-light fw-bold text-truncate">{result.title}</div>
-                                            <div className="text-light small">
+                                            <div className="text-light fw-bold fs-5 text-truncate">{result.title}</div>
+                                            <div className="text-light">
                                                 {result.type} • {result.releaseDate}
                                             </div>
                                         </div>

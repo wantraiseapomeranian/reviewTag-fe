@@ -33,7 +33,7 @@ export default function MemberMyinfo(){
         clearLogin();
     })
     return(<>
-        <h1 className="text-center"> {loginNickname}님의 정보</h1>
+        <h1 className="text-center mt-4"> {loginNickname}님의 정보</h1>
 
         <div className="mypage-table-wrapper">
         <table className="table table-hover mypage-table">

@@ -32,7 +32,7 @@ export default function MemberMypage(){
 
     
     return(<>
-        <h1 className="text-center"> {loginNickname}님의 퀴즈</h1>
+        <h1 className="text-center mt-4"> {loginNickname}님의 퀴즈</h1>
         
         
         <div className="row mt-2">

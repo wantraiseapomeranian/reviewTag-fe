@@ -38,6 +38,8 @@ export default function GenreList() {
 
     //render
     return(<>
+        <div className="container">
+
         <div className="row genre-form">
             <div className="col p-4 rounded">
                     {/* <button className="btn me-2 mt-2"><Link to="/contents/genreList/listByGenre/전체" className="text-decoration-none link-body-emphasis">전체</Link></button> */}
@@ -49,6 +51,7 @@ export default function GenreList() {
                         </button>
                     ))}
             </div>
+        </div>
         </div>
 
         <div className="row mt-4">
