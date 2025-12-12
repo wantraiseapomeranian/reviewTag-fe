@@ -1,4 +1,6 @@
-import axios from "axios"; 
+import axios from "axios";
+
+const token = sessionStorage.getItem('accessTokenState'); 
 
 export const quizApi = {
 
@@ -64,7 +66,11 @@ export const quizApi = {
 
   // 전체 랭킹 확인
   getRanking: async (contentsId) => {
-    const response = await axios.get(`/quiz/log/list/ranking/${contentsId}`);
+    const response = await axios.get(`/quiz/log/list/ranking/${contentsId}`, {
+      headers: {
+        "Authorization": `Bearer ${token}`
+      }
+    });
     return response.data;
   },
 
@@ -76,7 +82,7 @@ export const quizApi = {
 
   //나의 통계 가져오기
   getMyStats: async (contentsId, memberId) => {
-        const response = await axios.get(`/quiz/log/stats/${contentsId}/${memberId}`);
-        return response.data;
-    },
+    const response = await axios.get(`/quiz/log/stats/${contentsId}/${memberId}`);
+    return response.data;
+  },
 };

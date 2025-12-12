@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { FaCrown, FaGamepad, FaPenNib, FaChartBar } from "react-icons/fa6";
 import { quizApi } from './api/quizApi';
 import { useOutletContext, useParams } from 'react-router-dom';
@@ -29,59 +29,61 @@ export default function QuizLanding() {
     const [topRanker, setTopRanker] = useState(null);
     const [myStats, setMyStats] = useState({ totalSolved: 0, bestScore: 0, rankPercent: 0, accuracy: 0 });
 
-    useEffect(() => {
+    const loadAllData = useCallback(async () => {
         if (!contentsId) return;
 
-        const loadAllData = async () => {
-            try {
-                //랭킹 1위 가져오기
-                const rankingList = await quizApi.getRanking(contentsId);
+        try {
+            //랭킹 1위 가져오기
+            const rankingList = await quizApi.getRanking(contentsId);
 
-                if (rankingList && rankingList.length > 0) {
-                    const numberOne = rankingList[0];
-                    setTopRanker({
-                        nickname: numberOne.memberNickname || "익명의 고수",
-                        score: numberOne.score || 0,
-                        //avatar: numberOne.memberImg || "https://via.placeholder.com/100"
-                    });
-                } else {
-                    setTopRanker(null);
-                }
-
-                //나의 통계 가져오기
-                if (loginId) {
-                    const statsData = await quizApi.getMyStats(contentsId, loginId);
-
-                    if (statsData) {
-                        //console.log("📊 내 통계 데이터:", statsData);
-                        // 상위 % 계산 (내등수 / 전체인원)
-                        let percent = 0;
-                        if (statsData.totalUsers > 0) {
-                            //기본 퍼센트 계산
-                            const rawPercent = (statsData.myRank / statsData.totalUsers) * 100;
-
-                            //소수점 올림 처리
-                            percent = Math.ceil(rawPercent);
-
-                            //계산된 값이 1 이하면
-                            if (statsData.myRank === 1) {
-                                percent = 1;
-                            }
-                        }
-
-                        setMyStats({
-                            totalSolved: statsData.totalSolved, // 푼 문제 수
-                            bestScore: statsData.myScore,       // 획득 점수
-                            rankPercent: percent,                // 상위 N%
-                            accuracy: statsData.accuracy
-                        });
-                    }
-                }
-
-            } catch (error) {
-                console.error("데이터 로딩 실패:", error);
+            if (rankingList && rankingList.length > 0) {
+                const numberOne = rankingList[0];
+                setTopRanker({
+                    nickname: numberOne.memberNickname || "익명의 고수",
+                    score: numberOne.score || 0,
+                    //avatar: numberOne.memberImg || "https://via.placeholder.com/100"
+                });
+            } else {
+                setTopRanker(null);
             }
-        };
+
+            //나의 통계 가져오기
+            if (loginId) {
+                const statsData = await quizApi.getMyStats(contentsId, loginId);
+
+                if (statsData) {
+                    //console.log("📊 내 통계 데이터:", statsData);
+                    // 상위 % 계산 (내등수 / 전체인원)
+                    let percent = 0;
+                    if (statsData.totalUsers > 0) {
+                        //기본 퍼센트 계산
+                        const rawPercent = (statsData.myRank / statsData.totalUsers) * 100;
+
+                        //소수점 올림 처리
+                        percent = Math.ceil(rawPercent);
+
+                        //계산된 값이 1 이하면
+                        if (statsData.myRank === 1) {
+                            percent = 1;
+                        }
+                    }
+
+                    setMyStats({
+                        totalSolved: statsData.totalSolved, // 푼 문제 수
+                        bestScore: statsData.myScore,       // 획득 점수
+                        rankPercent: percent,                // 상위 N%
+                        accuracy: statsData.accuracy
+                    });
+                }
+            }
+
+        } catch (error) {
+            console.error("데이터 로딩 실패:", error);
+        }
+    });
+
+    useEffect(() => {
+        if (!contentsId) return;
 
         loadAllData();
     }, [contentsId, loginId]);
@@ -129,8 +131,8 @@ export default function QuizLanding() {
                     title: '등록된 퀴즈가 없어요 텅~',
                     text: '첫 번째 출제자가 되어주시겠어요? ✍️',
                     showCancelButton: true,
-                    confirmButtonColor: '#198754', // 초록색 (출제 버튼 색)
-                    cancelButtonColor: '#6c757d',  // 회색
+                    confirmButtonColor: '#198754',
+                    cancelButtonColor: '#6c757d',
                     confirmButtonText: '네, 제가 낼게요!',
                     cancelButtonText: '다음에 할게요'
                 }).then((result) => {
@@ -269,7 +271,10 @@ export default function QuizLanding() {
             {showGameModal && (
                 <QuizGameModal
                     show={showGameModal}
-                    onClose={() => setShowGameModal(false)}
+                    onClose={() => {
+                        setShowGameModal(false);
+                        loadAllData();
+                    }}
                     contentsId={contentsId}
                 />
             )}
@@ -277,7 +282,10 @@ export default function QuizLanding() {
             {showCreateModal && (
                 <QuizCreateModal
                     show={showCreateModal}
-                    onClose={() => setShowCreateModal(false)}
+                    onClose={() => {
+                        setShowCreateModal(false);
+                        loadAllData();
+                    }}
                     contentsId={contentsId}
                 />
             )}
