@@ -141,6 +141,10 @@
   background: #fd0c0cde !important;
   font-weight: 700 !important;
 }
+.quiz-link{
+  color : rgb(195, 238, 255) !important;
+  text-decoration: none;
+}
 
 .table :hover {
   filter: brightness(0.9) !important;

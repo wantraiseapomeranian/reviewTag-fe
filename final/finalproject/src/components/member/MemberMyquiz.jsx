@@ -2,6 +2,7 @@ import { useAtom } from "jotai";
 import { loginIdState, loginNicknameState } from "../../utils/jotai";
 import { useCallback, useEffect, useState } from "react";
 import axios from "axios";
+import { Link } from "react-router-dom";
 
 
 
@@ -37,24 +38,28 @@ export default function MemberMypage(){
         
         <div className="row mt-2">
             <div className="col text-center">
-                <label className="fs-4 mb-2">내가 푼 퀴즈</label>
+                <label className="fs-4 mb-2 text-truncate ">내가 푼 퀴즈</label>
                 <table className="table table-responsive table-hover table-striped">
-                    <thead className="quiz-table-thead">
+                    <thead className="text-truncate  quiz-table-thead">
                         <tr>
+                            <td>콘텐츠</td>
                             <td>문제</td>
                             <td>정답여부</td>
                             <td>정답률</td>
                         </tr>
                     </thead>
                        {answerQuizList.map((answerQuiz)=>(
-                        <tbody key={answerQuiz.quizId}>
+                        <tbody key={answerQuiz.quizLogQuizId}>
                             <tr>
-                                <td className="quiz-question">{answerQuiz.quizQuestion}</td>
-                                {answerQuiz.quizLogIsCorrect==="Y" ? (
-                                    <td className="quiz-option quiz-correct">O</td>
-                                ) : (
-                                    <td className="quiz-option quiz-wrong">X</td>
-                                )}
+                                <td className="quiz-normal text-truncate">
+                                    <Link className="quiz-link" to={`/contents/detail/${answerQuiz.quizContentsId}`}>{answerQuiz.contentsTitle}</Link>
+                                </td>
+                                <td className="text-truncate quiz-question">{answerQuiz.quizQuestion}</td>
+                                    {answerQuiz.quizLogIsCorrect==="Y" ? (
+                                        <td className="quiz-option quiz-correct">O</td>
+                                    ) : (
+                                        <td className="quiz-option quiz-wrong">X</td>
+                                    )}
                                 <td className="quiz-normal"></td>
                             </tr>
                         </tbody>
@@ -66,7 +71,7 @@ export default function MemberMypage(){
 
         <div className="row mt-2">
             <div className="col text-center">
-                <label className="fs-4 mb-2">내가 등록한 퀴즈</label>
+                <label className="fs-4 mb-2 text-truncate ">내가 등록한 퀴즈</label>
                 <div className="table-responsive">
                     <table className="table table-responsive table-hover table-striped">
                         <thead>
