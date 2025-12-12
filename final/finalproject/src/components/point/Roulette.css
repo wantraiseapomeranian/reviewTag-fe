@@ -1,0 +1,71 @@
+/* 룰렛 전체 컨테이너 */
+.roulette-container {
+    background-color: #f8f9fa;
+    border-radius: 15px;
+}
+
+/* 룰렛 감싸는 틀 */
+.wheel-wrapper {
+    position: relative;
+    width: 300px;
+    height: 300px;
+    margin: 0 auto;
+    border: 10px solid #333;
+    border-radius: 50%;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+    overflow: hidden; /* 넘치는 부분 숨김 */
+    background: #fff;
+}
+
+/* 상단 화살표 (마커) */
+.wheel-marker {
+    position: absolute;
+    top: -5px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 40px;
+    color: #ff0000;
+    z-index: 10;
+    text-shadow: 0 2px 2px rgba(0,0,0,0.3);
+}
+
+/* 돌아가는 원판 */
+.wheel-board {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    /* 6등분 색상 (원하는 색으로 변경 가능) */
+    background: conic-gradient(
+        #FFD700 0deg 60deg,
+        #FF6347 60deg 120deg,
+        #87CEEB 120deg 180deg,
+        #98FB98 180deg 240deg,
+        #DDA0DD 240deg 300deg,
+        #FFA500 300deg 360deg
+    );
+    position: relative;
+}
+
+/* 내부 텍스트 배치를 위한 가상 영역 (선택사항) */
+.wheel-segment {
+    position: absolute;
+    width: 50%;
+    height: 50%;
+    top: 50%;
+    left: 50%;
+    transform-origin: 0% 0%; /* 중심축 설정 */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.segment-text {
+    position: absolute;
+    left: 40px; /* 중심으로부터의 거리 */
+    top: 10px;
+    transform: rotate(60deg); /* 텍스트 각도 보정 */
+    font-weight: bold;
+    color: #fff;
+    font-size: 14px;
+    text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
+}

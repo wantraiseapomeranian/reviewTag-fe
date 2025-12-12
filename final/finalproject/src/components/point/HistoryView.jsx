@@ -1,149 +1,162 @@
-import { useState, useEffect, useCallback, useMemo } from "react";
+import { useEffect, useState, useCallback } from "react";
 import axios from "axios";
-import { useAtomValue } from "jotai";
-import { loginIdState } from "../../utils/jotai";
-import moment from "moment";
+import "./PointMain.css"; 
 
 export default function HistoryView() {
-    const loginId = useAtomValue(loginIdState);
-    const [history, setHistory] = useState([]);
-    const [loading, setLoading] = useState(true);
+    const [historyList, setHistoryList] = useState([]);
     
-    // 탭 상태 관리 (ALL: 전체, GAIN: 획득, SPEND: 포인트사용, ITEM: 아이템사용)
-    const [filterType, setFilterType] = useState("ALL");
+    // 페이지네이션 상태
+    const [page, setPage] = useState(1);
+    const [totalPage, setTotalPage] = useState(0);
+    const [totalCount, setTotalCount] = useState(0);
 
-    // 내역 데이터 로드
+    // ★ [추가] 필터 상태 (all, earn, use, item)
+    const [filterType, setFilterType] = useState("all"); 
+
+    // 데이터 로드
     const loadHistory = useCallback(async () => {
-        if (!loginId) {
-            setLoading(false);
-            return;
-        }
         try {
-            setLoading(true);
-            const resp = await axios.get("/point/history");
-            setHistory(resp.data);
+            // ★ [수정] type 파라미터 추가
+            const resp = await axios.get(`/point/history?page=${page}&type=${filterType}`);
+            const data = resp.data;
+            
+            setHistoryList(data.list);
+            setTotalPage(data.totalPage);
+            setTotalCount(data.totalCount);
         } catch (e) {
-            console.error("포인트 내역 로드 실패:", e);
-            alert("포인트 내역을 불러오는 데 실패했습니다.");
-        } finally {
-            setLoading(false);
+            console.error(e);
         }
-    }, [loginId]);
+    }, [page, filterType]); // ★ filterType이 바뀌어도 실행되어야 함
 
     useEffect(() => {
         loadHistory();
     }, [loadHistory]);
 
-    // ⭐ 필터링 로직 (useMemo로 성능 최적화)
-    const filteredHistory = useMemo(() => {
-        if (filterType === "ALL") return history;
-
-        return history.filter(item => {
-            const amt = item.pointHistoryAmount;
-            
-            if (filterType === "GAIN") {
-                // 획득: 양수(+)
-                return amt > 0;
-            } 
-            else if (filterType === "SPEND") {
-                // 포인트 사용: 음수(-) (구매, 선물 등)
-                return amt < 0;
-            } 
-            else if (filterType === "ITEM") {
-                // 아이템 사용: 변동 없음(0) 이거나, 사유에 '사용'이 포함된 경우
-                // (보통 인벤토리 사용은 포인트 변동이 0입니다)
-                return amt === 0;
-            }
-            return true;
-        });
-    }, [history, filterType]);
-
-    // 탭 버튼 클릭 핸들러
-    const getTabClass = (type) => {
-        return `btn btn-sm ${filterType === type ? "btn-dark active" : "btn-outline-secondary"}`;
+    // ★ [추가] 필터 변경 핸들러 (필터 바꾸면 1페이지로 초기화)
+    const handleFilterChange = (type) => {
+        setFilterType(type);
+        setPage(1); 
     };
 
-    if (loading) return <div className="text-center py-5"><div className="spinner-border text-primary"></div></div>;
+    const handlePageChange = (newPage) => {
+        if (newPage >= 1 && newPage <= totalPage) {
+            setPage(newPage);
+        }
+    };
+
+    // 페이지네이션 렌더링 함수 (기존과 동일)
+    const renderPagination = () => {
+        if (totalPage === 0) return null;
+        const pageGroupSize = 10;
+        const currentGroup = Math.ceil(page / pageGroupSize); 
+        const startPage = (currentGroup - 1) * pageGroupSize + 1;
+        const endPage = Math.min(startPage + pageGroupSize - 1, totalPage);
+        const pages = [];
+        for (let i = startPage; i <= endPage; i++) pages.push(i);
+
+        return (
+            <div className="d-flex justify-content-center align-items-center gap-2 mt-4">
+                <button className="btn btn-sm btn-light border" onClick={() => handlePageChange(startPage - 1)} disabled={startPage === 1}>&lt;</button>
+                {pages.map(p => (
+                    <button key={p} className={`btn btn-sm fw-bold ${p === page ? 'btn-primary' : 'btn-light border'}`} onClick={() => handlePageChange(p)} style={{width: '32px'}}>{p}</button>
+                ))}
+                <button className="btn btn-sm btn-light border" onClick={() => handlePageChange(endPage + 1)} disabled={endPage === totalPage}>&gt;</button>
+            </div>
+        );
+    };
 
     return (
-        <div className="mt-4">
-            <div className="d-flex justify-content-between align-items-center mb-3">
-                <h5 className="text-muted fw-bold mb-0">
-                    {filterType === "ALL" && "전체 내역"}
-                    {filterType === "GAIN" && "포인트 획득 내역"}
-                    {filterType === "SPEND" && "포인트 사용 내역"}
-                    {filterType === "ITEM" && "아이템 사용 기록"}
-                    <span className="ms-2 small text-muted">({filteredHistory.length}건)</span>
-                </h5>
-
-                {/* ⭐ 탭 버튼 그룹 */}
-                <div className="btn-group" role="group">
-                    <button type="button" className={getTabClass("ALL")} onClick={() => setFilterType("ALL")}>전체</button>
-                    <button type="button" className={getTabClass("GAIN")} onClick={() => setFilterType("GAIN")}>획득 (+)</button>
-                    <button type="button" className={getTabClass("SPEND")} onClick={() => setFilterType("SPEND")}>사용 (-)</button>
-                    <button type="button" className={getTabClass("ITEM")} onClick={() => setFilterType("ITEM")}>아이템 사용</button>
+        <div className="history-container">
+            
+            {/* 상단 헤더 및 필터 영역 */}
+            <div className="d-flex justify-content-between align-items-end mb-3">
+                <div>
+                    <h5 className="fw-bold mb-2">이용 내역</h5>
+                    <span className="text-muted small">총 {totalCount}건의 내역이 있습니다.</span>
+                </div>
+                
+                {/* ★ [추가] 필터 버튼 그룹 */}
+                <div className="btn-group shadow-sm" role="group">
+                    <button 
+                        type="button" 
+                        className={`btn btn-sm ${filterType === 'all' ? 'btn-dark' : 'btn-outline-secondary'}`}
+                        onClick={() => handleFilterChange('all')}
+                    >
+                        전체
+                    </button>
+                    <button 
+                        type="button" 
+                        className={`btn btn-sm ${filterType === 'earn' ? 'btn-success' : 'btn-outline-secondary'}`}
+                        onClick={() => handleFilterChange('earn')}
+                    >
+                        획득 (+)
+                    </button>
+                    <button 
+                        type="button" 
+                        className={`btn btn-sm ${filterType === 'use' ? 'btn-danger' : 'btn-outline-secondary'}`}
+                        onClick={() => handleFilterChange('use')}
+                    >
+                        사용 (-)
+                    </button>
+                    <button 
+                        type="button" 
+                        className={`btn btn-sm ${filterType === 'item' ? 'btn-primary' : 'btn-outline-secondary'}`}
+                        onClick={() => handleFilterChange('item')}
+                    >
+                        아이템
+                    </button>
                 </div>
             </div>
 
-            {filteredHistory.length === 0 ? (
-                <div className="alert alert-light border text-center mt-4 py-5">
-                    <h5 className="text-secondary">📜 해당 내역이 없습니다.</h5>
-                </div>
-            ) : (
-                <div className="table-responsive">
-                    <table className="table table-hover align-middle shadow-sm">
-                        <thead className="table-primary">
-                            <tr>
-                                <th scope="col" style={{ width: '10%' }}>#</th>
-                                <th scope="col" style={{ width: '20%' }}>거래 일시</th>
-                                <th scope="col" style={{ width: '50%' }}>내용 (사유)</th>
-                                <th scope="col" className="text-end" style={{ width: '20%' }}>포인트 변화</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {filteredHistory.map((record, index) => {
-                                const isGain = record.pointHistoryAmount > 0;
-                                const isZero = record.pointHistoryAmount === 0;
-                                
-                                // 색상 처리: 획득(초록), 사용(빨강), 0(회색)
-                                let amountClass = "fw-bold text-secondary";
-                                let sign = "";
-                                if (isGain) {
-                                    amountClass = "text-success fw-bold";
-                                    sign = "+";
-                                } else if (!isZero) {
-                                    amountClass = "text-danger fw-bold";
-                                    sign = "-";
-                                }
+            {/* 테이블 영역 */}
+            <div className="table-responsive bg-white rounded shadow-sm">
+                <table className="table table-hover align-middle mb-0 text-center">
+                    <thead className="bg-light">
+                        <tr>
+                            <th width="10%">#</th>
+                            <th width="20%">날짜</th>
+                            <th width="50%" className="text-start">내용</th>
+                            <th width="20%">포인트</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {historyList.length === 0 ? (
+                            <tr><td colSpan="4" className="py-5 text-muted">해당 내역이 없습니다.</td></tr>
+                        ) : (
+                            historyList.map((item, index) => (
+                                <tr key={item.pointHistoryNo}>
+                                    <td className="text-muted text-small">
+                                        {totalCount - ((page - 1) * 10 + index)}
+                                    </td>
+                                    <td className="text-muted small">
+                                        {new Date(item.pointHistoryDate).toLocaleDateString()}
+                                    </td>
+                                    <td className="text-start">
+                                        <span className={`badge me-2 ${
+                                            item.pointHistoryAmount > 0 ? 'bg-success-subtle text-success' : 
+                                            item.pointHistoryAmount < 0 ? 'bg-danger-subtle text-danger' : 
+                                            'bg-primary-subtle text-primary'
+                                        }`}>
+                                            {item.pointHistoryAmount > 0 ? '획득' : item.pointHistoryAmount < 0 ? '사용' : '기록'}
+                                        </span>
+                                        {item.pointHistoryReason}
+                                    </td>
+                                    <td className={`fw-bold ${
+                                        item.pointHistoryAmount > 0 ? 'text-success' : 
+                                        item.pointHistoryAmount < 0 ? 'text-danger' : 'text-secondary'
+                                    }`}>
+                                        {item.pointHistoryAmount > 0 ? '+' : ''}
+                                        {item.pointHistoryAmount.toLocaleString()} P
+                                    </td>
+                                </tr>
+                            ))
+                        )}
+                    </tbody>
+                </table>
+            </div>
 
-                                const displayAmount = Math.abs(record.pointHistoryAmount).toLocaleString();
-
-                                return (
-                                    <tr key={record.pointHistoryNo}>
-                                        <td>{index + 1}</td>
-                                        <td>{moment(record.pointHistoryTime).format('YY.MM.DD HH:mm')}</td>
-                                        <td>
-                                            <div className="d-flex align-items-center">
-                                                {/* 아이콘/뱃지로 구분감 주기 */}
-                                                {isGain && <span className="badge bg-success bg-opacity-10 text-success me-2 border border-success border-opacity-25">획득</span>}
-                                                {record.pointHistoryAmount < 0 && <span className="badge bg-danger bg-opacity-10 text-danger me-2 border border-danger border-opacity-25">구매/지출</span>}
-                                                {isZero && <span className="badge bg-secondary bg-opacity-10 text-secondary me-2 border border-secondary border-opacity-25">Log</span>}
-                                                
-                                                <span className="text-truncate">{record.pointHistoryReason}</span>
-                                            </div>
-                                        </td>
-                                        <td className="text-end">
-                                            <span className={amountClass}>
-                                                {sign} {displayAmount} P
-                                            </span>
-                                        </td>
-                                    </tr>
-                                );
-                            })}
-                        </tbody>
-                    </table>
-                </div>
-            )}
+            {/* 페이지네이션 렌더링 */}
+            {renderPagination()}
         </div>
     );
 }

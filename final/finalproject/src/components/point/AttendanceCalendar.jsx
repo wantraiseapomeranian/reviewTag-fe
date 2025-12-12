@@ -6,6 +6,8 @@ import axios from "axios";
 import { useAtomValue } from "jotai";
 import { loginIdState } from "../../utils/jotai";
 import "./PointMain.css"; // 스타일 시트
+// ★ [Toast 1] toast 임포트
+import { toast } from "react-toastify";
 
 // 요일 표시 에러 방지용 배열 (일, 월, 화...)
 const weekDays = ["일", "월", "화", "수", "목", "금", "토"];
@@ -18,13 +20,16 @@ export default function AttendanceCalendar({ refreshTrigger }) {
     useEffect(() => {
         if (!loginId) return;
         
-        // [백엔드 API 호출] /point/attendance/calendar
         axios.get("/point/main/attendance/calendar")
             .then(resp => {
                 // 데이터가 ["2023-12-01", "2023-12-02"] 형태로 온다고 가정
                 setMarkDates(resp.data || []);
             })
-            .catch(err => console.error("달력 로드 실패:", err));
+            .catch(err => {
+                console.error("달력 로드 실패:", err);
+                // ★ [Toast 2] 로딩 실패 시 에러 알림
+                toast.error("출석부 정보를 불러오지 못했습니다. 😥");
+            });
             
     }, [loginId, refreshTrigger]); // refreshTrigger가 바뀌면(출석 직후) 다시 실행됨
 
@@ -63,7 +68,7 @@ export default function AttendanceCalendar({ refreshTrigger }) {
                 // 날짜 숫자 포맷 (1일 -> 1)
                 formatDay={(locale, date) => moment(date).format("D")}
                 
-                //  도장 렌더링 함수 연결
+                // 도장 렌더링 함수 연결
                 tileContent={tileContent}
                 
                 // 상단 네비게이션 버튼 (<<, >>) 숨기기 - 깔끔하게

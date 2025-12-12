@@ -1,46 +1,65 @@
-import { useState, useEffect, useCallback } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { useAtomValue } from "jotai";
 import { loginIdState, loginLevelState } from "../../utils/jotai";
 import axios from "axios";
-// CSS와 컴포넌트 임포트
-import "./PointMain.css";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+import "./PointMain.css"; 
+
+// 컴포넌트 임포트
 import AttendanceCalendar from "./AttendanceCalendar";
 import StoreView from "./StoreView";
 import InventoryView from "./InventoryView";
 import HistoryView from "./HistoryView";
 import WishlistView from "./WishlistView";
+import Donate from "./Donate"; 
+import Roulette from "./Roulette"; 
+import IconAdmin from "./IconAdmin";
+import MyIconView from "./MyIconView"; 
 
 export default function PointMain() {
     const loginId = useAtomValue(loginIdState);
     const loginLevel = useAtomValue(loginLevelState);
+    const isAdmin = loginLevel === "관리자";
+
+    const [tab, setTab] = useState("store"); 
     
-    const [tab, setTab] = useState("store");
+    // 내 정보 State
     const [myPoint, setMyPoint] = useState(0);
     const [myNickname, setMyNickname] = useState("");
+    const [nickStyle, setNickStyle] = useState(""); 
+    const [myIconSrc, setMyIconSrc] = useState(null); // 장착 아이콘 이미지
     
     const [isChecked, setIsChecked] = useState(false);
-    const [showStamp, setShowStamp] = useState(false); // 배너 도장 애니메이션
-    
-    // 달력 새로고침용 트리거 (숫자가 바뀌면 달력이 다시 로딩됨)
+    const [showStamp, setShowStamp] = useState(false);
     const [calendarRefreshKey, setCalendarRefreshKey] = useState(0);
+    const [showDonate, setShowDonate] = useState(false);
 
-    // 내 정보 로드
+    // [1] 내 정보 로드 (서버에서 아이콘 경로 받아옴)
     const loadMyInfo = useCallback(async () => {
         if (!loginId) return;
         try {
-            const resp = await axios.get(`/member/mypage/${loginId}`);
+            const resp = await axios.get("/point/store/my-info");
             const data = resp.data || {}; 
-            setMyPoint(data.memberPoint || 0);
-            setMyNickname(data.memberNick || data.memberNickname || loginId); 
+            
+            // ★ [디버깅용] 콘솔에서 이 로그를 확인해보세요!
+            console.log("내 정보 로드 결과:", data);
+
+            setMyPoint(data.point || 0);
+            setMyNickname(data.nickname || loginId);
+            setNickStyle(data.nickStyle || ""); 
+            
+            // 아이콘 경로 설정 (null이나 빈 문자열이면 null로 처리)
+            setMyIconSrc(data.iconSrc && data.iconSrc.trim() !== "" ? data.iconSrc : null); 
+
         } catch (e) { console.error(e); }
     }, [loginId]);
 
-    // 오늘 출석 여부 확인
     const checkAttendanceStatus = useCallback(async () => {
         if (!loginId) return;
         try {
             const resp = await axios.get("/point/main/attendance/status");
-            setIsChecked(resp.data); // true or false
+            setIsChecked(resp.data); 
         } catch(e) { console.error(e); }
     }, [loginId]);
 
@@ -49,126 +68,157 @@ export default function PointMain() {
         checkAttendanceStatus();
     }, [loadMyInfo, checkAttendanceStatus]);
 
-    // [출석체크 실행]
-    const handleAttendance = async () => {
-        if (!loginId) return alert("로그인이 필요합니다.");
+    // [2] 상단 아이콘 클릭 시 장착 해제 핸들러
+    const handleHeaderUnequip = async () => {
+        if (!myIconSrc) return; // 아이콘 없으면 무시
         
+        if (!window.confirm("아이콘 장착을 해제하시겠습니까?")) return;
+
+        try {
+            await axios.post("/point/icon/unequip");
+            toast.info("장착이 해제되었습니다.");
+            setMyIconSrc(null); // 즉시 화면에서 제거
+            
+            // 만약 현재 탭이 '내 아이콘'이라면 목록도 갱신해주면 좋음
+            // (여기선 loadMyInfo만 다시 호출)
+            loadMyInfo();
+        } catch (e) {
+            toast.error("해제 실패");
+        }
+    };
+
+    // 출석체크 핸들러
+    const handleAttendance = async () => {
+        if (!loginId) return toast.error("로그인이 필요합니다.");
         try {
             const resp = await axios.post("/point/main/attendance/check");
-            
-            // Controller에서 "success:..." 같은 문자열을 반환한다고 가정
-            if (resp.data && typeof resp.data === 'string' && resp.data.startsWith("success")) {
-              const point = resp.data.split(":")[1]?.trim() || "100";
-                
-                // 1. 도장 애니메이션 시작
+            if (resp.data && String(resp.data).startsWith("success")) {
+                const point = resp.data.split(":")[1]?.trim() || "100";
                 setShowStamp(true);
                 setIsChecked(true); 
-                
-                // 2. 정보 갱신 (포인트, 달력)
                 loadMyInfo();
-                setCalendarRefreshKey(prev => prev + 1); // ⭐ 달력 갱신 트리거!
-                
-                // 3. 알림 (0.5초 뒤)
-                setTimeout(() => {
-                    alert(`🎉 출석체크 완료! +${point}P 지급되었습니다.`);
-                }, 500);
+                setCalendarRefreshKey(prev => prev + 1); 
+                setTimeout(() => toast.success(`🎉 출석체크 완료! +${point}P`), 500);
+                setTimeout(() => setShowStamp(false), 3000);
             } else {
-                // 이미 했거나 실패 시 메시지
-                const msg = resp.data.includes(":") ? resp.data.split(":")[1] : resp.data;
-                alert(msg);
+                toast.warning(resp.data.includes(":") ? resp.data.split(":")[1] : resp.data); 
             }
-        } catch (e) { 
-            alert(e.response?.data || "출석체크 중 오류가 발생했습니다."); 
-        }
+        } catch (e) { toast.error("오류 발생"); }
     };
 
     return (
         <div className="container py-4" style={{maxWidth: '800px'}}>
-            
+            <ToastContainer position="top-center" autoClose={2000} theme="light" />
+
             {/* 1. 상단 정보 (헤더) */}
             <div className="d-flex justify-content-between align-items-center mb-4 pb-2 border-bottom">
                 <h4 className="fw-bold mb-0 text-secondary">Point Lounge</h4>
+                
                 <div className="d-flex align-items-center gap-3">
                     <div className="text-end">
-                        <div className="fw-bold text-dark">
-                            {myNickname}님 <span className="badge bg-secondary ms-1">{loginLevel}</span>
+                        <div className="fs-5 d-flex align-items-center justify-content-end">
+                            
+                            {/* ★ [수정] 장착 아이콘 표시 & 해제 기능 추가 */}
+                            {myIconSrc ? (
+                                <div className="position-relative d-inline-block me-2" 
+                                     style={{cursor: 'pointer'}}
+                                     onClick={handleHeaderUnequip} 
+                                     title="클릭하여 장착 해제">
+                                    <img 
+                                        src={myIconSrc} 
+                                        alt="my-icon" 
+                                        className="rounded-circle border border-2 border-warning shadow-sm"
+                                        style={{
+                                            width: '42px', 
+                                            height: '42px', 
+                                            objectFit: 'cover', 
+                                            backgroundColor: '#fff'
+                                        }} 
+                                        onError={(e) => {
+                                            console.log("이미지 로드 실패:", myIconSrc);
+                                            e.target.style.display = 'none';
+                                        }}
+                                    />
+                                    {/* 마우스 올렸을 때 'x' 표시 같은 효과를 주려면 CSS 추가 필요 (선택사항) */}
+                                </div>
+                            ) : null}
+
+                            {/* 닉네임 */}
+                            <span className={nickStyle ? nickStyle : "fw-bold text-dark"}>
+                                {myNickname}
+                            </span>
+                            <span className="text-dark ms-1">님</span> 
+                            <span className="badge bg-secondary ms-1 fs-6">{loginLevel}</span>
                         </div>
                         <small className="text-muted">오늘도 환영합니다!</small>
                     </div>
-                    <div className="bg-light px-4 py-2 rounded-pill border shadow-sm text-center">
-                        <small className="text-muted d-block" style={{fontSize: '0.7rem'}}>MY POINT</small>
-                        <strong className="text-primary fs-5">{(myPoint || 0).toLocaleString()} P</strong>
+
+                    <div className="d-flex flex-column align-items-end gap-1">
+                        <div className="bg-light px-4 py-2 rounded-pill border shadow-sm text-center">
+                            <small className="text-muted d-block" style={{fontSize: '0.7rem'}}>MY POINT</small>
+                            <strong className="text-primary fs-5">{(myPoint || 0).toLocaleString()} P</strong>
+                        </div>
+                        <button className="btn btn-sm btn-outline-warning rounded-pill fw-bold" onClick={() => setShowDonate(true)}>
+                            🎁 선물하기
+                        </button>
                     </div>
                 </div>
             </div>
 
-            {/* 2. 메인 배너 (출석 버튼 & 큰 도장) */}
+            {/* 2. 출석 배너 */}
             <div className={`card shadow-sm border-0 mb-4 attendance-card ${isChecked ? "checked" : "unchecked"}`}>
                 <div className="card-body p-4 text-center">
-                    
-                    {/* 💮 큰 도장 (성공 시 또는 이미 했을 때 표시) */}
-                    {(showStamp || isChecked) && (
-                        <div className="attendance-stamp">
-                            COMPLETED
-                        </div>
-                    )}
-
-                    <h3 className="fw-bold mb-2">
-                        {isChecked ? "✅ 오늘 출석 완료!" : "📅 매일매일 출석체크"}
-                    </h3>
-                    <p className="text-muted mb-4">
-                        {isChecked 
-                            ? "내일 또 방문해서 포인트를 받으세요!" 
-                            : "지금 버튼을 누르고 포인트를 획득하세요!"}
-                    </p>
-                    <button 
-                        className={`btn btn-lg px-5 rounded-pill fw-bold ${isChecked ? "btn-secondary" : "btn-primary"}`}
-                        onClick={handleAttendance}
-                        disabled={isChecked}
-                        style={{minWidth: '200px', transition: "all 0.3s"}}
-                    >
+                    {(showStamp || isChecked) && <div className={`attendance-stamp ${showStamp ? 'stamp-animation' : ''}`}>COMPLETED</div>}
+                    <h3 className="fw-bold mb-2">{isChecked ? "✅ 오늘 출석 완료!" : "📅 매일매일 출석체크"}</h3>
+                    <button className={`btn btn-lg px-5 rounded-pill fw-bold ${isChecked ? "btn-secondary" : "btn-primary"}`} onClick={handleAttendance} disabled={isChecked}>
                         {isChecked ? "참여 완료" : "출석하고 포인트 받기"}
                     </button>
                 </div>
             </div>
 
-            {/* 3. 📅 달력 섹션 (배너 바로 아래 배치) */}
-            <div className="mb-5">
-                {/* key를 넘겨서 강제로 리렌더링할 수도 있지만, props로 트리거를 넘김 */}
-                <AttendanceCalendar refreshTrigger={calendarRefreshKey} />
-            </div>
+            {/* 3. 달력 */}
+            <div className="mb-5"><AttendanceCalendar refreshTrigger={calendarRefreshKey} /></div>
 
-            {/* 4. 하단 탭 메뉴 */}
+            {/* 4. 탭 메뉴 */}
             <ul className="nav nav-tabs nav-fill mb-0">
                 <li className="nav-item">
-                    <button className={`nav-link ${tab === 'store' ? 'active fw-bold' : ''}`} onClick={() => setTab('store')}>
-                        🛒 아이템 상점
-                    </button>
+                    <button className={`nav-link ${tab === 'store' ? 'active fw-bold' : ''}`} onClick={() => setTab('store')}>🛒 상점</button>
                 </li>
                 <li className="nav-item">
-                    <button className={`nav-link ${tab === 'wish' ? 'active fw-bold' : ''}`} onClick={() => setTab('wish')}>
-                        💖 찜 목록
-                    </button>
+                    <button className={`nav-link ${tab === 'roulette' ? 'active fw-bold text-danger' : ''}`} onClick={() => setTab('roulette')}>🎰 룰렛</button>
                 </li>
                 <li className="nav-item">
-                    <button className={`nav-link ${tab === 'inventory' ? 'active fw-bold' : ''}`} onClick={() => setTab('inventory')}>
-                        🎒 내 보관함
-                    </button>
+                    <button className={`nav-link ${tab === 'my_icon' ? 'active fw-bold text-primary' : ''}`} onClick={() => setTab('my_icon')}>🦸 내 아이콘</button>
                 </li>
                 <li className="nav-item">
-                    <button className={`nav-link ${tab === 'history' ? 'active fw-bold' : ''}`} onClick={() => setTab('history')}>
-                        📜 이용 내역
-                    </button>
+                    <button className={`nav-link ${tab === 'wish' ? 'active fw-bold' : ''}`} onClick={() => setTab('wish')}>💖 찜</button>
                 </li>
+                <li className="nav-item">
+                    <button className={`nav-link ${tab === 'inventory' ? 'active fw-bold' : ''}`} onClick={() => setTab('inventory')}>🎒 보관함</button>
+                </li>
+                <li className="nav-item">
+                    <button className={`nav-link ${tab === 'history' ? 'active fw-bold' : ''}`} onClick={() => setTab('history')}>📜 내역</button>
+                </li>
+                {isAdmin && (
+                    <li className="nav-item">
+                        <button className={`nav-link text-danger ${tab === 'admin' ? 'active fw-bold' : ''}`} onClick={() => setTab('admin')}>⚙️ 관리자</button>
+                    </li>
+                )}
             </ul>
 
-            {/* 5. 탭 컨텐츠 영역 */}
-            <div className="tab-content-area">
+            {/* 5. 탭 컨텐츠 */}
+            <div className="tab-content-area border border-top-0 p-3 rounded-bottom bg-white shadow-sm">
                 {tab === "store" && <StoreView loginLevel={loginLevel} refreshPoint={loadMyInfo} />}
-                {tab === "wish" && <WishlistView />}
-                {tab === "inventory" && <InventoryView onRefund={loadMyInfo} />}
+                {tab === "roulette" && <Roulette refreshPoint={loadMyInfo} />}
+                {tab === "my_icon" && <MyIconView refreshPoint={loadMyInfo} />} 
+                {tab === "wish" && <WishlistView refreshPoint={loadMyInfo} />}
+                {tab === "inventory" && <InventoryView refreshPoint={loadMyInfo} />}
                 {tab === "history" && <HistoryView />}
+                {isAdmin && tab === "admin" && <IconAdmin />}
             </div>
+
+            {/* 6. 후원 모달 */}
+            {showDonate && <Donate closeModal={() => setShowDonate(false)} onSuccess={() => { loadMyInfo(); toast.success("후원 완료! 🎁"); }} />}
         </div>
     );
 }

@@ -2,8 +2,10 @@ import { useEffect, useState, useCallback } from "react";
 import axios from "axios";
 import ProductAdd from "./ProductAdd";
 import ProductEdit from "./ProductEdit";
+// ★ [Toast 1] toast 임포트
+import { toast } from "react-toastify";
 
-// ★ 3단계 등급 시스템 ('관리자', '우수회원', '일반회원') 복원
+// 3단계 등급 시스템
 function getScore(level) {
     if (level === "관리자") return 99;
     if (level === "우수회원") return 2;
@@ -20,7 +22,7 @@ export default function StoreView({ loginLevel, loginNickname, refreshPoint }) {
     
     const myScore = getScore(loginLevel);
 
-    // ★ 찜 목록 상태 추가
+    // 찜 목록 상태
     const [wishList, setWishList] = useState([]); 
 
     const loadItems = useCallback(async () => {
@@ -38,7 +40,6 @@ export default function StoreView({ loginLevel, loginNickname, refreshPoint }) {
         } catch (e) { console.error(e); }
     }, [loginLevel]);
 
-    // ★ 찜 목록 ID 로드 함수
     const loadWishList = useCallback(async () => {
         if (!loginLevel) return;
         try {
@@ -50,68 +51,86 @@ export default function StoreView({ loginLevel, loginNickname, refreshPoint }) {
     useEffect(() => {
         loadItems();
         loadMyItems();
-        loadWishList(); // ★ 찜 목록 로드 추가
+        loadWishList();
     }, [loadItems, loadMyItems, loadWishList]);
 
-    // [구매] (기존 코드와 동일)
+    // [구매]
     const handleBuy = async (item) => {
         if (!window.confirm(`[${item.pointItemName}] 을(를) 구매하시겠습니까?`)) return;
+        
         try {
             await axios.post("/point/store/buy", { itemNo: item.pointItemNo });
-            alert("구매 성공! 🎒보관함을 확인하세요.");
-            loadItems(); loadMyItems(); if (refreshPoint) refreshPoint();
+            
+            // ★ [Toast 2] 성공 알림
+            toast.success("구매 성공! 🎒보관함을 확인하세요.");
+            
+            loadItems(); 
+            loadMyItems(); 
+            if (refreshPoint) refreshPoint();
         } catch (err) {
-            alert(err.response?.data?.message || "구매 실패");
+            // ★ [Toast 3] 실패 알림
+            toast.error(err.response?.data?.message || "구매 실패 😥");
         }
     };
 
-    // [선물] (기존 코드와 동일)
+    // [선물]
     const handleGift = async (item) => {
         const targetId = window.prompt("선물을 받을 친구의 ID를 입력하세요.");
         if (!targetId) return;
+        
         if (!window.confirm(`${targetId}님에게 선물하시겠습니까?`)) return;
+        
         try {
             await axios.post("/point/store/gift", { itemNo: item.pointItemNo, targetId });
-            alert("🎁 선물 발송 완료!");
-            loadItems(); if (refreshPoint) refreshPoint(); 
+            
+            // ★ [Toast 4] 선물 성공
+            toast.success(`🎁 ${targetId}님에게 선물 발송 완료!`);
+            
+            loadItems(); 
+            if (refreshPoint) refreshPoint(); 
         } catch (err) {
-            alert(err.response?.data?.message || "선물 실패");
+            toast.error(err.response?.data?.message || "선물 실패 😥");
         }
     };
 
-    // [삭제] (기존 코드와 동일)
+    // [삭제]
     const handleDelete = async (item) => {
         if (!window.confirm(`[${item.pointItemName}] 삭제하시겠습니까?`)) return;
+        
         try {
             await axios.post("/point/store/item/delete", { pointItemNo: item.pointItemNo });
-            alert("삭제되었습니다.");
+            // ★ [Toast 5] 삭제 성공
+            toast.info("상품이 삭제되었습니다. 🗑️");
             loadItems();
-        } catch (e) { alert("삭제 실패"); }
+        } catch (e) { 
+            toast.error("삭제 실패"); 
+        }
     };
     
-    // ★ 찜 토글 핸들러
+    // [찜 토글]
     const handleToggleWish = async (itemNo) => {
         if (!loginLevel) {
-            alert("로그인 후 이용 가능합니다.");
+            // ★ [Toast 6] 경고 알림
+            toast.warning("로그인 후 이용 가능합니다. 🔒");
             return;
         }
         try {
             await axios.post("/point/store/wish/toggle", { itemNo });
-            loadWishList(); // 찜 상태 갱신
+            // 찜은 빈번하게 일어나므로 Toast를 띄우지 않거나, 아주 짧게 띄우는 것이 UX상 좋습니다.
+            // 여기서는 UI(하트 색상)가 즉시 바뀌므로 Toast 생략 (원하시면 toast.success("찜 설정!") 추가 가능)
+            loadWishList(); 
         } catch (e) { 
             console.error("찜 토글 실패:", e);
-            alert("찜하기에 실패했습니다."); 
+            toast.error("찜하기에 실패했습니다."); 
         }
     };
 
     return (
         <>
-
-
             {/* 상단 헤더 */}
             <div className="d-flex justify-content-between align-items-center mb-3">
                 <h5 className="text-muted fw-bold">🛒 전체 상품 ({items.length})</h5>
-                {/* ★ 관리자 체크 복원 */}
+                {/* 관리자 버튼 */}
                 {loginLevel === "관리자" && (
                     <button className="btn btn-dark btn-sm shadow-sm" onClick={() => setShowAddModal(true)}>
                         + 상품 등록
@@ -134,15 +153,13 @@ export default function StoreView({ loginLevel, loginNickname, refreshPoint }) {
                         
                         const isUnique = item.pointItemUniques === 1;
                         const isAlreadyOwned = isUnique && ownedCount > 0;
-                        
-                        // ★ 찜 여부 확인 추가
                         const isWished = wishList.includes(item.pointItemNo); 
 
                         return (
                             <div className="col-md-3 mb-4" key={item.pointItemNo}>
                                 <div className={`card h-100 shadow-sm border-0 ${!canAccess && loginLevel !== "관리자" ? "bg-light opacity-75" : ""}`}>
                                     
-                                    {/* ★ 찜 버튼 (우측 상단) */}
+                                    {/* 찜 버튼 */}
                                     <button 
                                         className="btn border-0 position-absolute top-0 end-0 m-2 fs-4"
                                         style={{ zIndex: 10, background: 'transparent' }}
@@ -151,7 +168,9 @@ export default function StoreView({ loginLevel, loginNickname, refreshPoint }) {
                                             handleToggleWish(item.pointItemNo);
                                         }}
                                     >
-                                        {isWished ? "❤️" : "🤍"}
+                                        <span style={{ filter: "drop-shadow(0px 0px 2px rgba(0,0,0,0.3))" }}>
+                                            {isWished ? "❤️" : "🤍"}
+                                        </span>
                                     </button>
 
                                     {/* 이미지 영역 */}
@@ -173,6 +192,7 @@ export default function StoreView({ loginLevel, loginNickname, refreshPoint }) {
                                         )}
                                     </div>
 
+                                    {/* 정보 영역 */}
                                     <div className="card-body text-center d-flex flex-column p-3">
                                         <h6 className="card-title text-truncate fw-bold mb-1">{item.pointItemName}</h6>
                                         <p className="small text-muted mb-2 text-truncate">{item.pointItemContent}</p>
@@ -194,7 +214,7 @@ export default function StoreView({ loginLevel, loginNickname, refreshPoint }) {
 
                                             <div className="w-100 d-grid gap-2">
                                                 
-                                                {/* 1. 구매/선물 버튼 */}
+                                                {/* 구매/선물 버튼 */}
                                                 {canAccess ? (
                                                     <div className="d-flex gap-1">
                                                         <button 
@@ -218,7 +238,7 @@ export default function StoreView({ loginLevel, loginNickname, refreshPoint }) {
                                                     </button>
                                                 )}
 
-                                                {/* 2. 관리자 전용 버튼 복원 */}
+                                                {/* 관리자 버튼 */}
                                                 {loginLevel === "관리자" && (
                                                     <div className="btn-group mt-1">
                                                         <button className="btn btn-success btn-sm py-0" style={{fontSize:'0.8rem'}} onClick={() => setEditTarget(item)}>
@@ -229,7 +249,6 @@ export default function StoreView({ loginLevel, loginNickname, refreshPoint }) {
                                                         </button>
                                                     </div>
                                                 )}
-
                                             </div>
                                         </div>
                                     </div>

@@ -1,8 +1,8 @@
 import { useEffect, useState, useCallback, useMemo } from "react";
 import axios from "axios";
+import { toast } from "react-toastify";
 
-// onRefund: 환불/사용/삭제 후 정보 갱신용 함수
-export default function InventoryView({ onRefund }) {
+export default function InventoryView({ refreshPoint }) {
     const [myInven, setMyInven] = useState([]);
 
     const loadInven = useCallback(async () => {
@@ -14,7 +14,7 @@ export default function InventoryView({ onRefund }) {
 
     useEffect(() => { loadInven(); }, [loadInven]);
 
-    // 그룹화 로직 (이전과 동일)
+    // 아이템 그룹화
     const groupedInven = useMemo(() => {
         const groups = {};
         myInven.forEach((item) => {
@@ -26,124 +26,136 @@ export default function InventoryView({ onRefund }) {
         return Object.values(groups);
     }, [myInven]);
 
-   // 1. [사용] 핸들러
+    // [사용] 핸들러
     const handleUse = async (group) => {
         const targetNo = group.inventoryIds[0];
+        const type = group.pointInventoryItemType;
         let extraValue = null;
 
-        // ★ 아이템 유형별 로직
-        if (group.pointInventoryItemType === "CHANGE_NICK") {
-            
-            // 1) 입력 받기
-            extraValue = window.prompt("변경할 닉네임을 입력하세요. (한글/숫자 2~10자)");
-            if (!extraValue) return; // 취소
-
-            // 2) ★ 정규식 검사 (한글 + 숫자만 허용) ★
-            // 조건: 한글(가-힣), 숫자(0-9) 포함 / 길이 2~10자 / 영문 불가 / 공백 불가
-            const regex = /^[가-힣0-9]{2,10}$/;
-
-            if (!regex.test(extraValue)) {
-                alert("닉네임 형식이 올바르지 않습니다.\n- 한글과 숫자만 가능 (영문 불가)\n- 2~10글자\n- 특수문자 및 공백 불가");
-                return; // 중단
-            }
+        // 1. 유형별 로직
+        if (type === "CHANGE_NICK") {
+            extraValue = window.prompt("변경할 닉네임을 입력해주세요. (2~10자)");
+            if (!extraValue) return;
         } 
-        else if (group.pointInventoryItemType === "FOOD") {
-             alert("기프티콘 바코드를 확인합니다. (준비중)");
-             return;
+        else if (type === "DECO_NICK") { 
+            const choice = window.prompt("1.무지개 2.골드 3.네온");
+            if (!choice) return;
+            // 입력값 검증
+            if(!["1","2","3"].includes(choice.trim())) return toast.warning("1~3번 중 선택해주세요.");
+            extraValue = choice.trim();
+        }
+else if (type === "ICON_GACHA") {
+            // ★ [뽑기 로직 수정] 한 번의 요청으로 안전하게 처리
+            if (!window.confirm("🎲 아이콘 뽑기를 진행하시겠습니까? (티켓 1장 소모)")) return;
+            
+            try {
+                // (1) 뽑기 요청 (티켓 번호를 같이 보냄)
+                // 서버에서 '티켓 차감' + '아이콘 지급'을 동시에 수행함
+                const drawResp = await axios.post("/point/icon/draw", { 
+                    inventoryNo: targetNo 
+                });
+                
+                const icon = drawResp.data;
+
+                // (2) 결과 보여주기
+                toast.success(
+                    <div className="text-center">
+                        <p className="mb-1 fw-bold">🎉 {icon.iconRarity} 등급 획득!</p>
+                        <img 
+                            src={icon.iconSrc} 
+                            style={{width:'60px', height:'60px', borderRadius:'8px', border:'2px solid #eee', objectFit: 'cover'}} 
+                            alt="icon" 
+                        />
+                        <div className="mt-2 fw-bold text-dark">{icon.iconName}</div>
+                    </div>, 
+                    { autoClose: 4000, hideProgressBar: false }
+                );
+                
+                loadInven(); // 목록 갱신 (티켓 사라짐 확인)
+
+            } catch (e) {
+                console.error(e);
+                // 실패하면 티켓이 안 사라짐 (안전!)
+                toast.error("뽑기 실패: " + (e.response?.data?.message || "오류 발생"));
+            }
+            return; 
+        }
+        else if (type === "VOUCHER") {
+            if (!window.confirm("충전하시겠습니까?")) return;
+        }
+        else if (type === "RANDOM_POINT") {
+            if (!window.confirm("개봉하시겠습니까?")) return;
         }
         else {
-            if(!window.confirm(`[${group.pointItemName}] 아이템을 사용하시겠습니까?`)) return;
+            if (!window.confirm("사용하시겠습니까?")) return;
         }
 
-        // 3) 서버 전송
+        // 2. 일반 아이템 사용 요청
         try {
-            const resp = await axios.post("/point/store/inventory/use", { 
-                inventoryNo: targetNo, 
-                extraValue: extraValue 
-            });
-
+            const resp = await axios.post("/point/store/inventory/use", { inventoryNo: targetNo, extraValue: extraValue });
             if (resp.data === "success") {
-                alert("아이템 사용 완료! (닉네임이 변경되었습니다 ✨)");
-                loadInven(); // 목록 갱신
-                if (onRefund) onRefund(); // 상단 닉네임/포인트 갱신
+                toast.success("사용 완료!");
+                loadInven();
+                if (refreshPoint) refreshPoint();
             } else {
-                alert("사용 실패: " + resp.data);
+                // "fail:사유" 처리
+                const msg = resp.data.startsWith("fail:") ? resp.data.substring(5) : resp.data;
+                toast.error(msg);
             }
-        } catch (e) { 
-            console.error(e);
-            alert("오류가 발생했습니다."); 
-        }
+        } catch (e) { toast.error("오류 발생"); }
     };
 
-    // 2. [환불] 핸들러
+    // [환불]
     const handleCancel = async (group) => {
-        const targetNo = group.inventoryIds[0];
-        if (!window.confirm(`[${group.pointItemName}] 1개를 환불하시겠습니까?\n(포인트 복구)`)) return;
+        if (!window.confirm("환불하시겠습니까?")) return;
         try {
-            await axios.post("/point/store/cancel", { inventoryNo: targetNo });
-            alert("환불 완료");
+            await axios.post("/point/store/cancel", { inventoryNo: group.inventoryIds[0] });
+            toast.info("환불 완료");
             loadInven();
-            if (onRefund) onRefund();
-        } catch (err) { alert("환불 실패"); }
+            if (refreshPoint) refreshPoint();
+        } catch (err) { toast.error("실패"); }
     };
 
-    // 3. [삭제] 핸들러
+    // [삭제]
     const handleDiscard = async (group) => {
-        const targetNo = group.inventoryIds[0];
-        if (!window.confirm(`[${group.pointItemName}] 1개를 정말 버리시겠습니까?\n(복구 불가, 포인트 반환 X)`)) return;
+        if (!window.confirm("삭제하시겠습니까? (복구 불가)")) return;
         try {
-            await axios.post("/point/store/inventory/delete", { inventoryNo: targetNo });
-            alert("삭제(폐기) 완료");
+            await axios.post("/point/store/inventory/delete", { inventoryNo: group.inventoryIds[0] });
+            toast.success("삭제 완료");
             loadInven();
-        } catch (err) { alert("삭제 실패"); }
+        } catch (err) { toast.error("실패"); }
     };
 
     return (
         <div className="row">
-            {groupedInven.length === 0 ? (
-                <div className="col-12 text-center p-5 bg-light rounded m-3"><h5 className="text-muted">보관함이 비어있습니다.</h5></div>
-            ) : (
-                groupedInven.map((group) => (
-                    <div className="col-md-6 mb-3" key={group.pointInventoryItemNo}>
-                        <div className="card shadow-sm h-100 border-0">
-                            <div className="card-body d-flex align-items-center">
-                                {/* 이미지 */}
-                                <div className="flex-shrink-0 me-3 position-relative" style={{ width: "80px", height: "80px" }}>
-                                    {group.pointItemSrc ? 
-                                        <img src={group.pointItemSrc} className="rounded w-100 h-100" style={{objectFit:'cover'}} alt=""/> 
-                                        : <div className="bg-secondary text-white rounded w-100 h-100 d-flex align-items-center justify-content-center">Img</div>}
-                                    <span className="position-absolute top-0 start-0 translate-middle badge rounded-pill bg-primary border border-light shadow-sm">{group.count}</span>
-                                </div>
-                                
-                                {/* 정보 */}
-                                <div className="flex-grow-1 overflow-hidden">
-                                    <h6 className="fw-bold text-truncate mb-1">{group.pointItemName}</h6>
-                                    <p className="text-muted small mb-1">{group.pointInventoryItemType}</p>
-                                    <p className="text-muted small mb-0">{new Date(group.pointInventoryPurchaseDate).toLocaleDateString()} 구매</p>
-                                </div>
-                                
-                                {/* ★ 버튼 그룹 (사용 / 환불 / 삭제) */}
-                                <div className="d-flex flex-column gap-1 ms-2">
-                                    {/* 사용 버튼: 특정 타입일 때만 표시하거나, 모두 표시하되 로직으로 제어 */}
-                                    {["CHANGE_NICK", "LEVEL_UP", "RANDOM"].includes(group.pointInventoryItemType) && (
-                                        <button className="btn btn-success btn-sm py-0" onClick={() => handleUse(group)}>
-                                            사용
-                                        </button>
-                                    )}
-                                    
-                                    <button className="btn btn-outline-primary btn-sm py-0" onClick={() => handleCancel(group)}>
-                                        환불
+            {groupedInven.length === 0 ? <div className="p-5 text-center text-muted">보관함이 비어있습니다.</div> : 
+            groupedInven.map((group) => (
+                <div className="col-md-6 mb-3" key={group.pointInventoryItemNo}>
+                    <div className="card shadow-sm h-100 border-0">
+                        <div className="card-body d-flex align-items-center">
+                            <div className="flex-shrink-0 me-3 position-relative" style={{ width: "80px", height: "80px" }}>
+                                {group.pointItemSrc ? 
+                                    <img src={group.pointItemSrc} className="rounded w-100 h-100" style={{objectFit:'cover'}} alt=""/> 
+                                    : <div className="bg-secondary text-white rounded w-100 h-100 d-flex align-items-center justify-content-center">Img</div>}
+                                <span className="position-absolute top-0 start-0 translate-middle badge rounded-pill bg-primary border border-light">{group.count}</span>
+                            </div>
+                            <div className="flex-grow-1 overflow-hidden">
+                                <h6 className="fw-bold text-truncate mb-1">{group.pointItemName}</h6>
+                                <p className="text-muted small mb-0">{group.pointInventoryItemType}</p>
+                            </div>
+                            <div className="d-flex flex-column gap-1 ms-2">
+                                {["CHANGE_NICK", "LEVEL_UP", "RANDOM_POINT", "VOUCHER", "DECO_NICK", "ICON_GACHA"].includes(group.pointInventoryItemType) && (
+                                    <button className={`btn btn-sm py-0 ${group.pointInventoryItemType==='ICON_GACHA'?'btn-warning':'btn-success'}`} onClick={() => handleUse(group)}>
+                                        {group.pointInventoryItemType === 'ICON_GACHA' ? '뽑기' : group.pointInventoryItemType === 'DECO_NICK' ? '장착' : '사용'}
                                     </button>
-                                    
-                                    <button className="btn btn-outline-secondary btn-sm py-0" onClick={() => handleDiscard(group)}>
-                                        삭제
-                                    </button>
-                                </div>
+                                )}
+                                <button className="btn btn-outline-primary btn-sm py-0" onClick={() => handleCancel(group)}>환불</button>
+                                <button className="btn btn-outline-secondary btn-sm py-0" onClick={() => handleDiscard(group)}>삭제</button>
                             </div>
                         </div>
                     </div>
-                ))
-            )}
+                </div>
+            ))}
         </div>
     );
 }

@@ -111,7 +111,11 @@ return(<>
                             <span>퀴즈</span>
                         </Link>
                     </li>
-
+                       <li className="nav-item" onClick={closeMenu}>
+                        <Link className="nav-link"  to="/point/main">
+                            <span>포인트</span>
+                        </Link>
+                    </li>       
                 </ul>
                  <ul className="navbar-nav ms-auto">
                 {/* 우측 메뉴 (화면이 좁아지면 합쳐짐) */}

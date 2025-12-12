@@ -115,3 +115,78 @@
     80% { transform: translate(-50%, -50%) scale(1.1) rotate(-15deg); opacity: 1; }
     100% { transform: translate(-50%, -50%) scale(1) rotate(-15deg); opacity: 1; }
 }   
+
+.nick-gold {
+    background: linear-gradient(to right, #bf953f, #fcf6ba, #b38728, #fbf5b7, #aa771c);
+    -webkit-background-clip: text;
+    color: transparent;
+    font-weight: 900;
+}
+
+/* PointMain.css */
+
+/* 1. 무지개 (화려함) */
+@keyframes rainbow-move {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+}
+.nick-rainbow {
+    background: linear-gradient(270deg, #ff0000, #ff7f00, #ffff00, #00ff00, #0000ff, #4b0082, #8b00ff);
+    background-size: 400% 400%;
+    -webkit-background-clip: text;
+    color: transparent;
+    font-weight: 900;
+    animation: rainbow-move 4s ease infinite;
+}
+
+/* 2. 골드 (반짝임) */
+.nick-gold {
+    background: linear-gradient(to right, #bf953f, #fcf6ba, #b38728, #fbf5b7, #aa771c);
+    -webkit-background-clip: text;
+    color: transparent;
+    font-weight: 900;
+    text-shadow: 0px 1px 1px rgba(0,0,0,0.2);
+}
+
+/* 3. 네온 (야광) */
+.nick-neon {
+    color: #fff;
+    text-shadow: 
+        0 0 5px #00fff2,
+        0 0 10px #00fff2,
+        0 0 20px #00fff2;
+    font-weight: 900;
+}
+
+/* 4. 관리자용 */
+.nick-admin {
+    color: #ff4d4d;
+    font-weight: bold;
+}
+
+.bg-purple {
+    background-color: #9c27b0 !important;
+    color: white;
+}
+
+/* 이벤트 등급 (핫핑크/민트 그라데이션) */
+.bg-event {
+    background: linear-gradient(45deg, #ff6b6b, #ff8e8e);
+    color: white;
+    box-shadow: 0 0 5px #ff6b6b;
+    border: 1px solid #ffcccc;
+}
+
+/* 레전더리 (금색 반짝임 효과 추가 - 선택사항) */
+.bg-warning.text-dark {
+    background: linear-gradient(45deg, #FFD700, #FDB931, #FFD700);
+    box-shadow: 0 0 5px #FFD700;
+}
+
+.bg-event {
+    background: linear-gradient(45deg, #ff6b6b, #ff8e8e); /* 예쁜 핑크 그라데이션 */
+    color: white;
+    box-shadow: 0 0 5px #ff6b6b;
+    font-weight: bold;
+}
