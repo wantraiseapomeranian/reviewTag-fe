@@ -49,9 +49,13 @@ export default function MemberMypage(){
                        {answerQuizList.map((answerQuiz)=>(
                         <tbody key={answerQuiz.quizId}>
                             <tr>
-                                <td>{answerQuiz.quizQuestion}</td>
-                                <td>{answerQuiz.quizLogIsCorrect}</td>
-                                <td></td>
+                                <td className="quiz-question">{answerQuiz.quizQuestion}</td>
+                                {answerQuiz.quizLogIsCorrect==="Y" ? (
+                                    <td className="quiz-option quiz-correct">O</td>
+                                ) : (
+                                    <td className="quiz-option quiz-wrong">X</td>
+                                )}
+                                <td className="quiz-normal"></td>
                             </tr>
                         </tbody>
                       ))}
@@ -72,7 +76,6 @@ export default function MemberMypage(){
                                 <td>2번</td>
                                 <td>3번</td>
                                 <td>4번</td>
-                                <td>정답</td>
                                 <td>정답률</td>
                                 <td>풀이횟수</td>
                             </tr>
@@ -81,13 +84,12 @@ export default function MemberMypage(){
                             <tbody key={addQuiz.quizId}>
                                 <tr>
                                     <td className="text-truncate quiz-question">{addQuiz.quizQuestion}</td>
-                                    <td className="text-truncate quiz-option">{addQuiz.quizQuestionOption1}</td>
-                                    <td className="text-truncate quiz-option">{addQuiz.quizQuestionOption2}</td>
-                                    <td className="text-truncate quiz-option">{addQuiz.quizQuestionOption3}</td>
-                                    <td className="text-truncate quiz-option">{addQuiz.quizQuestionOption4}</td>
-                                    <td className="quiz-answer">{addQuiz.quizAnswer}</td>
-                                    <td></td>
-                                    <td>{addQuiz.solveCount}</td>
+                                    <td className={`text-truncate ${addQuiz.quizAnswer==="1" ? "quiz-answer" : "quiz-option"}`}>{addQuiz.quizQuestionOption1}</td>
+                                    <td className={`text-truncate ${addQuiz.quizAnswer==="2" ? "quiz-answer" : "quiz-option"}`}>{addQuiz.quizQuestionOption2}</td>
+                                    <td className={`text-truncate ${addQuiz.quizAnswer==="3" ? "quiz-answer" : "quiz-option"}`}>{addQuiz.quizQuestionOption3}</td>
+                                    <td className={`text-truncate ${addQuiz.quizAnswer==="4" ? "quiz-answer" : "quiz-option"}`}>{addQuiz.quizQuestionOption4}</td>
+                                    <td className="quiz-normal"></td>
+                                    <td className="quiz-normal">{addQuiz.solveCount}</td>
                                 </tr>
                             </tbody>
                         ))}

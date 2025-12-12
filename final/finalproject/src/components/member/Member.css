@@ -110,19 +110,38 @@
 
 .quiz-question{
   color : rgb(255, 255, 255) !important;
-  background: #d8d6d681 !important;
+  background: rgb(56, 56, 56)!important;
 }
-.quiz-answer{
-  color : rgb(255, 255, 255) !important;
-  background: #5993ffcc !important;
+.quiz-answer {
+  background-color: #8cf8d8cc !important; /* 연한 민트 */
+  color: #ffffff !important;                 /* 글자색 */
+  font-weight: 700 !important;                        /* 굵게 */
 }
 .quiz-option{
-  color : rgb(77, 77, 77) !important;
-  /* background: #5993ffcc !important; */
+  color : rgb(255, 255, 255) !important;
+  background: rgb(99, 99, 99)!important;
+}
+.quiz-normal{
+  color : rgb(255, 255, 255) !important;
+  background: rgb(56, 56, 56)!important;
 }
 
 .quiz-table-thead{
   color : rgb(255, 255, 255) !important;
   background: #5993ffcc !important;
-  text-shadow: #4e1b1b !important;
+}
+
+.quiz-correct{
+  color : rgb(255, 255, 255) !important;
+  background: #2270ffdc !important;
+  font-weight: 700 !important;
+}
+.quiz-wrong{
+  color : rgb(255, 255, 255) !important;
+  background: #fd0c0cde !important;
+  font-weight: 700 !important;
+}
+
+.table :hover {
+  filter: brightness(0.9) !important;
 }
