@@ -1,0 +1,151 @@
+/* 1. 페이지 제목 영역 */
+.admin-page-header {
+    border-bottom: 1px solid #333; /* 구분선 어둡게 */
+    padding-bottom: 1.5rem;
+    margin-bottom: 1.5rem;
+}
+
+.admin-title {
+    color: #fff; /* 제목 흰색 */
+    font-weight: 700;
+}
+
+/* 2. 탭 메뉴 커스텀 (부트스트랩 덮어쓰기) */
+.admin-tabs .nav-link {
+    color: #adb5bd; /* 비활성 탭: 회색 */
+    border: none;
+    border-bottom: 3px solid transparent;
+}
+
+.admin-tabs .nav-link:hover {
+    color: #fff;
+}
+
+.admin-tabs .nav-link.active {
+    color: #0d6efd; /* Primary Color */
+    background-color: transparent;
+    border-bottom: 3px solid #0d6efd; /* 하단 밑줄 강조 */
+    font-weight: 700;
+}
+
+/* 3. 리스트 영역 컨테이너 */
+.quiz-list-grid {
+    display: grid;
+    /* 카드가 너무 넓어지지 않게 최대값 조절 (350px ~ 1fr) */
+    grid-template-columns: repeat(auto-fill, minmax(350px, 1fr)); 
+    gap: 20px;
+    width: 100%; /* 부모 영역 꽉 채우기 */
+}
+
+/* 4. 데이터 없음 (Empty State) */
+.empty-state-box {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    
+    /* 높이와 너비를 카드 리스트가 있을 때와 비슷하게 설정 */
+    width: 100%;  /* 가로 꽉 채우기 */
+    min-height: 400px; /* 높이도 넉넉하게 */
+    
+    color: #6c757d;
+    background-color: rgba(255, 255, 255, 0.02);
+    border: 1px dashed #495057;
+    border-radius: 8px;
+    margin-top: 0; /* 불필요한 마진 제거 */
+}
+
+.empty-icon {
+    font-size: 3rem;
+    margin-bottom: 1rem;
+    opacity: 0.5;
+}
+
+.admin-tabs .nav-link.active {
+    color: #ffc107; /* 활성 탭: 노란색(또는 파란색) 포인트 */
+    background-color: transparent;
+    border-bottom: 3px solid #ffc107;
+}
+
+/* 3. 퀴즈 카드 (다크 박스) */
+.admin-quiz-card {
+    background-color: #252525;
+    border: 1px solid #333;
+    border-radius: 8px;
+    color: #e0e0e0;
+    display: flex;
+    flex-direction: column;
+    height: 100%; /* 그리드 높이에 맞춤 */
+    overflow: hidden;
+}
+
+/* 블라인드 처리된 카드 */
+.admin-quiz-card.blind {
+    background-color: #2c2020; /* 붉은 기가 도는 어두운 색 */
+    border: 1px solid #dc3545;
+    opacity: 0.8;
+}
+
+/* 카드 헤더 */
+.quiz-header {
+    background-color: #2c2c2c; /* 헤더 배경 */
+    border-bottom: 1px solid #333;
+    padding: 15px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+/* 메타 정보 */
+.quiz-meta {
+    color: #adb5bd; /* 날짜 등은 회색으로 */
+    padding: 10px 15px;
+    border-bottom: 1px dashed #333;
+}
+
+/* 신고 통계 박스 (어두운 배경) */
+.report-stats-box {
+    background-color: rgba(255, 255, 255, 0.05); /* 투명한 흰색 5% */
+    border-radius: 6px;
+    padding: 15px;
+    margin: 15px;
+    border: 1px solid #333;
+}
+
+/* 기타 상세 내용 박스 */
+.report-detail-box {
+    background-color: #1a1a1a; /* 더 어두운 박스 */
+    margin: 0 15px 15px 15px;
+    padding: 10px;
+    border-radius: 4px;
+    border: 1px solid #333;
+}
+
+.detail-row {
+    border-bottom: 1px solid #333;
+    padding: 5px 0;
+}
+
+/* 버튼 영역 */
+.action-buttons {
+    padding: 15px;
+    border-top: 1px solid #333;
+    background-color: #2c2c2c;
+    border-bottom-left-radius: 8px;
+    border-bottom-right-radius: 8px;
+    text-align: right;
+}
+
+/* 데이터 없음 박스 */
+.empty-state-box {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 300px;
+    color: #6c757d;
+    background-color: rgba(255, 255, 255, 0.02);
+    border: 1px dashed #495057;
+    border-radius: 8px;
+    margin-top: 20px;
+}
