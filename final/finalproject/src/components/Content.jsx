@@ -31,6 +31,8 @@ import QuizLanding from "./quiz/QuizLanding";
 
 import SlideContents from "./Contents/SlideContents";
 import ReviewDetail from "./review/ReviewDetail";
+import AdminQuizPage from "./admin/AdminQuizPage";
+import AdminMain from "./admin/AdminMain";
 
 
 
@@ -107,6 +109,19 @@ export default function Content() {
                     {/* 에러 페이지 */}
                         <Route path="/error/403" element={<NeedPermission/>}></Route>
                         <Route path="*" element={<TargetNotfound/>}></Route>
+
+                    {/* 관리자 페이지 */}
+                    <Route path="/admin" element={<AdminMain />}>
+                    {/* /admin 으로 접속하면 기본으로 회원관리 보여주기 (선택사항) */}
+                        <Route index element={<div>관리자 메인 대시보드</div>} />
+          
+                        {/* /admin/quiz 접속 시 -> AdminLayout의 <Outlet/> 자리에 AdminQuizPage가 뜸 */}
+                        <Route path="quiz" element={<AdminQuizPage />} />
+          
+                        {/* <Route path="member" element={<AdminMemberPage />} /> */}
+                        {/* <Route path="review" element={<AdminReviewPage />} /> */}
+                        {/* <Route path="point" element={<AdminPointPage />} /> */}
+                    </Route>
                 </Routes>
             </div>
         </div>

@@ -6,6 +6,7 @@ import axios from "axios";
 import './Menu.css'
 import { FaHome } from "react-icons/fa";
 import { MdMovie } from "react-icons/md";
+import { FaGear } from "react-icons/fa6";
 
 
 export default function Menu() {
@@ -91,13 +92,8 @@ return(<>
                     </li>
 
                     {/* contents */}
-                    <li className="nav-item dropdown ">
-                        <a className="nav-link dropdown-toggle" data-bs-toggle="dropdown" href="#" role="button"
-                            aria-haspopup="true" aria-expanded="false"><span><MdMovie /></span></a>
-                        <div className="dropdown-menu">
-                            <Link className="nav-link"  to="/contents/searchTitle"><span>검색</span> </Link>
-                            <Link className="nav-link"  to="/contents/genreList"><span>장르</span></Link>
-                        </div>
+                    <li className="nav-item" onClick={closeMenu}>    
+                        <Link className="nav-link"  to="/contents/genreList"><span className="fs-5"><MdMovie className="mb-2" /></span></Link>
                     </li>
                     {/* 리뷰 메뉴사용x
                     <li className="nav-item dropdown ">
@@ -119,6 +115,17 @@ return(<>
                 </ul>
                  <ul className="navbar-nav ms-auto">
                 {/* 우측 메뉴 (화면이 좁아지면 합쳐짐) */}
+                    {isAdmin === true ? (
+                        <li className="nav-item" onClick={closeMenu}>
+                        <Link className="nav-link" to={`/admin`}>
+                            <span><FaGear /></span>
+                        </Link>
+                    </li>
+                    ) : (
+                        <>
+                        </>
+                    )}
+
                     {isLogin === true ? (<>  {/* 로그인 시 나와야 하는 화면 */}
                     <li className="nav-item" onClick={closeMenu}>
                         <Link className="nav-link" to={`/member/mypage/myinfo/${loginId}`}>

@@ -1,10 +1,11 @@
 import axios from "axios";
 import { useCallback } from "react";
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import {useAtom} from "jotai";
 import { accessTokenState, loginIdState, loginLevelState, loginNicknameState, refreshTokenState } from "../../utils/jotai";
 import "./Member.css";
+import { FaUserPlus } from "react-icons/fa";
 export default function MemberLogin(){
     //통합 state
     const [loginId , setLoginId] = useAtom(loginIdState);
@@ -60,46 +61,63 @@ export default function MemberLogin(){
     //render
     return(<>
     <div className="container">
-        <div className="row">
-        <div className="member-form col-sm-8 offset-2">
+        <div className="row d-flex justify-content-center">
+        <div className="login-form col-12">
         <div className="row">
             <div className="col">
                 <h1 className="text-center">로그인</h1>
             </div>
         </div>
-        <hr/>
-        <div className="row mt-4">
-            <div className="col-md-1"></div>
-            <label className="col-md-3 col-sm-3 col-form-label">ID</label>
-            <div className="col-sm-7">
-                <input type="text" className="form-control" name="memberId" value={member.memberId}
+
+        <div className="row mt-5 d-flex justify-content-center text-nowrap">
+            <div className="col-12 input-group login-wrapper">
+                <span className="input-group-text login-label text-light text-center fs-5">아이디</span>
+                <input type="text" className="form-control login login-bar text-light ms-3 fs-5" 
+                    name="memberId" value={member.memberId}
                     onChange={changeStrValue}/>
             </div>
         </div>
-        <div className="row mt-3">
-            <div className="col-md-1"></div>
-            <label className="col-md-3 col-sm-3 col-form-label">비밀번호</label>
-            <div className="col-sm-7">
-                <input type="password" className="form-control" name="memberPw" value={member.memberPw}
+        <div className="row mt-3 d-flex justify-content-center text-nowrap">
+            <div className="col-12 input-group login-wrapper">
+                <span className="input-group-text login-label text-light text-center fs-5">비밀번호</span>
+                <input type="password" className="form-control login login-bar text-light fs-5" 
+                    name="memberPw" value={member.memberPw}
                     onChange={changeStrValue}/>
             </div>
         </div>
 
 
 
-        <div className="row mt-2">
-             <div className="col-md-4 col-sm-3"></div>
-            <div className="col-sm-7">
+        <div className="row mt-3 d-flex justify-content-center text-nowrap">
+            
+            <div className="col-12 text-center">
                 {loginResult === false && (
                     <div className="row">
                         <div className="col fs-6 text-center text-danger">
                             아이디 또는 비밀번호가 잘못되었습니다
-                        </div>
+                        </div>s
                     </div>
                 )}
-                <button type="button" className="mt-2 btn btn-success w-100 btn-lg"
+                <button type="button" className="mt-2 login btn fs-4"
                         onClick={sendLogin}> 로그인
                 </button>
+            </div>
+        </div>
+
+        <div className="row mt-3">
+            <div className="col">
+                <hr className="login-hr"/>
+            </div>
+        </div>
+
+        <div className="row mt-3 text-center d-flex justify-content-between">
+            <div className="col text-nowrap">
+                <Link className="text-decoration-none fs-5 login-link" to="/member/join">
+                    <FaUserPlus className="mb-1 me-2" /> 회원가입
+                </Link>
+            </div>
+            <div className="col text-nowrap">
+                <Link className="text-decoration-none fs-5 login-link" to="#">아이디/비밀번호 찾기</Link>
             </div>
         </div>
 </div>

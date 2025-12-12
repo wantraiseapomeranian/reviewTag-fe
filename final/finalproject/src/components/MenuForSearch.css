@@ -11,21 +11,17 @@
     width: 100%;
     /* 화면에 고정 */
     top: 56px;
-    /* Menu 높이만큼 아래로 내림 (Menu 높이에 따라 조절 필요) */
+    /* Menu 높이만큼 아래로 내림 */
     left: 0;
-    
-    /* 너비 꽉 채우기 */
     z-index: 1020;
-    /* Menu(1030)보다 낮게 설정하여 겹칠 때 아래로 가게 함 */
     background-color: #212529;
-    /* ▼▼▼ 이렇게 수정하세요 ▼▼▼ */
 
 }
 
 .search.btn.btn-success {
     background-color: transparent !important;
     border-color: transparent;
-    color: #546de5;
+    color: #3dc1d3;
 }
 .search.btn.btn-success:focus-within {
     background-color: transparent !important;
@@ -53,14 +49,14 @@
 }
 
 .search-wrapper {
-    box-shadow: 0 0 7px #546de5 !important;
+    box-shadow: 0 0 7px #3dc1d3 !important;
    
     border-radius: 0.8em;
     background-color: transparent;
 }
 
 .search-wrapper:focus-within {
-    box-shadow: 0 0 25px #546de5 !important;
+    box-shadow: 0 0 25px #3dc1d3 !important;
     border-radius: 0.8em !important;
     background-color: transparent !important;   
 }
@@ -68,7 +64,7 @@
 .search-bar {
     color: #ffffff;
     background-color: transparent;
-    border: 1px solid transparent !important;
+    border: 2px solid transparent !important;
 }
 
 .search-bar:focus {

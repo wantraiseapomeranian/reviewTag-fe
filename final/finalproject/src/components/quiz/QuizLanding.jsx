@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { FaCrown, FaGamepad, FaPenNib, FaChartBar } from "react-icons/fa6";
 import { quizApi } from './api/quizApi';
-import { useOutletContext, useParams } from 'react-router-dom';
+import { useNavigate, useOutletContext, useParams } from 'react-router-dom';
 import { useAtomValue } from 'jotai';
 import { loginIdState } from '../../utils/jotai';
 import Swal from "sweetalert2";
@@ -17,6 +17,8 @@ export default function QuizLanding() {
     //URL에서 ID 직접 가져오기
     const { contentsId } = useParams();
     //console.log("QuizLanding contentsId:", contentsId);
+
+    const navigate = useNavigate();
 
     //통합 state
     const loginId = useAtomValue(loginIdState);

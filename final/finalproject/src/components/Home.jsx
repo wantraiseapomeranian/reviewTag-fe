@@ -6,6 +6,7 @@ import "slick-carousel/slick/slick-theme.css";
 import { Link } from "react-router-dom";
 import "./Home.css";
 import { FaHeart, FaRegEye } from "react-icons/fa6";
+import { ImEyePlus } from "react-icons/im";
 
 
 const TMDB_IMAGE_BASE_URL = "https://image.tmdb.org/t/p/w500";
@@ -107,7 +108,7 @@ export default function Home() {
                         <div className="position-absolute top-0 end-0 m-2 px-2 py-2 rounded bg-black bg-opacity-75 text-white shadow-sm"
                             style={{ fontSize: "0.9rem", backdropFilter: "blur(2px)" }}>
                             <span className="fw-bold fs-5">
-                                <FaRegEye className="text-info me-2 mb-1" />
+                                <ImEyePlus className="text-info me-1 mb-1" />
                                 {content.contentsLike ? content.contentsLike.toLocaleString() : 0}
                             </span>
                         </div>
