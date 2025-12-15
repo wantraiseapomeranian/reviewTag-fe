@@ -73,8 +73,10 @@ export default function MemberMypage(){
                     </div>
                     <div className="col-3 p-0 fs-bold rate-bar">
                         <div className="rate-fill fs-6 text-dark" style={{ width: `${answerQuizRate.correctRate * 100}%` }}>
-                            {(answerQuizRate.correctRate*100).toFixed(2)} % 
                         </div>
+                        <span className="rate-text">
+                            {(answerQuizRate.correctRate * 100).toFixed(2)}%
+                        </span>
                     </div>
                 </div>
                 ))}
@@ -112,7 +114,8 @@ export default function MemberMypage(){
                                 <td className="quiz-option quiz-wrong">X</td>
                             )}
                             <td className="rate-bar ">
-                                <div className="rate-fill fs-6 text-light d-flex text-nowrap" style={{ width: `${answerQuiz.correctRate * 100}%` }}>{(answerQuiz.correctRate * 100).toFixed(2)}%</div>
+                                <div className="rate-fill fs-6d-flex text-nowrap" style={{ width: `${answerQuiz.correctRate * 100}%` }}>{(answerQuiz.correctRate * 100).toFixed(2)}%</div>
+                                <span className="rate-text"></span>
                             </td>
                         </tr>
                     ))}
@@ -153,7 +156,7 @@ export default function MemberMypage(){
                                                 <td className={`text-truncate ${addQuiz.quizAnswer==="4" ? "quiz-answer" : "quiz-option"}`}>{addQuiz.quizQuestionOption4}</td>
                                             </>
                                         )}
-                                <td className="quiz-normal">{addQuiz.correctRate * 100}%</td>
+                                <td className="quiz-normal">{(addQuiz.correctRate * 100).toFixed(2)}%</td>
                             </tr>
                     ))}
                     </tbody>
