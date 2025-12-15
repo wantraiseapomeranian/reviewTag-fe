@@ -70,7 +70,7 @@ export default function boardInsert(){
     const sendData = useCallback(async()=>{
         if(boardValid===false) return;
         const {data} = await axios.post("/board/",board);
-        navigate("/");  
+        navigate("/board/list");  
     })
 
 

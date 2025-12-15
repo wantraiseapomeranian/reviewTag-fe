@@ -90,7 +90,6 @@ return(<>
                             <span>홈</span>
                         </Link>
                     </li>
-
                     {/* contents */}
                     <li className="nav-item" onClick={closeMenu}>    
                         <Link className="nav-link"  to="/contents/genreList"><span className="fs-5"><MdMovie className="mb-2" /></span></Link>
@@ -105,6 +104,11 @@ return(<>
                             <Link className="nav-link"  to="/review/search"><span>리뷰검색</span></Link>
                         </div>
                     </li> */}
+                    <li className="nav-item" onClick={closeMenu}>
+                        <Link className="nav-link"  to="/board/list">
+                            <span>게시판</span>
+                        </Link>
+                    </li>    
                     {/* 퀴즈 */}
                      <li className="nav-item" onClick={closeMenu}>
                         <Link className="nav-link"  to="#">
@@ -115,7 +119,7 @@ return(<>
                         <Link className="nav-link"  to="/point/main">
                             <span>포인트</span>
                         </Link>
-                    </li>       
+                    </li>          
                 </ul>
                  <ul className="navbar-nav ms-auto">
                 {/* 우측 메뉴 (화면이 좁아지면 합쳐짐) */}

@@ -34,7 +34,6 @@ export default function ContentsDetail() {
     const { contentsId } = useParams();
     const navigate = useNavigate();
 
-
     const location = useLocation();
 
     //현재 위치가 /contents/detail/:contentsId/quiz인지 확인
@@ -54,11 +53,14 @@ export default function ContentsDetail() {
     //나의 리뷰 state
     const [myReview, setMyReview] = useState(null);
 
+    const [boardList, setBoardList] = useState([]);
+
     //effect
     //처음에 컨텐츠 정보와 리뷰 리스트를 불러오는 effect
     useEffect(() => {
         loadData();
         loadReview();
+        loadBoard();
     }, [contentsId]);
 
     //북마크시 contentsLike를 갱신하기 위한 effect
@@ -116,6 +118,25 @@ export default function ContentsDetail() {
         }
         setIsLoading(false);
     }, []);
+
+    // 콘텐츠 게시글 목록
+     const formatWtime = (dateString)=>{
+        const date = new Date(dateString);
+        const mm = String(date.getMonth() + 1).padStart(2, "0");
+        const dd = String(date.getDate()).padStart(2, "0");
+        return `${mm}/${dd}`
+    }
+    const loadBoard = useCallback(async()=>{
+        const {data} = await axios.get(`/board/contentsId/${contentsId}`);
+          const formattedData = data.map(board => ({
+            ...board,
+            boardWtime: formatWtime(board.boardWtime)
+        }));
+        setBoardList(formattedData);
+    },[contentsId])
+
+
+
 
     // 북마크 확인(check) 함수
     const checkWatchlist = useCallback(async () => {
@@ -401,7 +422,7 @@ export default function ContentsDetail() {
                     <>
                         <div className="row mt-4 p-3 shadow rounded dark-bg-wrapper">
 
-                            <div className="text-end mb-3" onClick={changeWatchlist}>
+                            <div className="text-end mb-3">
                                 {hasWatchlist === false ? (
                                     <span className="badge bg-danger px-3 btn" onClick={changeWatchlist} style={{ cursor: "pointer" }}><h5><FaBookmark className="text-light" /></h5></span>
                                 ) : (
@@ -473,6 +494,36 @@ export default function ContentsDetail() {
                         </div>
                     </>
                 )}
+
+                {/* 컨텐츠 관련 게시글 */}
+                <div className="mt-4 card quiz-dark-card text-center">
+                    <div className="card-header fw-bold border-0 stats-header-dark p-3 fs-5">
+                        관련 게시글
+                    </div>
+                    <div className="table-responsive">
+                        <table className="table">
+                            <thead>
+                                <tr className="text-truncate quiz-table-thead">
+                                    <th className="quiz-table-thead">번호</th>
+                                    <th className="quiz-table-thead w-50">제목</th>
+                                    <th className="quiz-table-thead">작성시간</th>
+                                    <th className="quiz-table-thead">작성자</th>
+                                </tr>
+                            </thead>
+                            <tbody >
+                                {boardList.map((boardList)=>(
+                                    <tr key={boardList.boardNo}>
+                                        <td className="quiz-normal">{boardList.boardNo}</td>
+                                        <td className="quiz-normal">{boardList.boardTitle}</td>
+                                        <td className="quiz-normal">{boardList.boardWtime}</td>
+                                        <td className="quiz-normal">{boardList.boardWriter}</td>
+                                    </tr>
+                            ))}
+                            </tbody>
+                    </table>
+                    </div>
+                </div>
+
 
                 {/* 내 리뷰 */}
                 {!isLoading && myReview && (
