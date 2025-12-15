@@ -269,7 +269,7 @@ export default function WriteReview() {
                     <div className="row mt-5 new-review">
                         <div className="col">
                             <div className="text-center">
-                                <h4>이 작품 어떠셨나요?</h4>
+                                <h4 className="mt-3">이 작품 어떠셨나요?</h4>
                             </div>
                             <div className="text-center mt-4">
                                 <span>별점이나 영화의 값어치를 입력해주세요</span>
@@ -410,7 +410,7 @@ export default function WriteReview() {
                 )}
 
                 {/* 해당 콘텐츠에 맞는 전체 리뷰 */}
-                <hr className="mt-5 HR mb-4" />
+                {/* <hr className="mt-5 HR mb-4" />
                 <div className="row mt-4">
                     <div className="col">
                         <span className="my-review">전체 리뷰</span>
@@ -439,16 +439,13 @@ export default function WriteReview() {
                                 <FaHeart className="emptyHeart me-2" />
                                 {review.reviewLike}
                             </button>
-                            {/* <FaHeart className="fullHeart" /> */}
                             <button type="button" className="shareButton">
                                 <FaShare className="share ms-3" />
                                 <span className="ms-2">공유하기</span>
                             </button>
                         </div>
                     </div>
-
-                    {/* 스포 리뷰  spoCheck*/}
-                    {/* <div className="col textAA3 mt-1 mx-auto spoCheck">
+                    <div className="col textAA3 mt-1 mx-auto spoCheck">
                         <div className="row d-flex justify-content-center align-items-center mt-4">
                             <div className="col-auto mt-5">
                                 <h3 className="spoText" >스포일러가 포함된 리뷰입니다</h3>
@@ -457,9 +454,8 @@ export default function WriteReview() {
                         <div className="d-flex">
                             <button className="spoButton me-4 mt-2"><h5 style={{ fontWeight: "bold" }}>확인하기</h5></button>
                         </div>
-                    </div> */}
-
-                </div>
+                    </div>
+                </div> */}
 
             </div>
         </div>
