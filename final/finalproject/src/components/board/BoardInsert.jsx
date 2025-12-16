@@ -185,6 +185,7 @@ export default function boardInsert() {
             //응답 데이터 상세정보 업데이트
             setContentsDetail(response.data);
             setIsSelect(true);
+            setBoard(prev => ({ ...prev, boardContentsId: contents.contentsId }));
         }
         catch (error) {
             console.error("저장 API 오류 : ", error);
@@ -194,7 +195,7 @@ export default function boardInsert() {
             setIsLoading(false);
             closeModal();
         }
-    }, []);
+    }, [board, isSelect, isLoading]);
 
     //[포스터 이미지 url 생성 함수]
     const getPosterUrl = useCallback((path) => {
