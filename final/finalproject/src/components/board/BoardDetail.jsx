@@ -1,12 +1,18 @@
 import axios from "axios";
-import { useCallback, useEffect, useState } from "react"
+import { useAtom } from "jotai";
+import { useCallback, useEffect, useRef, useState } from "react"
 import { FaComment, FaRegEye, FaRegThumbsDown, FaRegThumbsUp } from "react-icons/fa";
 import { Link, useNavigate, useParams } from "react-router-dom"
 import { toast } from "react-toastify";
+import { loginIdState } from "../../utils/jotai";
 
 
 
 export default function BoardDetail() {
+
+    //통합 state
+    const [loginId, setLoginId] = useAtom(loginIdState);
+
     const navigate = useNavigate();
     const { boardNo } = useParams();
 
@@ -18,6 +24,10 @@ export default function BoardDetail() {
         boardNotice: "", boardViewCount: 0
     });
     const [contentsTitle, setContentsTitle] = useState("");
+
+    const [boardResponseVO, setBoardResponseVO] = useState({
+        response: false, responseType: "", likeCount: 0, unlikeCount: 0
+    });
 
 
     // effect
@@ -31,6 +41,10 @@ export default function BoardDetail() {
             loadTitle(board.boardContentsId);
         }
     }, [board.boardContentsId]);
+
+    useEffect(() => {
+        checkResponse();
+    }, [loginId, boardNo]);
 
     // callback
     //[게시글 상세 정보 조회]
@@ -55,6 +69,82 @@ export default function BoardDetail() {
             console.error("컨텐츠 제목 로드 실패: ", err);
         }
     }, []);
+
+    //[좋아요 싫어요 여부 조회]
+    const checkResponse = useCallback(async () => {
+        if (loginId === "") return;
+
+        try {
+            const { data } = await axios.post("/board/check", null,
+                { params: { loginId: loginId, boardNo: boardNo } });
+            setBoardResponseVO(data);
+
+            if (boardResponseVO.response === true) {
+                console.log("좋아요나 싫어요를 이미 눌렀습니다");
+            }
+
+            else {
+                console.log("좋아요나 싫어요를 누르지 않은 상태입니다")
+            }
+
+        }
+        catch (err) {
+            console.error("[checkResponse] 실패 : ", err);
+        }
+
+    }, [boardNo, loginId]);
+
+    //[좋아요 등록 / 삭제]
+    const changeLike = useCallback(async (e) => {
+        if (loginId === "") {
+            toast.error("로그인이 필요한 기능입니다");
+            return;
+        }
+        const boardResponseDto = {
+            memberId: loginId,
+            boardNo: boardNo,
+            responseType: "좋아요"
+        }
+
+        try {
+            const { data } = await axios.post("/board/action", boardResponseDto);
+            setBoardResponseVO(data);
+            console.log("좋아요 등록 삭제 성공");
+
+        }
+        catch (err) {
+            console.error("좋아요 등록 삭제 실패 : ", err);
+        }
+
+
+    }, [loginId, boardNo, boardResponseVO]);
+
+
+    //[좋아요 등록 / 삭제]
+    const changeUnlike = useCallback(async (e) => {
+        if (loginId === "") {
+            toast.error("로그인이 필요한 기능입니다");
+            return;
+        }
+        const boardResponseDto = {
+            memberId: loginId,
+            boardNo: boardNo,
+            responseType: "싫어요"
+        }
+
+        try {
+            const { data } = await axios.post("/board/action", boardResponseDto);
+            setBoardResponseVO(data);
+            console.log("싫어요 등록 삭제 성공");
+
+        }
+        catch (err) {
+            console.error("좋아요 등록 삭제 실패 : ", err);
+        }
+
+
+    }, [loginId, boardNo, boardResponseVO]);
+
 
     const deleteBoard = useCallback(async () => {
         const choice = window.confirm("게시글을 삭제하시겠습니까?");
@@ -126,17 +216,21 @@ export default function BoardDetail() {
                 </div>
             </div>
 
-            <div className="row mt-4 justify-contents-between align-items-center">
+            <div className="row mt-4">
                 <div className="col text-light">
-                    <h4>{board.boardWriter}</h4>
-                </div>
-                <div className="col text-light text-end text-nowrap">
-                    {getDisplayDate(board.boardWtime)}
-                    <span className="ms-4 me-5"><FaRegEye className="me-1" />{board.boardViewCount}</span>
+                    <h3>{board.boardWriter}</h3>
                 </div>
 
             </div>
+
             <hr className="text-light" />
+
+            <div className="row">
+                <div className="col text-light d-flex align-items-center justify-content-end text-nowrap">
+                    <span>{getDisplayDate(board.boardWtime)}</span>
+                    <span className="ms-4 me-5"><FaRegEye className="me-1 mb-1" />{board.boardViewCount}</span>
+                </div>
+            </div>
             {/* 본문 */}
             <div
                 className="text-light"
@@ -154,13 +248,35 @@ export default function BoardDetail() {
             {/* 좋아요 싫어요 */}
             <div className="row mt-5">
                 <div className="col justify-content-center d-flex">
-                    <div>
-                        <h1 className="me-2 border rounded p-5 text-primary"><FaRegThumbsUp className="mb-1" /></h1>
-                        <h2 className="text-center mt-4">{board.boardLike}</h2>
+                    <div className="me-2">
+                        {/* 좋아요 */}
+                        {boardResponseVO.responseType === "좋아요" ? (
+                            <h1 className="ms-2 border rounded p-4 text-primary bg-light"
+                                onClick={changeLike}>
+                                <FaRegThumbsUp className="mb-1" />
+                            </h1>
+                        ) : (
+                            <h1 className="ms-2 border rounded p-4 text-primary"
+                                onClick={changeLike}>
+                                <FaRegThumbsUp className="mb-1" />
+                            </h1>
+                        )}
+                        <h2 className="text-center mt-4">{boardResponseVO.likeCount}</h2>
                     </div>
-                    <div>
-                        <h1 className="ms-2 border rounded p-5 text-danger"><FaRegThumbsDown className="mt-1" /></h1>
-                        <h2 className="text-center mt-4">{board.boardUnlike}</h2>
+                    <div className="ms-2">
+                        {/* 싫어요 */}
+                        {boardResponseVO.responseType === "싫어요" ? (
+                            <h1 className="ms-2 border rounded p-4 text-danger bg-light"
+                                onClick={changeUnlike}>
+                                <FaRegThumbsDown className="mt-1" />
+                            </h1>
+                        ) : (
+                            <h1 className="ms-2 border rounded p-4 text-danger"
+                                onClick={changeUnlike}>
+                                <FaRegThumbsDown className="mt-1" />
+                            </h1>
+                        )}
+                        <h2 className="text-center mt-4">{boardResponseVO.unlikeCount}</h2>
                     </div>
                 </div>
             </div>
@@ -170,7 +286,7 @@ export default function BoardDetail() {
             {/* 댓글 */}
             <div className="row">
                 <div className="col">
-                    <h4><FaComment className="me-3"/>{board.boardReply}</h4>
+                    <h4><FaComment className="me-3" />{board.boardReply}</h4>
                 </div>
             </div>
 
