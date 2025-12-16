@@ -360,6 +360,25 @@ export default function ContentsDetail() {
             return loginId === review.reviewWriter;
         }, [loginId, review.reviewWriter])
 
+        //신고 <기타 버튼>
+        const [reportReason, setReportReason] = useState("");
+        const [otherReason, setOtherReason] = useState("");
+
+
+        const sendData2 = useCallback(() => {
+            if (!reportReason) {
+                toast.info("신고 사유를 선택해주세요");
+                return;
+            }
+            if (reportReason === "other" && otherReason.trim() === "") {
+                toast.info("기타 사유를 입력해주세요");
+                return;
+            }
+
+            toast.success("신고가 접수되었습니다");
+            closeModal3();
+        }, [reportReason, otherReason])
+
 
         //render
         return (
@@ -390,60 +409,119 @@ export default function ContentsDetail() {
                     </div>
 
                     {/* 신고 모달 */}
-                                <div className="modal fade" id="ModalToggle3" data-bs-backdrop="static" tabIndex="-1" ref={modal3}
-                                    data-bs-keyboard="false">
-                                    <div className="modal-dialog modal-sm">
-                                        <div className="three">
-                                            <div className="modal-content">
-                                                <div className="modal-body">
-                                                    <div className="row">
-                                                        <div className="col report text-center mt-2 d-flex">
-                                                            <div className="col-2 mt-1" style={{ marginLeft: "40%" }}>신고</div>
-                                                            <div className="col-2">
-                                                                <button type="button" className="modalButtonX2" onClick={closeModal3}>
-                                                                    <FaXmark />
-                                                                </button>
-                                                            </div>
-                                                        </div>
-                    
-                                                    </div>
-                                                    <div style={{ color: "white" }} className="mt-3 reportCheck">
-                                                        <div>
-                                                            <input type="radio" className="ms-3 form-check-input" /><span className="ms-3">스포일러 포함</span>
-                                                        </div>
-                                                        <div className="mt-3">
-                                                            <input type="radio" className="ms-3 form-check-input" /><span className="ms-3">작품을 보지 않고 쓴 내용</span>
-                                                        </div>
-                                                        <div className="mt-3">
-                                                            <input type="radio" className="ms-3 form-check-input" /><span className="ms-3">홍보성 및 영리목적</span><br />
-                                                        </div>
-                                                        <div className="mt-3">
-                                                            <input type="radio" className="ms-3 form-check-input" /><span className="ms-3">욕설 및 특정인 비방</span><br />
-                                                        </div>
-                                                        <div className="mt-3">
-                                                            <input type="radio" className="ms-3 form-check-input" /><span className="ms-3">음란성 및 선정성</span><br />
-                                                        </div>
-                                                        <div className="mt-3">
-                                                            <input type="radio" className="ms-3 form-check-input" /><span className="ms-3">편파적인 언행</span><br />
-                                                        </div>
-                                                        <div className="mt-3">
-                                                            <input type="radio" className="ms-3 form-check-input" /><span className="ms-3">기타</span><br />
-                                                        </div>
-                                                        <hr className="HR" />
-                                                    </div>
-                                                    <div style={{ color: "#acacbbff" }} className="mt-4 ms-2 mb-3"><span>더 자세한 의견</span></div>
-                                                    <textarea name="" className="idea ms-3"></textarea>
-                                                    <div className="mt-4 d-flex justify-content-between">
-                                                        <button type="button" className="reportB col-5 me-4 mb-1"
-                                                            onClick={() => {
-                                                                closeModal3();
-                                                            }}>신고하기</button>
-                                                    </div>
+                    <div className="modal fade" id="ModalToggle3" data-bs-backdrop="static" tabIndex="-1" ref={modal3}
+                        data-bs-keyboard="false">
+                        <div className="modal-dialog modal-sm">
+                            <div className="three">
+                                <div className="modal-content">
+                                    <div className="modal-body">
+                                        <div className="row">
+                                            <div className="col report text-center mt-2 d-flex">
+                                                <div className="col-2 mt-1" style={{ marginLeft: "40%" }}>신고</div>
+                                                <div className="col-2">
+                                                    <button type="button" className="modalButtonX2" onClick={closeModal3}>
+                                                        <FaXmark />
+                                                    </button>
                                                 </div>
                                             </div>
+
+                                        </div>
+                                        <div style={{ color: "white" }} className="mt-3 reportCheck">
+                                            <div>
+                                                <input type="radio" className="ms-3 form-check-input" name="reportReason" value="spoiler"
+                                                    checked={reportReason === "spoiler"}
+                                                    onChange={(e) => {
+                                                        setReportReason(e.target.value)
+                                                        setOtherReason("");
+                                                    }
+                                                    }
+                                                /><span className="ms-3">스포일러 포함</span>
+
+                                            </div>
+                                            <div className="mt-3">
+                                                <input type="radio" className="ms-3 form-check-input" name="reportReason" value="no_watch"
+                                                    checked={reportReason === "no_watch"}
+                                                    onChange={(e) => {
+                                                        setReportReason(e.target.value)
+                                                        setOtherReason("");
+                                                    }
+                                                    } /><span className="ms-3">작품을 보지 않고 쓴 내용</span>
+                                            </div>
+                                            <div className="mt-3">
+                                                <input type="radio" className="ms-3 form-check-input" name="reportReason" value="ad"
+                                                    checked={reportReason === "ad"}
+                                                    onChange={(e) => {
+                                                        setReportReason(e.target.value)
+                                                        setOtherReason("");
+                                                    }
+                                                    }
+                                                /><span className="ms-3"
+                                                >홍보성 및 영리목적</span><br />
+                                            </div>
+                                            <div className="mt-3">
+                                                <input type="radio" className="ms-3 form-check-input" name="reportReason" value="swear"
+                                                    checked={reportReason === "swear"}
+                                                    onChange={(e) => {
+                                                        setReportReason(e.target.value)
+                                                        setOtherReason("");
+                                                    }
+                                                    }
+                                                /><span className="ms-3"
+                                                >욕설 및 특정인 비방</span><br />
+                                            </div>
+                                            <div className="mt-3">
+                                                <input type="radio" className="ms-3 form-check-input" name="reportReason" value="explicit"
+                                                    checked={reportReason === "explicit"}
+                                                    onChange={(e) => {
+                                                        setReportReason(e.target.value)
+                                                        setOtherReason("");
+                                                    }
+                                                    } /><span className="ms-3">음란성 및 선정성</span><br />
+                                            </div>
+                                            <div className="mt-3">
+                                                <input type="radio" className="ms-3 form-check-input" name="reportReason" value="biased"
+                                                    checked={reportReason === "biased"}
+                                                    onChange={(e) => {
+                                                        setReportReason(e.target.value)
+                                                        setOtherReason("");
+                                                    }
+                                                    } /><span className="ms-3">편파적인 언행</span><br />
+                                            </div>
+                                            <div className="mt-3">
+                                                <input type="radio" className="ms-3 form-check-input" name="reportReason" value="other"
+                                                    checked={reportReason === "other"}
+                                                    onChange={(e) => {
+                                                        setReportReason(e.target.value)
+                                                        setOtherReason("");
+                                                    }
+                                                    } /><span className="ms-3">기타</span><br />
+                                            </div>
+                                            <hr className="HR" />
+                                        </div>
+                                        <div style={{ color: "#acacbbff" }} className="mt-4 ms-2 mb-3"><span>더 자세한 의견</span></div>
+
+                                        {/* 기타 아닐 시 비활성화 */}
+                                        {reportReason !== "other" && (
+                                            <textarea name="" className="idea2 ms-3" disabled></textarea>
+                                        )}
+                                        {/* 기타 일 시, 활성화 */}
+                                        {reportReason === "other" && (
+                                            <textarea name="" className="idea ms-3" value={otherReason}
+                                                onChange={(e) => {
+                                                    setOtherReason(e.target.value);
+                                                }
+                                                }></textarea>
+                                        )}
+
+                                        <div className="mt-4 d-flex justify-content-between">
+                                            <button type="button" className="reportB col-5 me-4 mb-1"
+                                                onClick={sendData2}>신고하기</button>
                                         </div>
                                     </div>
                                 </div>
+                            </div>
+                        </div>
+                    </div>
 
                     <Link className="text-decoration-none link-body-emphasis text-light"
                         to={`/review/${contentsId}/${review.reviewNo}`}>
@@ -574,7 +652,7 @@ export default function ContentsDetail() {
 
                             <div className="text-end mb-3 mt-2">
                                 {!myReview && (
-                                <button className="contents btn btn-success" onClick={writeReview}><FaPencil className="mb-1 me-1" /> 리뷰 등록</button>
+                                    <button className="contents btn btn-success" onClick={writeReview}><FaPencil className="mb-1 me-1" /> 리뷰 등록</button>
                                 )}
 
                                 <button className="contents btn btn-warning ms-2 text-light" onClick={goToQuiz}>

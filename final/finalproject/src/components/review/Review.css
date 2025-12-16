@@ -643,6 +643,17 @@ textAA:focus::placeholder {
     height: 25%;
     resize: none;
 }
+.idea2 {
+    background-color: #525c6b;
+    border: none;
+    border-radius: 0.8em;
+    color: #fff;
+    padding: 0.8em;
+    outline: none;
+    width: 93%;
+    height: 25%;
+    resize: none;
+}
 textarea::-webkit-scrollbar {
   width: 8px;            
 }

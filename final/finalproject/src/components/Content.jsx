@@ -122,14 +122,11 @@ export default function Content() {
 
                     {/* 관리자 페이지 */}
                     <Route path="/admin" element={<AdminMain />}>
-                    {/* /admin 으로 접속하면 기본으로 회원관리 보여주기 (선택사항) */}
-                        <Route index element={<div className="text-center text-white">관리자 메인 대시보드</div>} />
-          
-                        {/* /admin/quiz 접속 시 -> AdminLayout의 <Outlet/> 자리에 AdminQuizPage가 뜸 */}
-                        <Route path="quiz" element={<AdminQuizPage />} />
-                        <Route path="member" element={<AdminMemberPage />} />
-                        <Route path="member/:memberId" element={<AdminMemberDetail />} />
+                        <Route index element={<AdminMemberPage/>}></Route>
+                        <Route path="/admin/member" element={<AdminMemberPage />} />
                         {/* <Route path="review" element={<AdminReviewPage />} /> */}
+                        <Route path="/admin/member/:memberId" element={<AdminMemberDetail />} />
+                        <Route path="/admin/quiz" element={<AdminQuizPage />} />
                         {/* <Route path="point" element={<AdminPointPage />} /> */}
                     </Route>
                 </Routes>
