@@ -4,7 +4,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import axios from "axios";
 import { Link } from "react-router-dom";
 import { FaChartBar } from "react-icons/fa";
-import "./Pagenation.css"
+import Pagination from "./Pagination";
 
 export default function MemberMypage(){
     const [loginId, setLoginId] = useAtom(loginIdState);
@@ -33,31 +33,6 @@ export default function MemberMypage(){
         setAnswerQuizRate(rateList.data);
     },[loginId, addPage]);
 
-    // 페이지네이션 - 이전 버튼
-    const movePrevBlock = useCallback(()=>{
-        const prevPage = addPageData.blockStart - 1;
-        setAddPage(prevPage < 1 ? 1 : prevPage);
-        }
-    )
-    // 페이지네이션 - 다음 버튼
-    const moveNextBlock = useCallback(()=>{
-        const nextPage = addPageData.blockFinish + 1;
-        setAddPage(
-            nextPage > addPageData.totalPage ? addPageData.totalPage : nextPage
-        );
-        }
-    )
-    // 페이지네이션 - 페이지 계산
-    const pageNumbers=useMemo(()=>{
-        if( !addPageData.totalPage) return [];
-        return Array.from(
-            { length: addPageData.blockFinish - addPageData.blockStart + 1 },
-            (_, i) => addPageData.blockStart + i
-        );
-    }, [addPageData.blockFinish, addPageData.blockStart, addPageData.blockTotalPage]);
-
-
-   
     useEffect(()=>{
         loadData();
     },[loadData]);
@@ -161,28 +136,13 @@ export default function MemberMypage(){
              {/* 페이지네이션 */}
             <div className ="row mt-1">
                 <div className="col-6 offset-3">
-                     <nav aria-label="Page navigation">
-                        <ul className="pagination">
-                            {/* 이전 버튼 */}
-                            <li className="page-item">
-                                <button className="page-link" disabled={addPageData.blockStart === 1}
-                                        onClick={movePrevBlock}>◀</button>
-                            </li>
-                            {/* 페이지 번호 */}
-                                    {pageNumbers.map(pageNum=>(
-                                    <li key={pageNum} className={`page-item ${addPage === pageNum ? "active" : ""}`}>
-                                        <button className="page-link" onClick={() => setAddPage(pageNum)}>
-                                            {pageNum}
-                                        </button>
-                                    </li>
-                                    ))}
-                            {/* 다음 버튼 */}
-                            <li className="page-item">
-                                <button className="page-link" disabled={addPageData.blockFinish >= addPageData.totalPage}
-                                        onClick={moveNextBlock}>▶</button>
-                            </li>
-                        </ul>
-                    </nav>
+                     <Pagination
+                        page={addPage}
+                        totalPage={addPageData.totalPage}
+                        blockStart={addPageData.blockStart}
+                        blockFinish={addPageData.blockFinish}
+                        onPageChange={setAddPage}
+                    />
                 </div>
             </div>
             <div className="table-responsive">
