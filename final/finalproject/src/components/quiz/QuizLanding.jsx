@@ -1,11 +1,10 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { FaCrown, FaGamepad, FaPenNib, FaChartBar } from "react-icons/fa6";
+import { FaCrown, FaGamepad, FaPenNib, FaChartBar, FaTrophy } from "react-icons/fa6";
 import { quizApi } from './api/quizApi';
-import { useNavigate, useOutletContext, useParams } from 'react-router-dom';
-import { useAtomValue } from 'jotai';
-import { loginIdState } from '../../utils/jotai';
+import { useNavigate, useParams } from 'react-router-dom';
+import { useAtom, useAtomValue, useSetAtom } from 'jotai';
+import { heartState, loginIdState, quizListAtom } from '../../utils/jotai';
 import Swal from "sweetalert2";
-import withReactContent from 'sweetalert2-react-content';
 import "./QuizLanding.css"
 
 //퀴즈 모달
@@ -22,6 +21,13 @@ export default function QuizLanding() {
 
     //통합 state
     const loginId = useAtomValue(loginIdState);
+    const setQuizList = useSetAtom(quizListAtom);
+
+    //로딩 상태 관리
+    const [isLoading, setIsLoading] = useState(false);
+
+    //하트 상태 관리
+    const [heart, setHeart] = useAtom(heartState);
 
     //모달 상태 관리
     const [showGameModal, setShowGameModal] = useState(false);
@@ -94,7 +100,7 @@ export default function QuizLanding() {
         //console.log("1. handleRequireLogin 실행됨. 로그인ID:", loginId);
         //로그인 상태
         if (loginId) {
-            //console.log("2. 로그인 상태임 -> 콜백 실행");
+            //console.log("로그인 상태임 -> 콜백 실행");
             actionCallback();
             return;
         }
@@ -119,12 +125,29 @@ export default function QuizLanding() {
     };
 
     const handleQuizChallenge = async () => {
-        //console.log("3. handleQuizChallenge 진입함");
+        //console.log("handleQuizChallenge 진입함");
+        //로딩중이면 실행 중지
+        if (isLoading) return;
+
+        //하트가 0개라면
+        if (heart <= 0) {
+            Swal.fire({
+                icon: 'warning',
+                title: '하트가 부족해요! 💔',
+                text: '내일 다시 도전해주세요.',
+                confirmButtonColor: '#fe8563',
+                confirmButtonText: '확인'
+            });
+            return; 
+        }
+
         try {
-            //console.log("4. API 호출 시작. contentsId:", contentsId);
+            //로딩 시작
+            setIsLoading(true);
+            //console.log("API 호출 시작. contentsId:", contentsId);
             //서버에 퀴즈 데이터가 있는지 확인
             const quizList = await quizApi.getQuizGame(contentsId);
-            //console.log("5. API 응답 받음:", quizList);
+            //console.log("API 응답 받음:", quizList);
 
             //퀴즈가 하나도 없다면
             if (!quizList || quizList.length === 0) {
@@ -146,18 +169,37 @@ export default function QuizLanding() {
                 return; // 게임 모달 열지 않고 종료
             }
 
+            //서버에서 받아온 문제를 저장
+            setQuizList(quizList);
+
+            //화면의 하트 개수도 1 줄이기
+            setHeart((prev) => prev - 1);
+
             //퀴즈가 있다면
             setShowGameModal(true);
 
         } catch (error) {
             console.error("퀴즈 조회 에러:", error);
-            // 에러 상황에서도 알림
-            Swal.fire({
-                icon: 'error',
-                title: '오류 발생',
-                text: '퀴즈 정보를 불러오는 중 문제가 발생했습니다.',
-                confirmButtonColor: '#fe8563'
-            });
+
+            if (error.response && error.response.status === 402) {
+                 Swal.fire({
+                    icon: 'error',
+                    title: '진입 실패',
+                    text: '하트가 부족하여 퀴즈를 시작할 수 없습니다.',
+                    confirmButtonColor: '#fe8563'
+                });
+            } else {
+                // 에러 상황에서도 알림
+                Swal.fire({
+                    icon: 'error',
+                    title: '오류 발생',
+                    text: '퀴즈 정보를 불러오는 중 문제가 발생했습니다.',
+                    confirmButtonColor: '#fe8563'
+                });
+            }
+        } finally {
+            //모든 작업이 끝나면 로딩 풀기
+            setTimeout(() => setIsLoading(false), 500);
         }
     };
 
@@ -183,7 +225,7 @@ export default function QuizLanding() {
                             <h3 className="fw-bold mt-2">{topRanker.nickname}</h3>
 
                             <p className="opacity-75 mb-0">
-                                이 영화의 퀴즈 마스터 🏆 <br />
+                                이 영화의 퀴즈 마스터 <FaTrophy className='text-warning' /> <br />
                                 <span className="badge bg-warning text-dark mt-2">
                                     {/* 점수 출력 */}
                                     점수 {topRanker.score}점
@@ -196,7 +238,7 @@ export default function QuizLanding() {
                             <FaCrown className="rank-empty-icon" />
                             <h5>아직 퀴즈 마스터가 없습니다!</h5>
                             <br />
-                            <p>첫 번째 주인공이 되어보세요 👑</p>
+                            <p>첫 번째 주인공이 되어보세요</p>
                         </div>
                     )}
                 </div>
@@ -208,10 +250,13 @@ export default function QuizLanding() {
                 <div className="col-md-6">
                     <button
                         className="btn btn-primary w-100 shadow-sm quiz-btn-custom"
-                        onClick={() => handleRequireLogin(handleQuizChallenge)}
+                        onClick={() => !isLoading && handleRequireLogin(handleQuizChallenge)}
+                        disabled={isLoading}
                     >
-                        <FaGamepad size={32} className="mb-2 me-2" />
-                        <span className="fs-5 fw-bold">퀴즈 도전하기</span>
+                        <FaGamepad size={32} className="mb-2 me-2"/>
+                        <span className="fs-5 fw-bold">
+                            {isLoading ? "로딩 중..." : "퀴즈 도전하기"}
+                        </span>
                         <br />
                         <small className="opacity-75 mt-1">내 지식을 테스트해보세요!</small>
                     </button>

@@ -69,10 +69,15 @@ export default function QuizGameModal({ show, onClose, contentsId }) {
 
     //effect
     useEffect(() => {
-        if (show && contentsId) {
-            loadQuizGame();
-        }
-    }, [show, contentsId]);
+        
+        //게임 상태 초기화
+        if (show) {
+            setGameState('PLAYING');
+            setCurrentIndex(0);
+            setUserAnswers({});
+        } 
+
+    }, [show]);
 
     // ESC 키 누르면 닫히는 기능 추가
     useEffect(() => {

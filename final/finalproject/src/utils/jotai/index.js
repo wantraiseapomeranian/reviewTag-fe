@@ -7,6 +7,9 @@ export const loginNicknameState = atomWithStorage("loginNicknameStoreage","", se
 export const accessTokenState = atomWithStorage("accessTokenState", "", sessionStorage);
 export const refreshTokenState= atomWithStorage("refreshTokenState", "", sessionStorage);
 
+//하트 개수
+export const heartState = atomWithStorage("myHeart", 0, sessionStorage);
+
 export const loginState = atom(get=>{
     const loginId = get(loginIdState);
     const loginLevel = get(loginLevelState);
@@ -45,5 +48,5 @@ export const currentQuizIndexAtom = atom(0);
 //사용자 답안 저장소 { quizId: "정답값" }
 export const userAnswersAtom = atom({});
 
-// 4. 퀴즈 게임 모달 표시 여부 (전역에서 제어하고 싶을 때 사용)
+//퀴즈 게임 모달 표시 여부
 export const quizModalShowAtom = atom(false);

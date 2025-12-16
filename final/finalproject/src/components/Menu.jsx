@@ -1,12 +1,11 @@
 import { useAtom, useAtomValue, useSetAtom } from "jotai";
 import { Link, useNavigate } from "react-router-dom"
-import { accessTokenState, adminState, clearLoginState, loginCompleteState, loginIdState, loginLevelState, loginState } from "../utils/jotai";
+import { accessTokenState, adminState, clearLoginState, heartState, loginCompleteState, loginIdState, loginLevelState, loginState } from "../utils/jotai";
 import { useCallback, useEffect, useRef, useState } from "react";
 import axios from "axios";
 import './Menu.css'
-import { FaHome } from "react-icons/fa";
 import { MdMovie } from "react-icons/md";
-import { FaGear } from "react-icons/fa6";
+import { FaHeart, FaGear } from "react-icons/fa6";
 
 
 export default function Menu() {
@@ -21,6 +20,9 @@ export default function Menu() {
     const isAdmin = useAtomValue(adminState);  
     const clearLogin = useSetAtom(clearLoginState);
 
+    //하트 가져오기
+    const [heart, setHeart] = useAtom(heartState);
+
     //effect
     useEffect(()=>{
         if(accessToken?.length>0){
@@ -29,7 +31,34 @@ export default function Menu() {
         setLoginComplete(true);
     },[accessToken]);
 
+    //로그인 성공 시, 내 정보 불러오기
+    useEffect(() => {
+        if (isLogin && loginId) {
+            loadMemberData();
+        }
+    }, [isLogin, loginId]);
+
     //callback
+    //내 정보 가져오는 함수
+    const loadMemberData = useCallback(async ()=> {
+
+        //비로그인일때는 불러오지 않음
+        if(!loginId || !accessToken) return;
+
+        //보유중인 하트 개수 불러오기
+        try {
+        const { data } = await axios.get(`/heart/`);
+
+        if(data.heartCount !== undefined){
+            setHeart(data.heartCount);
+            } else {
+                setHeart(5);
+            }
+        } catch (error) {
+            console.error("내 정보 불러오기 실패:", error);
+        }
+    }, [loginId, accessToken, setHeart]);
+
     //로그아웃
     const logout = useCallback(async(e)=>{
         e.stopPropagation();
@@ -109,12 +138,12 @@ return(<>
                             <span>게시판</span>
                         </Link>
                     </li>    
-                    {/* 퀴즈 */}
+                    {/* 퀴즈(영화 상세 페이지에 구현)
                      <li className="nav-item" onClick={closeMenu}>
                         <Link className="nav-link"  to="#">
                             <span>퀴즈</span>
                         </Link>
-                    </li>
+                    </li> */}
                        <li className="nav-item" onClick={closeMenu}>
                         <Link className="nav-link"  to="/point/main">
                             <span>포인트</span>
@@ -135,8 +164,19 @@ return(<>
                     )}
 
                     {isLogin === true ? (<>  {/* 로그인 시 나와야 하는 화면 */}
-                    <li className="nav-item" onClick={closeMenu}>
-                        <Link className="nav-link" to={`/member/mypage/myinfo/${loginId}`}>
+
+                    {/* 하트 표시 */}
+                    {!isAdmin && (
+                        <li className="nav-item">
+                            <div className="nav-link text-warning" style={{cursor: 'default'}}>
+                                <FaHeart className="text-danger me-2" />
+                                <span className="fw-bold text-light">{heart} / 5</span>
+                            </div>
+                        </li>
+                    )}
+
+                    <li className="nav-item">
+                        <Link className="nav-link" to={`/member/mypage/myinfo/${loginId}`} onClick={closeMenu}>
                             <span>MY</span>
                         </Link>
                     </li>
