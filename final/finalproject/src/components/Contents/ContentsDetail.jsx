@@ -15,6 +15,7 @@ import { toast } from "react-toastify";
 import { set } from "lodash";
 import { BsThreeDotsVertical } from "react-icons/bs";
 
+
 const TMDB_IMAGE_BASE_URL = "https://image.tmdb.org/t/p/w500";
 
 
@@ -120,20 +121,20 @@ export default function ContentsDetail() {
     }, []);
 
     // 콘텐츠 게시글 목록
-     const formatWtime = (dateString)=>{
+    const formatWtime = (dateString) => {
         const date = new Date(dateString);
         const mm = String(date.getMonth() + 1).padStart(2, "0");
         const dd = String(date.getDate()).padStart(2, "0");
         return `${mm}/${dd}`
     }
-    const loadBoard = useCallback(async()=>{
-        const {data} = await axios.get(`/board/contentsId/${contentsId}/5`);
-          const formattedData = data.map(board => ({
+    const loadBoard = useCallback(async () => {
+        const { data } = await axios.get(`/board/contentsId/${contentsId}/5`);
+        const formattedData = data.map(board => ({
             ...board,
             boardWtime: formatWtime(board.boardWtime)
         }));
         setBoardList(formattedData);
-    },[contentsId])
+    }, [contentsId])
 
 
 
@@ -340,22 +341,69 @@ export default function ContentsDetail() {
         // 가격 포맷
         const formattedPrice = review.reviewPrice.toLocaleString('ko-KR');
 
+
+        const [Writer, setWriter] = useState("");
+
+        const isWriter = useMemo(() => {
+            return loginId === review.reviewWriter;
+        }, [loginId, review.reviewWriter])
+
+
+        //render
         return (
             <div className="row mt-4 p-3 review-card">
                 <div className="col mt-2">
                     <Link className="text-decoration-none link-body-emphasis text-light"
                         to={`/review/${contentsId}/${review.reviewNo}`}>
-                        <div className="d-flex justify-content-between">
-                            <h4 className="text-light">
+
+                        <div className="d-flex align-items-center justify-content-between">
+    
+    {/* 왼쪽 영역 */}
+    <div className="d-flex align-items-center gap-2">
+        <h4 className="text-light mb-0">
+            {review.memberNickname}({review.reviewWriter})
+            {review.reviewEtime && " (수정됨)"}
+        </h4>
+        <p className="text-light mb-0">{formattedDate}</p>
+    </div>
+
+    {/* 오른쪽 영역 */}
+    <div>
+        <button
+            className="mainTitleB"
+            type="button"
+            data-bs-dismiss={isWriter ? "ModalToggle1" : "ModalToggle3"}
+        >
+            <BsThreeDotsVertical />
+        </button>
+    </div>
+
+</div>
+
+
+                        {/* <div className="d-flex justify-content-between">
+                            <h4 className="text-light" style={{ marginTop: "1.3%" }}>
                                 {review.memberNickname}({review.reviewWriter}){review.reviewEtime ? " (수정됨)" : ""}
                             </h4>
-                            <p className="text-light">{formattedDate}</p>
-                        </div>
+                            <p className="text-light" style={{ marginTop: "1%" }}>{formattedDate}</p>
+                            {isWriter && (
+                                <button className="mainTitleB" type="button"
+                                    onClick={openModal1}
+                                    data-bs-dismiss="ModalToggle1"
+                                ><BsThreeDotsVertical /></button>
+                            )}
+                            {!isWriter && (
+                                <button className="mainTitleB mb-2" type="button"
+                                    onClick={openModal3}
+                                    data-bs-dismiss="ModalToggle3"
+                                ><BsThreeDotsVertical /></button>
+                            )}
+                        </div> */}
 
                         {/* 별점 */}
-                        <div className="mt-1 d-flex align-items-center">
+                        <div className="mt-3 d-flex align-items-center">
                             {[1, 2, 3, 4, 5].map((num) => (
-                                <FaStar key={num} style={{ color: num <= review.reviewRating ? "#ffc107" : "#444", marginRight: "2px" }} />
+                                <FaStar key={num} style={{ color: num <= review.reviewRating ? "#ffc107" : "#979797ff", marginRight: "2px" }} />
                             ))}
                             <span className="ms-2 text-light me-2">{review.reviewRating}점 • </span>
 
@@ -453,14 +501,14 @@ export default function ContentsDetail() {
                             {/* 텍스트 영역 */}
                             <div className="col-9 col-md-7 ms-4 mt-4 text-light">
                                 <h3 className="text-light">{contentsDetail.contentsTitle}</h3>
-                                <div className="mt-5">  
+                                <div className="mt-5">
                                     <h5>평균 점수</h5>
                                 </div>
                                 <div className="fs-5 d-flex align-items-center">
                                     {[1, 2, 3, 4, 5].map((num) => (
-                                        <FaStar key={num} style={{ color: num <= getContentsRateAvg ? "#ffc107" : "#444", marginRight: "2px" }} />
+                                        <FaStar key={num} style={{ color: num <= getContentsRateAvg ? "#ffc107" : "#979797ff", marginRight: "2px" }} />
                                     ))}
-                                    <span className="ms-2 text-light"> • <FcMoneyTransfer className="me-1" />{getContentsPriceAvg  } 원</span>
+                                    <span className="ms-2 text-light"> • <FcMoneyTransfer className="me-1" />{getContentsPriceAvg} 원</span>
                                 </div>
                                 <div className="mt-4">
                                     <h5>줄거리</h5>
@@ -478,7 +526,7 @@ export default function ContentsDetail() {
 
                             <div className="text-end mb-3 mt-2">
                                 {!myReview && (
-                                <button className="contents btn btn-success" onClick={writeReview}><FaPencil className="mb-1 me-1" /> 리뷰 등록</button>
+                                    <button className="contents btn btn-success" onClick={writeReview}><FaPencil className="mb-1 me-1" /> 리뷰 등록</button>
                                 )}
 
                                 <button className="contents btn btn-warning ms-2 text-light" onClick={goToQuiz}>
@@ -502,10 +550,10 @@ export default function ContentsDetail() {
                 <div className="mt-4 card quiz-dark-card text-center">
                     <div className="card-header fw-bold border-0 stats-header-dark p-3 fs-5">
                         <div className="row">
-                            <span className ="col-12 col-md-10 mb-1">최근 게시글</span>
+                            <span className="col-12 col-md-10 mb-1">최근 게시글</span>
                             <Link to={`/board/list/${contentsId}`} className="col-md-2 btn btn-secondary">전체보기</Link>
                         </div>
-                        
+
                     </div>
                     <div className="table-responsive">
                         <table className="table">
@@ -518,16 +566,16 @@ export default function ContentsDetail() {
                                 </tr>
                             </thead>
                             <tbody >
-                                {boardList.map((boardList)=>(
+                                {boardList.map((boardList) => (
                                     <tr key={boardList.boardNo}>
                                         <td className="quiz-normal">{boardList.boardNo}</td>
                                         <td className="quiz-normal"><Link to={`/board/${boardList.boardNo}`} className="board-link">{boardList.boardTitle}</Link></td>
                                         <td className="quiz-normal">{boardList.boardWtime}</td>
                                         <td className="quiz-normal">{boardList.boardWriter}</td>
                                     </tr>
-                            ))}
+                                ))}
                             </tbody>
-                    </table>
+                        </table>
                     </div>
                 </div>
 
@@ -541,8 +589,8 @@ export default function ContentsDetail() {
                             </div>
                             <hr className="mt-2 HR mb-4" />
                         </div>
-                        <div className="row mt-4 p-3 myreview-card">
-                            <div className="col mt-2">
+                        <div className="row mt-3 p-3 myreview-card">
+                            <div className="col mt-4">
                                 <Link className="text-decoration-none link-body-emphasis text-light"
                                     to={`/review/${contentsId}/${myReview.reviewNo}`}>
                                     <div className="d-flex justify-content-between">
@@ -555,7 +603,7 @@ export default function ContentsDetail() {
                                     {/* 별점 */}
                                     <div className="mt-1 d-flex align-items-center">
                                         {[1, 2, 3, 4, 5].map((num) => (
-                                            <FaStar key={num} style={{ color: num <= myReview.reviewRating ? "#ffc107" : "#444", marginRight: "2px" }} />
+                                            <FaStar key={num} style={{ color: num <= myReview.reviewRating ? "#ffc107" : "#979797ff", marginRight: "2px" }} />
                                         ))}
                                         <span className="ms-2 text-light me-2">{myReview.reviewRating}점 • </span>
 

@@ -121,7 +121,7 @@ export default function WriteReview() {
                 toast.success("등록 완료");
                 setIsUpdateReview(true);
                 setMyReview(reviewData)
-                navigate(`/contents/detail/${contentsId}`);
+                navigate(`/contents/detail/${contentsId}`, { replace: true });
             }
         }
         catch (error) {
@@ -172,7 +172,7 @@ export default function WriteReview() {
         const formattedNumber = number === 0 ? "" : number.toLocaleString('ko-KR');
         setPrice(formattedNumber);
 
-        let newRating =  0;
+        let newRating = 0;
         if (number >= 15000) {
             newRating = 5;
         } else {
@@ -284,14 +284,14 @@ export default function WriteReview() {
                                     />
                                 ))}
                                 <span className="me-1 rating-number">{review.reviewRating}.0</span>
-                            <div className="mt-1 ms-3 input-group price-wrapper text-center w-25">
-                                <input type="text" inputMode="numerice"
-                                    className="price form-control price-bar text-light"
-                                    value={price} onChange={changeNum}/>
-                                <span className="input-group-text price-label text-light">원</span>
+                                <div className="mt-1 ms-3 input-group price-wrapper text-center w-25">
+                                    <input type="text" inputMode="numerice"
+                                        className="price form-control price-bar text-light"
+                                        value={price} onChange={changeNum} />
+                                    <span className="input-group-text price-label text-light">원</span>
+                                </div>
                             </div>
-                            </div>
-    
+
                         </div>
 
                         <div className="row mt-4">
@@ -338,125 +338,6 @@ export default function WriteReview() {
                         </div>
                     </div>
                 )}
-
-
-                {/* 이미 작성했을 시, 수정 화면을 보여줘야함  update-review*/}
-                {(loginId && myReview) && (
-                    <div className="update-review">
-                        <div className="row mt-4">
-                            <hr className="mt-1 HR" />
-                            <div className="col d-flex justify-content-between">
-                                <span className="my-review mt-2">내가 쓴 리뷰</span>
-                            </div>
-                        </div>
-                        <div className="my-review-space mt-4">
-                            <div className="d-flex justify-content-between">
-                                <span className="ms-1 mt-1">내 별점 평가</span>
-                                <div className="update" value={review.reviewRating}>
-                                    {[1, 2, 3, 4, 5].map((num) => (
-                                        <FaStar
-                                            key={num}
-                                            className={num <= rating ? "fullStar" : "emptyStar"}
-                                            onClick={() => handleStarClick(num)}
-                                            style={{ cursor: "pointer" }}
-                                        />
-                                    ))}
-                                </div>
-                            </div>
-                        </div>
-                        <div className="col textAAA mt-3 mx-auto">
-                            <div className="d-flex justify-content-between align-items-start flex-wrap">
-                                <div className="ms-3 mt-3 titleC" style={{ flex: "1 1 auto" }}>{contentsDetail.contentsTitle} / 내 리뷰</div>
-                                <div className="d-flex align-items-center flex-shrink-0 mt-2">
-                                    <span className="rating-number2 me-1">{review.reviewRating}.0</span>
-                                    <div className="ms-3 me-1 updateT">작성시간</div>
-                                    <button className="ms-1 updateB me-2"><BsThreeDotsVertical /></button>
-                                </div>
-                            </div>
-                            <div className="mt-2">
-                                <textarea
-                                    className={`form-control textA3 ${reviewClass}`}
-                                    style={{ width: "100%", boxSizing: "border-box" }} // 화면 줄어들어도 밖으로 안 튀어나감
-                                    placeholder="작품과 관련된 감상을 10글자 이상 작성해주세요. 자유롭게 의견을 남겨보세요."
-                                    value={review.reviewText.length > 140 ? review.reviewText.slice(0, 140) + "..." : review.reviewText}
-                                    readOnly
-                                    onChange={e => setReview({ ...review, reviewText: e.target.value })}
-                                    onBlur={() => setReviewClass(reviewClassInValid ? "is-invalid" : "")}
-                                />
-                            </div>
-                            <hr className="HR" />
-                            <div className="ms-3 heart-wrapper">
-                                <FaHeart className="emptyHeart me-2" />
-                                {review.reviewLike}
-                                {/* <FaHeart className="fullHeart" /> */}
-                                <button type="button" className="shareButton">
-                                    <FaShare className="share ms-4" />
-                                    <span className="ms-2">공유하기</span>
-                                </button>
-                            </div>
-                        </div>
-
-                        {/* <div className="invalid-feedback">자음·모음만 반복된 입력은 사용할 수 없어요</div>
-                        <div className="primary text-center">
-                            <button
-                                    className="mt-5 btn btn-primary col-10 col-sm-10"
-                                    disabled={!reviewValid || invalidRating}
-                                    onClick={sendData}
-                                >
-                                    리뷰 수정하기
-                                </button>
-                        </div> */}
-                    </div>
-                )}
-
-                {/* 해당 콘텐츠에 맞는 전체 리뷰 */}
-                {/* <hr className="mt-5 HR mb-4" />
-                <div className="row mt-4">
-                    <div className="col">
-                        <span className="my-review">전체 리뷰</span>
-                    </div>
-                    <div className="mt-4">
-                    </div>
-                    <div className="col textAA2 mt-1 mx-auto">
-                        <div className="d-flex justify-content-between align-items-start flex-wrap">
-                            <div className="ms-3 mt-3" style={{ flex: "1 1 auto" }}>멤버닉네임</div>
-                            <div className="d-flex align-items-center flex-shrink-0 mt-3">
-                                <span className="real me-2">점수금액제??</span>
-                                <span className="real me-1">신뢰도 : {review.reviewRealiability}</span>
-                                <div className="ms-3 me-1 updateT2 me-4">작성시간</div>
-                            </div>
-                        </div>
-                        <div className="mt-2">
-                            <textarea
-                                className={`form-control textA3 ${reviewClass}`}
-                                style={{ width: "100%", boxSizing: "border-box" }} // 화면 줄어들어도 밖으로 안 튀어나감
-                                value={review.reviewText.length > 140 ? review.reviewText.slice(0, 140) + "..." : review.reviewText}
-                            />
-                        </div>
-                        <hr className="HR" />
-                        <div className="ms-3 heart-wrapper">
-                            <button type="button" className="shareButton">
-                                <FaHeart className="emptyHeart me-2" />
-                                {review.reviewLike}
-                            </button>
-                            <button type="button" className="shareButton">
-                                <FaShare className="share ms-3" />
-                                <span className="ms-2">공유하기</span>
-                            </button>
-                        </div>
-                    </div>
-                    <div className="col textAA3 mt-1 mx-auto spoCheck">
-                        <div className="row d-flex justify-content-center align-items-center mt-4">
-                            <div className="col-auto mt-5">
-                                <h3 className="spoText" >스포일러가 포함된 리뷰입니다</h3>
-                            </div>
-                        </div>
-                        <div className="d-flex">
-                            <button className="spoButton me-4 mt-2"><h5 style={{ fontWeight: "bold" }}>확인하기</h5></button>
-                        </div>
-                    </div>
-                </div> */}
-
             </div>
         </div>
 
