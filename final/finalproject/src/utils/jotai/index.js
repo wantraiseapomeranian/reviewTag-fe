@@ -7,6 +7,7 @@ export const loginNicknameState = atomWithStorage("loginNicknameStoreage","", se
 export const accessTokenState = atomWithStorage("accessTokenState", "", sessionStorage);
 export const refreshTokenState= atomWithStorage("refreshTokenState", "", sessionStorage);
 
+
 //하트 개수
 export const heartState = atomWithStorage("myHeart", 0, sessionStorage);
 
@@ -50,3 +51,4 @@ export const userAnswersAtom = atom({});
 
 //퀴즈 게임 모달 표시 여부
 export const quizModalShowAtom = atom(false);
+
