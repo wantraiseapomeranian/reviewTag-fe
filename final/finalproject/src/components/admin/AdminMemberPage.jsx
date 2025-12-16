@@ -5,6 +5,7 @@ import Swal from 'sweetalert2';
 import { useAtomValue } from 'jotai';
 import { loginIdState } from '../../utils/jotai';
 import './AdminMember.css';
+import Pagination from "../Pagination";
 
 // 등급 목록 상수
 const GRADE_OPTIONS = ["일반회원", "우수회원", "관리자"];
@@ -17,6 +18,11 @@ export default function AdminMemberPage() {
     // 상태 관리
     const [memberList, setMemberList] = useState([]);
     const [loading, setLoading] = useState(false);
+    const [page, setPage] = useState(1);
+    const [pageData, setPageData] = useState({
+        page : 1,size : 10,  totalCount : 0, totalPage : 0, blockStart : 1, blockFinish : 1
+    });
+
 
     // 검색 필터 상태
     const [searchType, setSearchType] = useState('memberId');
@@ -27,24 +33,26 @@ export default function AdminMemberPage() {
         if (!loginId) return;
         setLoading(true);
         try {
-            const res = await axios.get('/admin/members', {
+            const res = await axios.get(`/admin/members`, {
                 params: {
+                    page : page,
                     type: searchType,
                     keyword: keyword
                 }
             });
-            setMemberList(res.data);
+            setMemberList(res.data.list);
+            setPageData(res.data.pageVO);
         } catch (error) {
             console.error("회원 목록 로드 실패", error);
         }
         setLoading(false);
-    }, [loginId, searchType, keyword]);
+    }, [loginId, searchType, keyword, page]);
 
     // 초기 로딩
     useEffect(() => {
         // 로그인 정보가 있으면 로드
         if (loginId) fetchMembers();
-    }, [loginId]);
+    }, [loginId, page]);
 
     // 2. 상세 페이지 이동 핸들러
     const handleRowClick = (memberId) => {
@@ -201,6 +209,18 @@ export default function AdminMemberPage() {
                         )}
                     </tbody>
                 </table>
+            </div>
+            {/* 페이지네이션 */}
+            <div className ="row mt-1">
+                <div className="col-6 offset-3">
+                        <Pagination
+                        page={page}
+                        totalPage={pageData.totalPage}
+                        blockStart={pageData.blockStart}
+                        blockFinish={pageData.blockFinish}
+                        onPageChange={setPage}
+                    />
+                </div>
             </div>
         </div>
     );
