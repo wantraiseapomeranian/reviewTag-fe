@@ -614,7 +614,7 @@ textAA:focus::placeholder {
     margin-left: 29%;
 }
 .three>.modal-content {
-    height: 727px !important;
+    height: 740px !important;
     width: 500px;
     background-color: #2c2e3a !important;
     border-radius: 1.5em;
@@ -642,4 +642,21 @@ textAA:focus::placeholder {
     width: 93%;
     height: 25%;
     resize: none;
+}
+textarea::-webkit-scrollbar {
+  width: 8px;            
+}
+
+textarea::-webkit-scrollbar-track {
+  background: #3f4753;     
+  border-radius: 10px;
+}
+
+textarea::-webkit-scrollbar-thumb {
+  background: #7c7e91;       
+  border-radius: 10px;
+}
+
+textarea::-webkit-scrollbar-thumb:hover {
+  background: #666;
 }

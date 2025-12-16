@@ -4,7 +4,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import axios from "axios";
 import { Link } from "react-router-dom";
 import { FaChartBar } from "react-icons/fa";
-import "./Pagenation.css"
+import Pagination from "./Pagination";
 
 export default function MemberMypage(){
     const [loginId, setLoginId] = useAtom(loginIdState);
@@ -14,9 +14,11 @@ export default function MemberMypage(){
     const [answerQuizList, setAnswerQuizList] = useState([]);
     const [answerQuizRate, setAnswerQuizRate] = useState([]);
     const [addQuizList, setAddQuizList] = useState([]);
-    
+    // 페이지네이션을 위한 설정
     const [answerPage, setAnswerPage] = useState(1);
-    const [answerTotalPage, setAnswerTotalPage] = useState(1);
+    const [answerPageData, setAnswerPageData] = useState({
+        page : 1,size : 10,  totalCount : 0, totalPage : 0, blockStart : 1, blockFinish : 1
+    });
     const [addPage, setAddPage] = useState(1);
     const [addPageData, setAddPageData] = useState({
         page : 1,size : 10,  totalCount : 0, totalPage : 0, blockStart : 1, blockFinish : 1
@@ -24,40 +26,17 @@ export default function MemberMypage(){
 
     //callback 
     const loadData = useCallback(async()=>{
-        const answerList = await axios.get(`/member/myanswerquiz/${loginId}`);
-        setAnswerQuizList(answerList.data);
+        console.log("loginId:", loginId, "page:", page);
+        const answerList = await axios.get(`/member/myanswerquiz/${loginId}/${answerPage}`);
+        setAnswerQuizList(answerList.data.list);
+        setAnswerPageData(answerList.data.pageVO);
         const addList = await axios.get(`/member/myaddquiz/${loginId}/${addPage}`);
         setAddQuizList(addList.data.list);
         setAddPageData(addList.data.pageVO);
         const rateList = await axios.get(`/member/myanswerRate/${loginId}`);
         setAnswerQuizRate(rateList.data);
-    },[loginId, addPage]);
+    },[loginId, addPage, answerPage]);
 
-    // 페이지네이션 - 이전 버튼
-    const movePrevBlock = useCallback(()=>{
-        const prevPage = addPageData.blockStart - 1;
-        setAddPage(prevPage < 1 ? 1 : prevPage);
-        }
-    )
-    // 페이지네이션 - 다음 버튼
-    const moveNextBlock = useCallback(()=>{
-        const nextPage = addPageData.blockFinish + 1;
-        setAddPage(
-            nextPage > addPageData.totalPage ? addPageData.totalPage : nextPage
-        );
-        }
-    )
-    // 페이지네이션 - 페이지 계산
-    const pageNumbers=useMemo(()=>{
-        if( !addPageData.totalPage) return [];
-        return Array.from(
-            { length: addPageData.blockFinish - addPageData.blockStart + 1 },
-            (_, i) => addPageData.blockStart + i
-        );
-    }, [addPageData.blockFinish, addPageData.blockStart, addPageData.blockTotalPage]);
-
-
-   
     useEffect(()=>{
         loadData();
     },[loadData]);
@@ -114,9 +93,20 @@ export default function MemberMypage(){
 
 
         <div className="mt-4 card quiz-dark-card text-center">
-
-            <div className="card-header fw-bold border-0 stats-header-dark p-3 fs-5">
-                내가 푼 퀴즈
+            <div className="card-header fw-bold border-0 p-3 fs-5">
+                내가 풀이한 퀴즈
+            </div>
+             {/* 페이지네이션 */}
+            <div className ="row mt-1">
+                <div className="col-6 offset-3">
+                     <Pagination
+                        page={answerPage}
+                        totalPage={answerPageData.totalPage}
+                        blockStart={answerPageData.blockStart}
+                        blockFinish={answerPageData.blockFinish}
+                        onPageChange={setAnswerPage}
+                    />
+                </div>
             </div>
             <div className="table-responsive">
             <table className="table">
@@ -155,8 +145,20 @@ export default function MemberMypage(){
     </div>
 
         <div className="mt-4 card quiz-dark-card text-center">
-            <div className="card-header fw-bold border-0 stats-header-dark p-3 fs-5">
+            <div className="card-header fw-bold border-0 p-3 fs-5">
                 내가 등록한 퀴즈
+            </div>
+             {/* 페이지네이션 */}
+            <div className ="row mt-1">
+                <div className="col-6 offset-3">
+                     <Pagination
+                        page={addPage}
+                        totalPage={addPageData.totalPage}
+                        blockStart={addPageData.blockStart}
+                        blockFinish={addPageData.blockFinish}
+                        onPageChange={setAddPage}
+                    />
+                </div>
             </div>
             <div className="table-responsive">
                 <table className="table">
@@ -191,33 +193,7 @@ export default function MemberMypage(){
                     </tbody>
             </table>
             </div>
-            {/* 페이지네이션 */}
-            <div className ="row mt-1">
-                <div className="col-6 offset-3">
-                     <nav aria-label="Page navigation">
-                        <ul className="pagination">
-                            {/* 이전 버튼 */}
-                            <li className="page-item">
-                                <button className="page-link" disabled={addPageData.blockStart === 1}
-                                        onClick={movePrevBlock}>◀</button>
-                            </li>
-                            {/* 페이지 번호 */}
-                                    {pageNumbers.map(pageNum=>(
-                                    <li key={pageNum} className={`page-item ${addPage === pageNum ? "active" : ""}`}>
-                                        <button className="page-link" onClick={() => setAddPage(pageNum)}>
-                                            {pageNum}
-                                        </button>
-                                    </li>
-                                    ))}
-                            {/* 다음 버튼 */}
-                            <li className="page-item">
-                                <button className="page-link" disabled={addPageData.blockFinish >= addPageData.totalPage}
-                                        onClick={moveNextBlock}>▶</button>
-                            </li>
-                        </ul>
-                    </nav>
-                </div>
-            </div>
+
         </div>
 
 </>)

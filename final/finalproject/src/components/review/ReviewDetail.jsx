@@ -13,8 +13,6 @@ import { toast } from "react-toastify";
 import { Modal } from "bootstrap";
 import { FcMoneyTransfer } from "react-icons/fc";
 import { FaRegEye } from "react-icons/fa";
-import member from "../member/MemberJoin";
-import ReviewWriter from "./reviewWrite";
 
 const TMDB_IMAGE_BASE_URL = "https://image.tmdb.org/t/p/w500";
 
@@ -366,11 +364,6 @@ export default function ReviewDetail() {
 
     //수정하기 버튼
     const [reviewView, setReviewView] = useState(true);
-
-    const openView = useCallback(() => {
-        setReviewView(true);
-    }, [])
-
     const openEdit = useCallback(() => {
         setReviewView(false);
     }, [])

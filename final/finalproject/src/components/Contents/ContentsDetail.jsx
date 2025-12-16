@@ -1,10 +1,10 @@
 import axios from "axios";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 import { FaQuestion, FaShare } from "react-icons/fa";
 import { useNavigate, useParams, Outlet, useLocation, Link } from "react-router-dom";
 import { ImEyePlus } from "react-icons/im";
-import { FaBookmark, FaChevronUp, FaHeart, FaPencil, FaStar } from "react-icons/fa6";
+import { FaBookmark, FaChevronUp, FaHeart, FaPencil, FaStar, FaXmark } from "react-icons/fa6";
 import { FcMoneyTransfer } from "react-icons/fc";
 
 import "./SearchAndSave.css";
@@ -12,8 +12,8 @@ import "./Contents.css";
 import { useAtom } from "jotai";
 import { loginIdState } from "../../utils/jotai";
 import { toast } from "react-toastify";
-import { set } from "lodash";
 import { BsThreeDotsVertical } from "react-icons/bs";
+import { Modal } from "bootstrap";
 
 
 const TMDB_IMAGE_BASE_URL = "https://image.tmdb.org/t/p/w500";
@@ -229,6 +229,18 @@ export default function ContentsDetail() {
         }
     };
 
+    //모달
+    const modal3 = useRef();
+
+    const openModal3 = () => {
+        const open = new Modal(modal3.current);
+        open.show();
+    }
+    const closeModal3 = () => {
+        const close = Modal.getInstance(modal3.current);
+        if (close) close.hide();
+    }
+
     //Memo
     //장르 목록을 react 엘리먼트로 변환하는 함수
     const renderGenres = useMemo(() => {
@@ -353,52 +365,88 @@ export default function ContentsDetail() {
         return (
             <div className="row mt-4 p-3 review-card">
                 <div className="col mt-2">
+
+
+                    <div className="d-flex align-items-center justify-content-between">
+                        <div className="d-flex align-items-center w-100 mt-2">
+                            {/* 왼쪽 */}
+                            <h4 className="text-light mb-0">
+                                {review.memberNickname}({review.reviewWriter})
+                                {review.reviewEtime && " (수정됨)"}
+                            </h4>
+
+                            {/* 오른쪽 - 자동으로 밀기 */}
+                            <div className="d-flex align-items-center ms-auto">
+                                <p className="text-light mb-0 me-4">{formattedDate}</p>
+                                <button
+                                    className="mainTitleB p-0"
+                                    type="button"
+                                    onClick={openModal3}
+                                >
+                                    <BsThreeDotsVertical />
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* 신고 모달 */}
+                                <div className="modal fade" id="ModalToggle3" data-bs-backdrop="static" tabIndex="-1" ref={modal3}
+                                    data-bs-keyboard="false">
+                                    <div className="modal-dialog modal-sm">
+                                        <div className="three">
+                                            <div className="modal-content">
+                                                <div className="modal-body">
+                                                    <div className="row">
+                                                        <div className="col report text-center mt-2 d-flex">
+                                                            <div className="col-2 mt-1" style={{ marginLeft: "40%" }}>신고</div>
+                                                            <div className="col-2">
+                                                                <button type="button" className="modalButtonX2" onClick={closeModal3}>
+                                                                    <FaXmark />
+                                                                </button>
+                                                            </div>
+                                                        </div>
+                    
+                                                    </div>
+                                                    <div style={{ color: "white" }} className="mt-3 reportCheck">
+                                                        <div>
+                                                            <input type="radio" className="ms-3 form-check-input" /><span className="ms-3">스포일러 포함</span>
+                                                        </div>
+                                                        <div className="mt-3">
+                                                            <input type="radio" className="ms-3 form-check-input" /><span className="ms-3">작품을 보지 않고 쓴 내용</span>
+                                                        </div>
+                                                        <div className="mt-3">
+                                                            <input type="radio" className="ms-3 form-check-input" /><span className="ms-3">홍보성 및 영리목적</span><br />
+                                                        </div>
+                                                        <div className="mt-3">
+                                                            <input type="radio" className="ms-3 form-check-input" /><span className="ms-3">욕설 및 특정인 비방</span><br />
+                                                        </div>
+                                                        <div className="mt-3">
+                                                            <input type="radio" className="ms-3 form-check-input" /><span className="ms-3">음란성 및 선정성</span><br />
+                                                        </div>
+                                                        <div className="mt-3">
+                                                            <input type="radio" className="ms-3 form-check-input" /><span className="ms-3">편파적인 언행</span><br />
+                                                        </div>
+                                                        <div className="mt-3">
+                                                            <input type="radio" className="ms-3 form-check-input" /><span className="ms-3">기타</span><br />
+                                                        </div>
+                                                        <hr className="HR" />
+                                                    </div>
+                                                    <div style={{ color: "#acacbbff" }} className="mt-4 ms-2 mb-3"><span>더 자세한 의견</span></div>
+                                                    <textarea name="" className="idea ms-3"></textarea>
+                                                    <div className="mt-4 d-flex justify-content-between">
+                                                        <button type="button" className="reportB col-5 me-4 mb-1"
+                                                            onClick={() => {
+                                                                closeModal3();
+                                                            }}>신고하기</button>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
                     <Link className="text-decoration-none link-body-emphasis text-light"
                         to={`/review/${contentsId}/${review.reviewNo}`}>
-
-                        <div className="d-flex align-items-center justify-content-between">
-    
-    {/* 왼쪽 영역 */}
-    <div className="d-flex align-items-center gap-2">
-        <h4 className="text-light mb-0">
-            {review.memberNickname}({review.reviewWriter})
-            {review.reviewEtime && " (수정됨)"}
-        </h4>
-        <p className="text-light mb-0">{formattedDate}</p>
-    </div>
-
-    {/* 오른쪽 영역 */}
-    <div>
-        <button
-            className="mainTitleB"
-            type="button"
-            data-bs-dismiss={isWriter ? "ModalToggle1" : "ModalToggle3"}
-        >
-            <BsThreeDotsVertical />
-        </button>
-    </div>
-
-</div>
-
-
-                        {/* <div className="d-flex justify-content-between">
-                            <h4 className="text-light" style={{ marginTop: "1.3%" }}>
-                                {review.memberNickname}({review.reviewWriter}){review.reviewEtime ? " (수정됨)" : ""}
-                            </h4>
-                            <p className="text-light" style={{ marginTop: "1%" }}>{formattedDate}</p>
-                            {isWriter && (
-                                <button className="mainTitleB" type="button"
-                                    onClick={openModal1}
-                                    data-bs-dismiss="ModalToggle1"
-                                ><BsThreeDotsVertical /></button>
-                            )}
-                            {!isWriter && (
-                                <button className="mainTitleB mb-2" type="button"
-                                    onClick={openModal3}
-                                    data-bs-dismiss="ModalToggle3"
-                                ><BsThreeDotsVertical /></button>
-                            )}
-                        </div> */}
 
                         {/* 별점 */}
                         <div className="mt-3 d-flex align-items-center">
@@ -590,18 +638,18 @@ export default function ContentsDetail() {
                             <hr className="mt-2 HR mb-4" />
                         </div>
                         <div className="row mt-3 p-3 myreview-card">
-                            <div className="col mt-4">
+                            <div className="col mt-3">
                                 <Link className="text-decoration-none link-body-emphasis text-light"
                                     to={`/review/${contentsId}/${myReview.reviewNo}`}>
-                                    <div className="d-flex justify-content-between">
+                                    <div className="d-flex justify-content-between mt-1">
                                         <h4 className="text-light">
                                             {contentsDetail.contentsTitle}{myReview.reviewEtime ? " (수정됨)" : ""}
                                         </h4>
-                                        <p className="text-light">{myReviewDate}</p>
+                                        <p className="text-light me-2 mb-1">{myReviewDate}</p>
                                     </div>
 
                                     {/* 별점 */}
-                                    <div className="mt-1 d-flex align-items-center">
+                                    <div className="mt-2 d-flex align-items-center">
                                         {[1, 2, 3, 4, 5].map((num) => (
                                             <FaStar key={num} style={{ color: num <= myReview.reviewRating ? "#ffc107" : "#979797ff", marginRight: "2px" }} />
                                         ))}
@@ -644,13 +692,15 @@ export default function ContentsDetail() {
                             </div>
                             <hr className="mt-2 HR mb-4" />
                         </div>
-                        {reviewList.map((review) => (
-                            <ReviewItem
-                                key={review.reviewNo}
-                                review={review}
-                                loginId={loginId}
-                            />
-                        ))}
+                        {reviewList
+                            .filter(review => review.reviewNo !== myReview?.reviewNo)
+                            .map((review) => (
+                                <ReviewItem
+                                    key={review.reviewNo}
+                                    review={review}
+                                    loginId={loginId}
+                                />
+                            ))}
                     </div>
                 )}
             </div>
