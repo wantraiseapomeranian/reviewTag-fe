@@ -97,7 +97,7 @@ export default function ReviewDetail() {
                         reviewNo: reviewNo
                     });
                     setRating(data.reviewRating);
-                    setPrice(data.reviewPrice);
+                    setPrice(data.reviewPrice.toLocaleString(`ko-KR`));
                     setLikeCount(data.reviewLike);
                     setWriter(data.reviewWriter);
                     setSpoiler(data.reviewSpoiler);
