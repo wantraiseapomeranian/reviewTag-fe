@@ -14,6 +14,7 @@ import { loginIdState } from "../../utils/jotai";
 import { toast } from "react-toastify";
 import { BsThreeDotsVertical } from "react-icons/bs";
 import { Modal } from "bootstrap";
+import { SiOpslevel } from "react-icons/si";
 
 
 const TMDB_IMAGE_BASE_URL = "https://image.tmdb.org/t/p/w500";
@@ -532,8 +533,8 @@ export default function ContentsDetail() {
                                 <FaStar key={num} style={{ color: num <= review.reviewRating ? "#ffc107" : "#979797ff", marginRight: "2px" }} />
                             ))}
                             <span className="ms-2 text-light me-2">{review.reviewRating}점 • </span>
-
                             <span className="ms-2 text-light"><FcMoneyTransfer className="me-1" />{formattedPrice} 원</span>
+                            <span className="ms-3" style={{color:"#e6ff02ff"}}><SiOpslevel /></span>
                         </div>
 
                         {/* 내용 (스포일러) */}
