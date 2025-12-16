@@ -16,7 +16,9 @@ export default function MemberMypage(){
     const [addQuizList, setAddQuizList] = useState([]);
     
     const [answerPage, setAnswerPage] = useState(1);
-    const [answerTotalPage, setAnswerTotalPage] = useState(1);
+    const [answerPageData, setAnswerPageData] = useState({
+        page : 1,size : 10,  totalCount : 0, totalPage : 0, blockStart : 1, blockFinish : 1
+    });
     const [addPage, setAddPage] = useState(1);
     const [addPageData, setAddPageData] = useState({
         page : 1,size : 10,  totalCount : 0, totalPage : 0, blockStart : 1, blockFinish : 1
@@ -24,14 +26,15 @@ export default function MemberMypage(){
 
     //callback 
     const loadData = useCallback(async()=>{
-        const answerList = await axios.get(`/member/myanswerquiz/${loginId}`);
-        setAnswerQuizList(answerList.data);
+        // const answerList = await axios.get(`/member/myanswerquiz/${loginId}/${answerPage}`);
+        // setAnswerQuizList(answerList.data.list);
+        // setAnswerQuizList(answerList.data.pageVO);
         const addList = await axios.get(`/member/myaddquiz/${loginId}/${addPage}`);
         setAddQuizList(addList.data.list);
         setAddPageData(addList.data.pageVO);
         const rateList = await axios.get(`/member/myanswerRate/${loginId}`);
         setAnswerQuizRate(rateList.data);
-    },[loginId, addPage]);
+    },[loginId, addPage, answerPage]);
 
     useEffect(()=>{
         loadData();
@@ -89,9 +92,20 @@ export default function MemberMypage(){
 
 
         <div className="mt-4 card quiz-dark-card text-center">
-
-            <div className="card-header fw-bold border-0 stats-header-dark p-3 fs-5">
-                내가 푼 퀴즈
+            <div className="card-header fw-bold border-0 p-3 fs-5">
+                내가 풀이한 퀴즈
+            </div>
+             {/* 페이지네이션 */}
+            <div className ="row mt-1">
+                <div className="col-6 offset-3">
+                     <Pagination
+                        page={answerPage}
+                        totalPage={answerPageData.totalPage}
+                        blockStart={answerPageData.blockStart}
+                        blockFinish={answerPageData.blockFinish}
+                        onPageChange={setAnswerPage}
+                    />
+                </div>
             </div>
             <div className="table-responsive">
             <table className="table">
