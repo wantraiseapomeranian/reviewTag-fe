@@ -1,9 +1,10 @@
 import { useAtom } from "jotai";
 import { loginIdState, loginNicknameState } from "../../utils/jotai";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import axios from "axios";
 import { Link } from "react-router-dom";
 import { FaChartBar } from "react-icons/fa";
+import Pagination from "./Pagination";
 
 export default function MemberMypage(){
     const [loginId, setLoginId] = useAtom(loginIdState);
@@ -14,21 +15,27 @@ export default function MemberMypage(){
     const [answerQuizRate, setAnswerQuizRate] = useState([]);
     const [addQuizList, setAddQuizList] = useState([]);
     
+    const [answerPage, setAnswerPage] = useState(1);
+    const [answerPageData, setAnswerPageData] = useState({
+        page : 1,size : 10,  totalCount : 0, totalPage : 0, blockStart : 1, blockFinish : 1
+    });
+    const [addPage, setAddPage] = useState(1);
+    const [addPageData, setAddPageData] = useState({
+        page : 1,size : 10,  totalCount : 0, totalPage : 0, blockStart : 1, blockFinish : 1
+    });
 
     //callback 
     const loadData = useCallback(async()=>{
-        const answerList = await axios.get(`/member/myanswerquiz/${loginId}`);
-        setAnswerQuizList(answerList.data);
-        const addList = await axios.get(`/member/myaddquiz/${loginId}`);
-        setAddQuizList(addList.data);
+        // const answerList = await axios.get(`/member/myanswerquiz/${loginId}/${answerPage}`);
+        // setAnswerQuizList(answerList.data.list);
+        // setAnswerQuizList(answerList.data.pageVO);
+        const addList = await axios.get(`/member/myaddquiz/${loginId}/${addPage}`);
+        setAddQuizList(addList.data.list);
+        setAddPageData(addList.data.pageVO);
         const rateList = await axios.get(`/member/myanswerRate/${loginId}`);
         setAnswerQuizRate(rateList.data);
+    },[loginId, addPage, answerPage]);
 
-        console.log("add",addList);
-        console.log("answer",answerList);
-    },[loginId]);
-
-   
     useEffect(()=>{
         loadData();
     },[loadData]);
@@ -85,9 +92,20 @@ export default function MemberMypage(){
 
 
         <div className="mt-4 card quiz-dark-card text-center">
-
-            <div className="card-header fw-bold border-0 stats-header-dark p-3 fs-5">
-                내가 푼 퀴즈
+            <div className="card-header fw-bold border-0 p-3 fs-5">
+                내가 풀이한 퀴즈
+            </div>
+             {/* 페이지네이션 */}
+            <div className ="row mt-1">
+                <div className="col-6 offset-3">
+                     <Pagination
+                        page={answerPage}
+                        totalPage={answerPageData.totalPage}
+                        blockStart={answerPageData.blockStart}
+                        blockFinish={answerPageData.blockFinish}
+                        onPageChange={setAnswerPage}
+                    />
+                </div>
             </div>
             <div className="table-responsive">
             <table className="table">
@@ -126,8 +144,20 @@ export default function MemberMypage(){
     </div>
 
         <div className="mt-4 card quiz-dark-card text-center">
-            <div className="card-header fw-bold border-0 stats-header-dark p-3 fs-5">
+            <div className="card-header fw-bold border-0 p-3 fs-5">
                 내가 등록한 퀴즈
+            </div>
+             {/* 페이지네이션 */}
+            <div className ="row mt-1">
+                <div className="col-6 offset-3">
+                     <Pagination
+                        page={addPage}
+                        totalPage={addPageData.totalPage}
+                        blockStart={addPageData.blockStart}
+                        blockFinish={addPageData.blockFinish}
+                        onPageChange={setAddPage}
+                    />
+                </div>
             </div>
             <div className="table-responsive">
                 <table className="table">
@@ -162,6 +192,7 @@ export default function MemberMypage(){
                     </tbody>
             </table>
             </div>
+
         </div>
 
 </>)
