@@ -1,9 +1,9 @@
-import { useAtomValue } from "jotai";
-import { loginIdState, loginLevelState } from "../../utils/jotai";
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import axios from "axios";
 import { Modal } from "bootstrap";
-import { useNavigate } from "react-router-dom";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react"
+import { useNavigate, useParams } from "react-router-dom";
+import { loginIdState, loginLevelState } from "../../utils/jotai";
+import { useAtomValue } from "jotai";
 import "./Board.css";
 
 import ReactQuill from "react-quill-new";
@@ -11,12 +11,11 @@ import 'react-quill-new/dist/quill.snow.css';
 
 const TMDB_IMAGE_BASE_URL = "https://image.tmdb.org/t/p/w500";
 
-
 const INITIAL_DETAIL = {
     contentsId: null, contentsTitle: ""
 };
 
-// 툴바 컴포넌트 (HTML 구조)
+// 툴바 컴포넌트
 const CustomToolbar = () => (
     <div id="toolBar">
         <span className="ql-formats">
@@ -57,86 +56,149 @@ const formats = [
     "header", "size", "font",
     "bold", "italic", "underline", "strike", "blockquote",
     "list", "indent", "link", "image",
-    "color", "background", "align",
+    "video", "color", "background", "align",
     "script", "code-block"
 ];
 
-export default function boardInsert() {
+export default function BoardEdit() {
     // 통합 state
     const loginId = useAtomValue(loginIdState);
     const loginLevel = useAtomValue(loginLevelState);
 
-    //검색어 state
+    // 수정할 게시글의 번호
+    const { boardNo } = useParams();
+
+    // 원래 게시글의 정보
+    const [beforeBoard, setBeforeBoard] = useState(null);
+
+    // 수정한 내용 state 
+    const [board, setBoard] = useState({
+        boardTitle: "", boardText: "", boardNotice: "N",
+        boardContentsId: null, boardWriter: ""
+    });
+
+    // 유효성 검사 상태
+    const [boardClass, setBoardClass] = useState({
+        boardTitle: "is-valid",
+        boardText: "is-valid",
+        boardNotice: "",
+        boardContentsId: ""
+    });
+
+    // 검색 관련 state
     const [query, setQuery] = useState("");
-    //검색결과 state
     const [resultList, setResultList] = useState([]);
-    //사용자가 선택한 영화 정보 state
     const [contentsDetail, setContentsDetail] = useState(INITIAL_DETAIL);
-    //영화를 선택했는지 안했는지 여부를 저장하는 state
     const [isSelect, setIsSelect] = useState(false);
-    //영화 로딩 상태 state
     const [isLoading, setIsLoading] = useState(false);
-    //상태 메세지 state
     const [statusMessage, setStatusMessage] = useState("");
 
+    const [attachmentList, setAttachmentList] = useState([]);
 
-    //도구
+
+    // 도구
     const navigate = useNavigate();
     const modal = useRef();
     const quillRef = useRef(null);
+
+    // boardValid 계산 
+    const boardValid = useMemo(() => {
+        return boardClass.boardTitle === "is-valid" && boardClass.boardText === "is-valid";
+    }, [boardClass]);
+
+    // 데이터 초기화 함수
+    const clearData = useCallback(() => {
+        setQuery("");
+        setResultList([]);
+        setStatusMessage("");
+    }, []);
 
     const openModal = useCallback(() => {
         const instance = Modal.getOrCreateInstance(modal.current);
         instance.show();
     }, [modal]);
+
     const closeModal = useCallback(() => {
         const instance = Modal.getInstance(modal.current);
         instance.hide();
     }, [modal]);
+
     const clearAndCloseModal = useCallback(() => {
         closeModal();
         setTimeout(() => { clearData(); }, 100);
-    }, [modal]);
+    }, [closeModal, clearData]);
 
-    //state
-    const [board, setBoard] = useState({
-        boardTitle: "", boardText: "", boardNotice: "N",
-        boardContentsId: "", boardWriter: ""
-    });
-    const [boardClass, setBoardClass] = useState({
-        boardTitle: "", boardText: "", boardNotice: "",
-        boardContentsId: ""
-    })
-    const [attachmentList, setAttachmentList] = useState([]);
 
-    //effect
+    //게시글 정보 불러오기
     useEffect(() => {
-        if (loginId) {
-            setBoard(prev => ({ ...prev, boardWriter: loginId }));
+        loadData();
+    }, [boardNo]);
+
+    const loadData = useCallback(async () => {
+        try {
+            const { data } = await axios.get(`/board/${boardNo}`);
+            setBeforeBoard(data);
         }
-    }, [loginId])
-    //초기화 및 상태관리
+        catch (err) {
+            console.error("게시글 수정 정보 조회 실패", err);
+        }
+    }, [boardNo]);
+
+
+    //불러온 beforeBoard 데이터를 board State에 동기화
     useEffect(() => {
-        //컴포넌트 마운트 또는 isSelect false로 바뀔 때 상세 정보 초기화
-        if (!isSelect) {
-            setContentsDetail(INITIAL_DETAIL);
+        if (beforeBoard) {
+            setBoard({
+                boardTitle: beforeBoard.boardTitle,
+                boardText: beforeBoard.boardText,
+                boardNotice: beforeBoard.boardNotice || "N",
+                boardContentsId: beforeBoard.boardContentsId,
+                boardWriter: beforeBoard.boardWriter
+            });
+
+            // 컨텐츠 ID가 있다면 관련 정보 로드 트리거
+            if (beforeBoard.boardContentsId) {
+                loadTitle(beforeBoard.boardContentsId);
+                setIsSelect(true);
+            }
         }
-    }, [isSelect]);
+    }, [beforeBoard]);
 
 
-    // callback
+    // 게시글의 관련 컨텐츠 제목 불러오기
+    const loadTitle = useCallback(async (contentsId) => {
+        if (!contentsId) return;
+        try {
+            const { data } = await axios.get(`/api/tmdb/title/${contentsId}`);
+            setContentsDetail(prev=>({...prev, contentsTitle: data}));
+            setIsSelect(true);
+            setBoardClass(prev => ({ ...prev, boardContentsId: "is-valid" }));
+
+        }
+        catch (err) {
+            console.error("컨텐츠 title 조회 실패", err);
+        }
+    }, []);
+
+
+    // 입력값 변경 핸들러
     const changeStrValue = useCallback(e => {
         const { name, value } = e.target;
-        setBoard(prev => ({ ...prev, [name]: value }))
-    }, [])
+        setBoard(prev => ({ ...prev, [name]: value }));
 
-    // callback
+        // 제목 유효성 검사
+        if (name === 'boardTitle') {
+            const valid = value.length > 0;
+            setBoardClass(prev => ({ ...prev, boardTitle: valid ? "is-valid" : "is-invalid" }));
+        }
+    }, []);
+
     const changeCheckValue = useCallback(e => {
-        if (e.target.value !== "on") return;
-        setBoard(prev => ({ ...prev, boardNotice: "Y" }))
-    }, [])
+        setBoard(prev => ({ ...prev, boardNotice: e.target.checked ? "Y" : "N" }));
+    }, []);
 
-    //[검색 실행 statusMessage 제어]
+
+    // 검색 실행 statusMessage 제어
     const handleSearch = useCallback(async () => {
         if (query.trim().length === 0) {
             setResultList([]);
@@ -149,7 +211,6 @@ export default function boardInsert() {
 
         try {
             const response = await axios.get("/api/tmdb/search", { params: { query } });
-            //검색결과 리스트 state에 저장
             setResultList(response.data);
 
             if (response.data.length === 0) {
@@ -168,49 +229,41 @@ export default function boardInsert() {
         }
     }, [query]);
 
-    // [컨텐츠 선택 및 DB저장]
+    // 컨텐츠 선택 및 DB저장
     const handleSelectAndSave = useCallback(async (contents) => {
-
         setIsLoading(true);
 
-        setIsSelect(true);//리스트 숨김을 위해 state 변경
-
         try {
-            //데이터 restController로 전송
             const response = await axios.post("/api/tmdb/save", {
                 contentsId: contents.contentsId,
                 type: contents.type
             });
 
-            //응답 데이터 상세정보 업데이트
             setContentsDetail(response.data);
             setIsSelect(true);
             setBoard(prev => ({ ...prev, boardContentsId: contents.contentsId }));
+            setBoardClass(prev => ({ ...prev, boardContentsId: "is-valid" }));
         }
         catch (error) {
             console.error("저장 API 오류 : ", error);
-            setIsSelect(false); //저장 실패 시 리스트를 다시 보여주기 위한 처리 
+            setIsSelect(false);
         }
         finally {
             setIsLoading(false);
-            closeModal();
+            clearAndCloseModal(); // 모달 닫기
         }
-    }, [board, isSelect, isLoading]);
+    }, [clearAndCloseModal]);
 
-    //[포스터 이미지 url 생성 함수]
     const getPosterUrl = useCallback((path) => {
         return path ? `${TMDB_IMAGE_BASE_URL}${path}` : 'https://placehold.co/500x750/cccccc/333333?text=No+Image';
     }, []);
 
-    // 이미지 처리를 위한 커스텀 핸들러
     const imageHandler = useCallback(() => {
-        // 1. 이미지를 업로드하기 위한 input 태그 생성
         const input = document.createElement('input');
         input.setAttribute('type', 'file');
         input.setAttribute('accept', 'image/*');
         input.click();
 
-        // 2. 파일이 선택되었을 때의 동작
         input.onchange = async () => {
             const file = input.files[0];
             if (!file) return;
@@ -219,30 +272,20 @@ export default function boardInsert() {
             formData.append('attach', file);
 
             try {
-                // 3. 서버로 업로드 요청
                 const res = await axios.post("/board/temp", formData, {
                     headers: { 'Content-Type': 'multipart/form-data' },
                 });
 
-                const attachmentNo = res.data; // 서버에서 받은 파일 번호
+                const attachmentNo = res.data;
                 const imageUrl = `http://localhost:8080/attachment/download?attachmentNo=${attachmentNo}`;
 
-                // 4. 에디터 객체 가져오기
                 const quill = quillRef.current.getEditor();
-
-                // 5. 현재 커서 위치 가져오기 (없으면 문서 맨 끝으로 설정)
-                // getSelection(true) : 포커스가 없어도 강제로 위치를 가져옴
                 const range = quill.getSelection(true);
                 let index = (range && range.index) ? range.index : quill.getLength();
 
-                // 이미지를 먼저 에디터에 넣습니다. (리렌더링 전에 DOM 조작 완료)
                 quill.insertEmbed(index, 'image', imageUrl);
-
-                // 커서를 이미지 다음으로 이동
                 quill.setSelection(index + 1);
 
-                // 그 다음, State를 업데이트합니다. 
-                // (이제 리렌더링이 일어나도 이미지는 이미 들어가 있습니다)
                 setAttachmentList(prev => [...prev, attachmentNo]);
 
             } catch (error) {
@@ -252,51 +295,19 @@ export default function boardInsert() {
         };
     }, []);
 
-
-    //  제목
-    const checkBoardTitle = useCallback(e => {
-        const valid = board.boardTitle.length > 0;
-        setBoardClass({ ...boardClass, boardTitle: valid ? "is-valid" : "is-invalid" });
-    }, [board, boardClass])
-    // 내용
-    const checkBoardText = useCallback(e => {
-        const valid = board.boardText.length > 0;
-        setBoardClass({ ...boardClass, boardText: valid ? "is-valid" : "is-invalid" });
-    }, [board, boardClass])
-    //콘텐츠번호
-    const checkBoardContents = useCallback(() => {
-        const valid = isSelect;
-        setBoardClass({ ...boardClass, boardContentsId: valid ? "is-valid" : "is-invalid" });
-    }, [isSelect, boardClass]);
-    // 공지등록
-
-
-
-    const boardValid = useMemo(() => {
-        if (boardClass.boardTitle !== "is-valid") return false;
-        if (boardClass.boardText !== "is-valid") return false;
-        // if(boardClass.boardContentsId !== "is-valid" ) return false;
-        return true;
-    }, [boardClass]);
-
-    // 등록
+    // 수정 데이터 전송
     const sendData = useCallback(async () => {
         if (boardValid === false) return;
-
-        const reqData = {
-            ...board,
-            attachmentNoList: attachmentList
-        }
         try {
-            await axios.post("/board/", reqData);
-
-            navigate("/board/list");
+            await axios.put(`/board/${boardNo}`, board);
+            navigate(`/board/${boardNo}`);
+            console.log("보낸 데이터 : ", board);
         }
         catch (err) {
-            console.error("등록 실패 : ", err);
+            console.error("수정 실패 : ", err);
         }
 
-    }, [board, boardValid, attachmentList, navigate]);
+    }, [board, boardValid, boardNo, navigate]);
 
     const modules = useMemo(() => ({
         toolbar: {
@@ -308,97 +319,98 @@ export default function boardInsert() {
     }), [imageHandler]);
 
     const handleChange = (value) => {
-        // 에디터의 내용을 board state에 반영
         setBoard(prev => ({ ...prev, boardText: value }));
-
-        // 유효성 검사 (태그 제외하고 내용이 있는지 확인)
         const textOnly = value.replace(/<[^>]*>?/gm, '');
         const valid = textOnly.length > 0;
         setBoardClass(prev => ({ ...prev, boardText: valid ? "is-valid" : "is-invalid" }));
     };
 
-    //render
-    return (<>
-        <div className="container">
+    // 로딩 중이거나 데이터가 없으면 로딩 표시
+    if (!beforeBoard) {
+        return <div className="container mt-5 text-center"><h1>데이터를 불러오는 중...</h1></div>;
+    }
 
-            <h1> 게시글 등록 </h1>
+    return (
+        <div className="container">
+            <h1> 게시글 수정 </h1>
 
             {/* 관리자 일 경우에만 나오는 공지등록 checkbox */}
             {loginLevel === "관리자" && (
-
                 <div className="row mt-2">
                     <div className="col-12 col-md-2 mt-4">
                         <label className="me-2 p-2 rounded bg-warning text-muted">공지등록
-                            <input type="checkbox" className="form-check-input ms-2" name="boardNotice" onChange={changeCheckValue}></input>
+                        <input type="checkbox" className="form-check-input ms-2"
+                            name="boardNotice"
+                            checked={board.boardNotice === "Y"}
+                            onChange={changeCheckValue}
+                        />
                         </label>
                     </div>
                 </div>
             )}
-
-
-             {/* 제목 입력 */}
+            {/* 제목 입력 */}
             <div className="row mt-3">
                 <div className="input-group">
                     <label className="input-group-text">제목</label>
                     <input type="text"
                         className={`col-sm-9 form-control ${boardClass.boardTitle} `}
                         name="boardTitle"
-                        onBlur={checkBoardTitle}
                         onChange={changeStrValue}
+                        value={board.boardTitle}
                     />
                 </div>
             </div>
 
 
-            {/*  컨텐츠 선택  */}
+            {/* 컨텐츠 선택 */}
             <div className="row mt-3">
                 <div className="col">
                     <div className="input-group text-nowarp" onClick={openModal} style={{ cursor: "pointer" }}>
                         <label className="input-group-text">관련 컨텐츠</label>
                         <span className="input-group-text bg-light">🔍</span>
                         <input type="text"
-                            className={`form-control ${board.boardContentsId ? "is-valid" : ""}`}
-                            value={contentsDetail.contentsTitle || ""} // 선택된 영화 제목 표시
-                            placeholder="검색"
+                            className={`form-control ${boardClass.boardContentsId}`} // 유효성 클래스 적용
+                            value={contentsDetail?.contentsTitle || ""}
+                            placeholder={contentsDetail?.contentsTitle || "컨텐츠 제목 입력"}
                             readOnly
-                            style={{ cursor: "pointer" }}
+                            style={{ cursor: "pointer", backgroundColor: "white" }}
                         />
-                        <input type="hidden" readOnly name="boardContentsId" value={contentsDetail.contentsId || ""} />
-                        {/* 선택된 컨텐츠가 있으면 뱃지 표시 */}
-                        {contentsDetail.contentsId && (
+                        <input type="hidden" readOnly name="boardContentsId" value={board.boardContentsId || ""} />
+                        {board.boardContentsId && (
                             <span className="input-group-text bg-success text-white">선택됨</span>
                         )}
                     </div>
                 </div>
             </div>
 
-            {/* 내용 (에디터) */}
+            {/* 내용 */}
             <div className="mb-3 mt-4">
                 <label className="form-label fw-bold">내용</label>
-
-                {/* 툴바와 에디터를 감싸는 div */}
                 <div className="editor-container">
                     <CustomToolbar />
                     <ReactQuill
                         ref={quillRef}
                         theme="snow"
-                        name="boardText"
-                        value={board.boardText} // state 연결
-                        onChange={handleChange} // handler 연결
+                        value={board.boardText}
+                        onChange={handleChange}
                         modules={modules}
                         formats={formats}
-                        style={{ height: "400px" }} // 에디터 높이 지정
+                        style={{ height: "400px" }}
                     />
                 </div>
-                {/* 에디터 하단 여백 확보를 위한 빈 div (툴바 때문에 밀릴 수 있음) */}
+                {/* 유효성 메시지 표시용 */}
+                {boardClass.boardText === "is-invalid" && (
+                    <div className="text-danger small mt-1">내용을 입력해주세요.</div>
+                )}
                 <div style={{ height: "50px" }}></div>
             </div>
 
-            <div className="row mt-4">
+            <div className="row mt-4 mb-5">
                 <div className="col">
-                    <button type="button" className="btn btn-lg btn-success w-100" disabled={boardValid === false}
+                    <button type="button" className="btn btn-lg btn-success w-100"
+                        disabled={!boardValid}
                         onClick={sendData}>
-                        <span>작성</span>
+                        <span>수정하기</span>
                     </button>
                 </div>
             </div>
@@ -409,10 +421,9 @@ export default function boardInsert() {
                     <div className="modal-content">
                         <div className="modal-header">
                             <h5 className="modal-title">컨텐츠 검색</h5>
-                            <button type="button" className="btn-close" onClick={closeModal}></button>
+                            <button type="button" className="btn-close" onClick={clearAndCloseModal}></button>
                         </div>
                         <div className="modal-body">
-                            {/* 검색창 */}
                             <div className="input-group mb-3">
                                 <input type="text" className="form-control" value={query}
                                     placeholder="영화/드라마 제목 검색"
@@ -424,12 +435,10 @@ export default function boardInsert() {
                                 </button>
                             </div>
 
-                            {/* 상태 메시지 */}
                             <div className="mb-3 text-secondary small">
                                 {statusMessage}
                             </div>
 
-                            {/* 검색 결과 목록 */}
                             <div className="list-group">
                                 {resultList.map(result => (
                                     <button key={result.contentsId}
@@ -455,12 +464,12 @@ export default function boardInsert() {
                             </div>
                         </div>
                         <div className="modal-footer">
-                            <button type="button" className="btn btn-secondary" onClick={closeModal}>닫기</button>
+                            <button type="button" className="btn btn-secondary" onClick={clearAndCloseModal}>닫기</button>
                         </div>
                     </div>
                 </div>
             </div>
 
         </div>
-    </>)
+    );
 }

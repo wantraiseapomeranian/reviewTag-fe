@@ -1,17 +1,20 @@
 import axios from "axios";
 import { useCallback, useEffect, useState } from "react"
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import "./Board.css";
 import Pagination from "../Pagination";
+import { FaPen } from "react-icons/fa";
 
 export default function BoardList() {
+
+    const navigate = useNavigate();
 
     //state
     const [boardList, setBoardList] = useState([]);
     const [titles, setTitles] = useState({});
     const [page, setPage] = useState(1);
     const [pageData, setPageData] = useState({
-        page : 1,size : 10,  totalCount : 0, totalPage : 0, blockStart : 1, blockFinish : 1
+        page: 1, size: 10, totalCount: 0, totalPage: 0, blockStart: 1, blockFinish: 1
     });
 
     //effect
@@ -71,56 +74,85 @@ export default function BoardList() {
 
 
     //rendar
-    return (<>
+    return (
+        <div className="container mt-5">
 
-        <div className="mt-4 card quiz-dark-card text-center">
-            <div className="card-header fw-bold border-0 stats-header-dark p-3 fs-5">
-                게시글
-            </div>
-            <div className="table-responsive">
-                <table className="table">
-                    <thead>
-                        <tr className="text-truncate quiz-table-thead">
-                            <th className="quiz-table-thead">번호</th>
-                            <th className="quiz-table-thead">콘텐츠</th>
-                            <th className="quiz-table-thead">제목</th>
-                            <th className="quiz-table-thead">작성시간</th>
-                            <th className="quiz-table-thead">작성자</th>
-                        </tr>
-                    </thead>
-                    <tbody >
-                        {boardList.map((board) => (
-                            <tr key={board.boardNo}>
-                                <td className="quiz-normal">{board.boardNo}</td>
-                                <td className="quiz-normal">{board.boardContentsId ? (titles[board.boardContentsId] || "로딩중...") : "-"}</td>
-                                <td className="quiz-normal"><Link to={`/board/${board.boardNo}`} className="board-link">{board.boardTitle}</Link></td>
-                                <td className="quiz-normal">{board.boardWtime}</td>
-                                <td className="quiz-normal">{board.boardWriter}</td>
-                            </tr>
-                        ))}
-                    </tbody>
-                </table>
-            </div>
-            {/* 페이지네이션 */}
-        <div className ="row mt-1">
-            <div className="col-6 offset-3">
-                    <Pagination
-                    page={page}
-                    totalPage={pageData.totalPage}
-                    blockStart={pageData.blockStart}
-                    blockFinish={pageData.blockFinish}
-                    onPageChange={setPage}
-                />
-            </div>
-        </div>
-        </div>
-
-        <div className="row">
-            <div className="col">
-                <Link className="btn btn-success" to="/board/insert">
-                    <span>작성</span>
+            {/* 상단 타이틀 및 작성 버튼 */}
+            <div className="d-flex justify-content-between align-items-center mb-4 mt-4">
+                <h2 className="fw-bold text-white mb-0">자유게시판</h2>
+                <Link className="btn btn-primary rounded-pill px-4 fw-bold" to="/board/insert">
+                    <FaPen className="me-2" /> 작성하기
                 </Link>
             </div>
+
+            {/* 게시글 리스트 카드 */}
+            <div className="shadow-sm border-0 rounded-4 overflow-hidden mt-4"> 
+                <div className="table-responsive">
+                    <table className="table table-dark table-hover text-center align-middle mb-0 text-white" style={{ borderColor: "#495057" }}>
+                        <thead className="text-white">
+                            <tr>
+                                <th className="py-3" style={{ width: "15%" }}>컨텐츠</th>
+                                <th className="py-3 text-start ps-4" style={{ width: "50%" }}>제목</th>
+                                <th className="py-3" style={{ width: "20%" }}>작성자</th>
+                                <th className="py-3" style={{ width: "15%" }}>날짜</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {boardList.map((board) => (
+                                <tr
+                                    key={board.boardNo}
+                                    onClick={() => navigate(`/board/${board.boardNo}`)}
+                                    style={{ cursor: "pointer", transition: "all 0.2s" }}
+                                    className="board-row"
+                                >
+                                    <td className="py-3 text-secondary">
+                                        {board.boardContentsId ? (
+                                            <span className="badge bg-secondary bg-opacity-25 text-light fw-normal border border-secondary border-opacity-25">
+                                                {titles[board.boardContentsId] || "Loading..."}
+                                            </span>
+                                        ) : (
+                                            <span className="text-muted">-</span>
+                                        )}
+                                    </td>
+                                    <td className="py-3 text-start ps-4 fw-medium">
+                                        {board.boardTitle}
+                                        {/* 댓글 수 뱃지  */}
+                                        {board.boardReplyCount > 0 && (
+                                            <span className="ms-2 text-primary small fw-bold">
+                                                [{board.boardReplyCount}]
+                                            </span>
+                                        )}
+                                        {/* 공지사항 뱃지 */}
+                                        {board.boardNotice === 'Y' && (
+                                            <span className="ms-2 badge bg-danger">공지</span>
+                                        )}
+                                    </td>
+                                    <td className="py-3 text-light opacity-75">{board.boardWriter}</td>
+                                    <td className="py-3 text-secondary small">{board.boardWtime}</td>
+                                </tr>
+                            ))}
+                            {boardList.length === 0 && (
+                                <tr>
+                                    <td colSpan="4" className="py-5 text-muted">게시글이 없습니다.</td>
+                                </tr>
+                            )}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            {/* 페이지네이션 */}
+            <div className="row mt-5">
+                <div className="col d-flex justify-content-center">
+                    <Pagination
+                        page={page}
+                        totalPage={pageData.totalPage}
+                        blockStart={pageData.blockStart}
+                        blockFinish={pageData.blockFinish}
+                        onPageChange={setPage}
+                    />
+                </div>
+            </div>
         </div>
-    </>)
+    );
 }
