@@ -5,7 +5,7 @@ import { FaComment, FaPen, FaRegEye, FaRegThumbsDown, FaRegThumbsUp, FaTrashAlt 
 import { Link, useNavigate, useParams } from "react-router-dom"
 import { toast } from "react-toastify";
 import { loginIdState } from "../../utils/jotai";
-
+import { cleanExpiredViews } from '../../utils/localStorage/cleanStorage';
 
 
 export default function BoardDetail() {
@@ -42,7 +42,6 @@ export default function BoardDetail() {
 
     // effect
     useEffect(() => {
-        console.log(boardNo);
         loadData();
         loadReply();
     }, [boardNo]);
@@ -57,6 +56,32 @@ export default function BoardDetail() {
     useEffect(() => {
         checkResponse();
     }, [loginId, boardNo]);
+
+
+    // 조회수 : 로컬 스토리지에서 검사 + 증가 요청
+    const viewTimeLimit = 30 * 60 * 1000 ; // 30분
+    const checkView = useCallback(async()=>{
+        if(!loginId) return;
+        const key = `view_${loginId}_${boardNo}`;
+        const now = Date.now();
+
+        const stored = localStorage.getItem(key);
+        const viewed = stored ? JSON.parse(stored) : null;
+
+        // 값이 없거나 30분이 지났다면
+        if(!viewed||now-viewed.time > viewTimeLimit){
+            localStorage.setItem(key,JSON.stringify({ time: now })); // 로컬스토리지 key저장
+            //조회 수 증가 요청
+            try{const response = await axios.post(`/board/viewUpdate/${boardNo}`);}
+            catch(e){console.log("조회 수 증가 실패")};
+        };
+    },[loginId, boardNo])
+    
+     // 조회수 증가요청 실행
+    useEffect(()=>{
+        checkView();
+        cleanExpiredViews(); // 로컬 스토리지에서 만료된 키 제거
+    },[checkView])
 
     // callback
     const changeStrValue = useCallback(e => {
