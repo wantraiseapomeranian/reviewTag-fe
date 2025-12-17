@@ -46,6 +46,7 @@ import RankingReviewPage from "./ranking/RankingReviewPage";
 import RankingMoviePage from "./ranking/RankingContentsPage";
 import RankingNewPage from "./ranking/RankingNewPage";
 import RankingContentsPage from "./ranking/RankingContentsPage";
+import BoardEdit from "./board/BoardEdit";
 
 export default function Content() {
     return (<>
