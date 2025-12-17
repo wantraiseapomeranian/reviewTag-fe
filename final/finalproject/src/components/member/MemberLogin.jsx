@@ -6,6 +6,10 @@ import {useAtom} from "jotai";
 import { accessTokenState, loginIdState, loginLevelState, loginNicknameState, refreshTokenState } from "../../utils/jotai";
 import "./Member.css";
 import { FaUserPlus } from "react-icons/fa";
+import { cleanExpiredViews } from '../../utils/localStorage/cleanStorage';
+
+
+
 export default function MemberLogin(){
     //통합 state
     const [loginId , setLoginId] = useAtom(loginIdState);
@@ -47,6 +51,8 @@ export default function MemberLogin(){
             setLogin(true);
             setLoginResult(true)
             console.log("로그인 성공");
+            // 로컬 스토리지 불필요한 key 제거
+            cleanExpiredViews();
             // 화면이동
             navigate("/");
         }

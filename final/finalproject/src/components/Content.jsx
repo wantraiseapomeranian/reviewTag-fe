@@ -86,6 +86,7 @@ export default function Content() {
                     <Route path="/board/List/:contentsId" element={<BoardContentsList/>}></Route>
                     <Route path="/board/insert" element={<BoardInsert/>}></Route>
                     <Route path="/board/:boardNo" element={<BoardDetail/>}></Route>
+                    <Route path="/board/edit/:boardNo" element={<BoardEdit/>}></Route>
 
 
                     {/* 회원 페이지 */}
