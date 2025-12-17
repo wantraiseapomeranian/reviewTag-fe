@@ -47,7 +47,7 @@ export default function BoardDetail() {
 
 
     // 조회수 : 로컬 스토리지에서 검사 + 증가 요청
-    const viewTimeLimit = 30 * 60 * 1000 ; // 30분
+    const viewTimeLimit = 60 * 60 * 1000 ; // 1시간
     const checkView = useCallback(async()=>{
         if(!loginId) return;
         const key = `view_${loginId}_${boardNo}`;

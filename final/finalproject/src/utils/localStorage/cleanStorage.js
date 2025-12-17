@@ -2,7 +2,7 @@
 
 
 export const cleanExpiredViews = () =>{
-    const viewTimeLimit = 30* 60 * 1000;
+    const viewTimeLimit = 60* 60 * 1000;
         
         const now = Date.now();
 
