@@ -5,7 +5,7 @@ import { FaComment, FaRegEye, FaRegThumbsDown, FaRegThumbsUp } from "react-icons
 import { Link, useNavigate, useParams } from "react-router-dom"
 import { toast } from "react-toastify";
 import { loginIdState } from "../../utils/jotai";
-import { cleanExpiredViews } from '../localStorage/cleanStorage';
+import { cleanExpiredViews } from '../../utils/localStorage/cleanStorage';
 
 
 export default function BoardDetail() {

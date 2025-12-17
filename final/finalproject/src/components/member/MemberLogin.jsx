@@ -6,7 +6,7 @@ import {useAtom} from "jotai";
 import { accessTokenState, loginIdState, loginLevelState, loginNicknameState, refreshTokenState } from "../../utils/jotai";
 import "./Member.css";
 import { FaUserPlus } from "react-icons/fa";
-import { cleanExpiredViews } from '../localStorage/cleanStorage';
+import { cleanExpiredViews } from '../../utils/localStorage/cleanStorage';
 
 
 
