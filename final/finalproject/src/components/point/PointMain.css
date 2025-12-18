@@ -17,7 +17,7 @@
     box-sizing: border-box;
 
     /* 배경 핵심 수정 */
-    background-image: 
+    background-image:   
         /* 검은 어둠을 걷어내고, 푸른 달빛과 눈보라 느낌의 필터를 씌움 */
         linear-gradient(to bottom, rgba(135, 206, 250, 0.2), rgba(10, 20, 40, 0.5)),
         url('https://i.postimg.cc/P55gcWH0/dijeunikeompyuteobaegyeonghwamyeon15.jpg');
@@ -180,49 +180,117 @@
 .attendance-btn:hover:not(:disabled) { background: var(--neon-mint); color: #fff; box-shadow: 0 0 15px var(--neon-mint); }
 
 /* 달력 커스텀 (밝은 테마에 맞춤) */
-.custom-calendar { width: 100%; background: transparent !important; border: none !important; }
-.custom-calendar .react-calendar__navigation button { color: #fff !important; font-size: 1.5rem; font-weight: 900; }
-.custom-calendar .react-calendar__navigation button:enabled:hover { background-color: rgba(255,255,255,0.2) !important; border-radius: 8px; }
-.custom-calendar .react-calendar__month-view__weekdays { color: #ddd; font-weight: 700; margin-bottom: 15px; }
-.custom-calendar .react-calendar__month-view__weekdays__weekday abbr { text-decoration: none; }
-
-.custom-calendar .react-calendar__tile {
-    height: 85px; display: flex; flex-direction: column; align-items: center; padding-top: 15px !important;
-    background: transparent !important; color: #eee !important; font-size: 1.1rem; border-radius: 8px;
-    overflow: visible !important; position: relative;
-    border: 1px solid transparent; /* 호버 시 흔들림 방지 */
+/* --- 달력 커스텀 (꽉 채우기 스타일) --- */
+.custom-calendar { 
+    width: 100% !important; 
+    max-width: 100%;
+    background: transparent !important; 
+    border: none !important; 
+    padding: 0 10px; /* 양옆 여백 살짝 */
 }
+
+/* 상단 년/월 네비게이션 */
+.custom-calendar .react-calendar__navigation {
+    margin-bottom: 20px;
+    display: flex;
+    justify-content: space-between;
+}
+
+.custom-calendar .react-calendar__navigation button { 
+    color: #fff !important; 
+    font-size: 1.8rem; /* 폰트 키움 */
+    font-weight: 900; 
+    background: none !important;
+}
+
+.custom-calendar .react-calendar__navigation button:enabled:hover { 
+    background-color: rgba(255,255,255,0.1) !important; 
+    border-radius: 12px; 
+}
+
+/* 요일 (일, 월, 화...) */
+.custom-calendar .react-calendar__month-view__weekdays { 
+    color: #ddd; 
+    font-weight: 700; 
+    margin-bottom: 10px; 
+    text-transform: uppercase;
+    font-size: 1rem;
+}
+
+.custom-calendar .react-calendar__month-view__weekdays__weekday {
+    padding: 10px 0;
+    text-align: center;
+}
+
+.custom-calendar .react-calendar__month-view__weekdays__weekday abbr { 
+    text-decoration: none; 
+    cursor: default;
+}
+
+/* 날짜 타일 (네모칸) */
+.custom-calendar .react-calendar__tile {
+    height: 100px; /* 높이를 더 키워서 시원하게 */
+    display: flex; 
+    flex-direction: column; 
+    align-items: center; 
+    justify-content: flex-start; /* 날짜 숫자는 위로 */
+    padding-top: 15px !important;
+    background: transparent !important; 
+    color: #eee !important; 
+    font-size: 1.2rem; 
+    border-radius: 12px; /* 둥글게 */
+    overflow: visible !important; 
+    position: relative;
+    border: 1px solid transparent; 
+    margin-bottom: 5px; /* 칸 사이 간격 */
+}
+
+/* 마우스 올렸을 때 */
 .custom-calendar .react-calendar__tile:enabled:hover { 
-    background: rgba(255, 255, 255, 0.25) !important; 
+    background: rgba(255, 255, 255, 0.15) !important; 
     color: white !important;
-    border: 1px solid rgba(255,255,255,0.5);
+    border: 1px solid rgba(255,255,255,0.3);
+    transform: scale(1.02); /* 살짝 커지는 효과 */
+    transition: all 0.2s;
 }
 
 /* 오늘 날짜 하이라이트 */
 .custom-calendar .react-calendar__tile--now { 
     border: 2px solid var(--neon-mint) !important; 
-    color: var(--neon-mint) !important; font-weight: 900; 
-    background: rgba(0, 210, 211, 0.15) !important; 
-    box-shadow: 0 0 10px rgba(0, 210, 211, 0.3);
+    color: var(--neon-mint) !important; 
+    font-weight: 900; 
+    background: rgba(0, 210, 211, 0.1) !important; 
+    box-shadow: 0 0 15px rgba(0, 210, 211, 0.2);
 }
+
 /* 선택된 날짜 (active) */
 .custom-calendar .react-calendar__tile--active {
-    background: rgba(255, 255, 255, 0.3) !important;
+    background: rgba(255, 255, 255, 0.2) !important;
     border: 1px solid #fff;
 }
 
+/* 출석 도장 (스탬프) 위치 조정 */
 .small-stamp {
-    position: absolute; top: 50%; left: 50%; 
+    position: absolute; 
+    top: 55%;  /* 날짜 숫자 아래쪽으로 배치 */
+    left: 50%; 
     transform: translate(-50%, -50%) rotate(-15deg);
-    width: 50px; height: 50px; 
-    border: 3px solid #ff4757; 
+    width: 45px; 
+    height: 45px; 
+    border: 2px solid #ff4757; 
     border-radius: 50%;
     background: rgba(255, 255, 255, 0.95);
     color: #ff4757;
-    display: flex; align-items: center; justify-content: center; text-align: center;
-    font-size: 11px; font-weight: 900; line-height: 1.1;
-    box-shadow: 0 4px 10px rgba(0,0,0,0.3);
-    z-index: 10; pointer-events: none;
+    display: flex; 
+    align-items: center; 
+    justify-content: center; 
+    text-align: center;
+    font-size: 10px; 
+    font-weight: 900; 
+    line-height: 1.1;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+    z-index: 10; 
+    pointer-events: none;
 }
 
 /* 탭 네비게이션 (가로 정렬 및 스타일 복구) */

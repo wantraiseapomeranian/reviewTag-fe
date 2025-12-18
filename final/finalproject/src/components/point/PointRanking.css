@@ -1,20 +1,28 @@
 /* PointRanking.css */
+
+/* 전체 배경 (올라프 이미지) */
 .ranking-bg-container {
     background: url('https://i.postimg.cc/0yf5qmVZ/dijeunikeompyuteobaegyeonghwamyeon11.jpg') no-repeat center center fixed;
     background-size: cover;
     min-height: 100vh;
+    width: 100%;
+    position: relative;
 }
 
+/* 배경 어둡게 까는 오버레이 */
 .ranking-overlay {
-    background: rgba(0, 0, 0, 0.4); /* 배경 이미지를 살리기 위한 어두운 투명층 */
+    background: rgba(0, 0, 0, 0.4); 
     min-height: 100vh;
+    width: 100%;
 }
 
+/* 텍스트 네온 효과 */
 .text-glow {
     color: white;
     text-shadow: 0 0 10px rgba(0, 191, 255, 0.8), 0 0 20px rgba(0, 191, 255, 0.5);
 }
 
+/* 검색창 유리 효과 */
 .search-box-glass {
     max-width: 500px;
     margin: 0 auto;
@@ -31,6 +39,9 @@
     color: white;
     padding-left: 20px;
 }
+.search-box-glass input::placeholder {
+    color: #ddd;
+}
 
 .btn-snow {
     background: #87ceeb;
@@ -38,8 +49,11 @@
     border-radius: 25px !important;
     font-weight: bold;
     border: none;
+    padding-left: 20px;
+    padding-right: 20px;
 }
 
+/* 랭킹 카드 유리 효과 */
 .ranking-glass-card {
     background: rgba(255, 255, 255, 0.05);
     backdrop-filter: blur(15px);
@@ -61,24 +75,25 @@
     transform: translateX(10px);
 }
 
+/* 메달 아이콘 */
 .medal {
     width: 24px;
     height: 24px;
     display: inline-block;
 }
-.medal-1::before { content: "🥇"; }
-.medal-2::before { content: "🥈"; }
-.medal-3::before { content: "🥉"; }
+.medal-1::before { content: "🥇"; font-size: 1.5rem;}
+.medal-2::before { content: "🥈"; font-size: 1.5rem;}
+.medal-3::before { content: "🥉"; font-size: 1.5rem;}
 
 .rank-num {
-    width: 40px;
+    width: 50px;
     font-weight: bold;
     color: #87ceeb;
     font-size: 1.2rem;
+    text-align: center;
 }
 
-/* 기존 CSS 아래에 추가 */
-
+/* 페이지네이션 스타일 */
 .glass-pagination .page-link {
     background: rgba(255, 255, 255, 0.1);
     border: 1px solid rgba(255, 255, 255, 0.2);
@@ -94,7 +109,7 @@
 }
 
 .glass-pagination .page-item.active .page-link {
-    background: #87ceeb; /* 올라프 색상 */
+    background: #87ceeb;
     border-color: #87ceeb;
     color: #000;
     font-weight: bold;

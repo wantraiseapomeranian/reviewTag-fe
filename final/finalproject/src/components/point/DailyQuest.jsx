@@ -4,13 +4,13 @@ import axios from "axios";
 import { useAtomValue } from "jotai";
 import { loginIdState } from "../../utils/jotai";
 
-// props로 setTab 외에 포인트 갱신 함수(예: refreshPoint)가 있다면 받아오세요
+// props로 setTab, refreshPoint(포인트 갱신 함수) 받음
 export default function DailyQuest({ setTab, refreshPoint }) {
     const loginId = useAtomValue(loginIdState);
     const [quests, setQuests] = useState([]);
     const [timeLeft, setTimeLeft] = useState("");
 
-    // 1. 자정까지 남은 시간 계산 함수
+    // 1. 자정까지 남은 시간 계산
     const calculateTimeLeft = useCallback(() => {
         const now = new Date();
         const midnight = new Date();
@@ -48,44 +48,60 @@ export default function DailyQuest({ setTab, refreshPoint }) {
     const handleQuestClick = async (quest) => {
         if (quest.done) return;
 
+        // [퀴즈 처리]
         if (quest.action === "quiz") {
             try {
+                // 1. 랜덤 문제 가져오기
                 const resp = await axios.get("/point/quest/quiz/random");
-                const { quizQuestion, quizAnswer } = resp.data;
+                
+                // 만약 오늘 이미 풀었다면 null이 올 수 있음
+                if(!resp.data) {
+                    toast.info("오늘의 퀴즈를 이미 완료하셨습니다.");
+                    return;
+                }
 
+                // ▼▼▼ [중요 수정] quizNo를 받아옵니다.
+                const { quizNo, quizQuestion } = resp.data;
+
+                // 2. 사용자 입력 받기
                 const userAnswer = window.prompt(`[영화/애니 퀴즈]\n\n${quizQuestion}`);
                 if (!userAnswer) return;
 
+                // 3. 정답 확인 요청 (quizNo와 answer 전송)
                 const checkResp = await axios.post("/point/quest/quiz/check", { 
-                    answer: userAnswer,
-                    correctAnswer: quizAnswer 
+                    quizNo: quizNo,         // <--- [핵심] 문제 번호를 보내야 서버가 채점함
+                    answer: userAnswer 
                 });
 
                 if (checkResp.data === "success") {
-                    toast.success("🎉 정답입니다! 퀘스트가 업데이트되었습니다.");
-                    loadQuests(); 
+                    toast.success("🎉 정답입니다! 퀘스트가 완료되었습니다.");
+                    loadQuests(); // 목록 갱신
                 } else {
                     toast.error("오답입니다! 다시 시도해보세요.");
                 }
             } catch (e) {
-                toast.error("문제를 불러오는 데 실패했습니다.");
+                console.error(e);
+                toast.error("퀴즈를 불러오거나 제출하는 중 오류가 발생했습니다.");
             }
         } 
+        // [룰렛 이동]
         else if (quest.action === "roulette") {
             setTab("roulette");
             toast.info("🎰 룰렛 탭으로 이동합니다!");
         } 
+        // [좋아요 - 게시판 이동]
         else if (quest.type === "LIKE") {
             toast.info("게시판으로 이동합니다. 좋아요를 눌러보세요!");
             window.location.href = "/board/list";
         } 
+        // [리뷰 - 전체 목록 이동]
         else if (quest.type === "REVIEW") {
             toast.info("리뷰 작성을 위해 전체 리스트로 이동합니다!");
             window.location.href = "/contents/genreList/listByGenre/전체";
         }
     };
 
-    // 5. 보상 받기 (★포인트 새로고침 로직 추가★)
+    // 5. 보상 받기
     const handleClaim = async (type) => {
         try {
             const resp = await axios.post("/point/quest/claim", { type: type });
@@ -93,19 +109,17 @@ export default function DailyQuest({ setTab, refreshPoint }) {
                 const reward = resp.data.split(":")[1];
                 toast.success(`보상이 지급되었습니다! +${reward}P 💰`);
                 
-                // [변경 포인트]
-                // 1. 퀘스트 UI 갱신 (받기 버튼 -> 완료 문구로 변경)
+                // 1. 퀘스트 목록 갱신 (버튼 상태 변경)
                 loadQuests(); 
                 
-                // 2. 헤더나 상단바의 포인트를 새로고침하기 위한 알림
-                // 방법 A: 상위 컴포넌트에서 전달받은 함수 호출 (가장 추천)
+                // 2. 상단 포인트 갱신 (부모에서 받은 함수 실행)
                 if(typeof refreshPoint === 'function') {
                     refreshPoint();
+                } else {
+                    // 혹시 함수가 안 넘어왔을 때를 대비한 백업
+                    window.dispatchEvent(new CustomEvent("pointChanged"));
                 }
 
-                // 방법 B: 전역 커스텀 이벤트를 발생시켜 Header 등에서 듣게 함
-                window.dispatchEvent(new CustomEvent("pointChanged"));
-                
             } else {
                 toast.warning(resp.data.split(":")[1]);
             }
