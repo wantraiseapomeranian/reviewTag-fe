@@ -52,7 +52,7 @@ export default function MemberMypage(){
                 <FaChartBar className="me-2" />
                 나의 퀴즈 기록
             </div>
-            <div className="quizCard-body">
+            <div className="quizCard-body mt-2">
                 <div className="row text-center text-light">
                     <div className="col-5">
                         <span className="fs-5">콘텐츠</span>
@@ -69,7 +69,7 @@ export default function MemberMypage(){
                 </div>
                 <hr/>
                 {answerQuizRate.map((answerQuizRate,index)=>(
-                <div className="row text-center mt-2" key={index}>
+                <div className="row text-center mt-2 mb-2" key={index}>
                     <div className="col-5 text-truncate">
                         <Link className="quiz-link" to={`/contents/detail/${answerQuizRate.quizContentsId}`}>{answerQuizRate.contentsTitle}</Link>
                     </div>
@@ -115,7 +115,7 @@ export default function MemberMypage(){
                         <th  className="quiz-table-thead">콘텐츠</th>
                         <th  className="quiz-table-thead">문제</th>
                         <th  className="quiz-table-thead quiz-table-thead-ex">정답여부</th>
-                        <th  className="quiz-table-thead quiz-table-thead-ex">정답률</th>
+                        <th  className="quiz-table-thead">정답률</th>
                     </tr>
                 </thead>
                 <tbody >
@@ -132,7 +132,7 @@ export default function MemberMypage(){
                             ) : (
                                 <td className="quiz-option quiz-wrong">X</td>
                             )}
-                            <td className="rate-bar ">
+                            <td className="rate-bar" style={{width : 150}}>
                                 <div className="rate-fill fs-6d-flex text-nowrap" style={{ width: `${answerQuiz.correctRate * 100}%` }}>{(answerQuiz.correctRate * 100).toFixed(2)}%</div>
                                 <span className="rate-text"></span>
                             </td>

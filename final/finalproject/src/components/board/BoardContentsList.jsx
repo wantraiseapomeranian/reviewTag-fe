@@ -43,7 +43,7 @@ export default function BoardContentsList(){
     //rendar
     return (<>
 
-        <div className="mt-4 card quiz-dark-card text-center">
+        <div className="mt-4 quizCard quiz-dark-card text-center">
             <div className="card-header fw-bold border-0 stats-header-dark p-3 fs-5">
                 게시글
             </div>
