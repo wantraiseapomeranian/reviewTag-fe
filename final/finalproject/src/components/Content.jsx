@@ -155,6 +155,7 @@ export default function Content() {
                         <Route index element={<Admin><AdminMemberPage/></Admin>}></Route>
                         <Route path="/admin/member" element={<Admin><AdminMemberPage /></Admin>} />
                         {/* <Route path="review" element={<AdminReviewPage />} /> */}
+
                            <Route path="/admin/point" element={<AdminPoint />} />
                             <Route path="/admin/dailyquiz" element={<AdminDailyQuiz />} />
 
@@ -162,6 +163,7 @@ export default function Content() {
                         <Route path="/admin/quiz" element={<Admin><AdminQuizPage /></Admin>} />
 
                         {/* <Route path="point" element={<AdminPointPage />} /> */}
+
                     </Route>
                 </Routes>
             </div>
