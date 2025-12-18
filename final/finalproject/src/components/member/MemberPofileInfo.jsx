@@ -65,7 +65,7 @@ export default function MemberProfileInfo() {
                         <td>{profile.memberId}</td>
                     </tr>
                     <tr>
-                       <td>닉네임</td>
+                       <td>닉네임</td> 
                         <td>
                             <span>{profile.memberNickname}</span>
                             {relRowLevel && (
