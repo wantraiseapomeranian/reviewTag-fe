@@ -671,3 +671,12 @@ textarea::-webkit-scrollbar-thumb {
 textarea::-webkit-scrollbar-thumb:hover {
   background: #666;
 }
+
+.detailRel {
+    color: #00f000;
+    font-size: 16px;
+}
+.detailRel2 {
+    color: #6fa9ff;
+    font-size: 16px;
+}
