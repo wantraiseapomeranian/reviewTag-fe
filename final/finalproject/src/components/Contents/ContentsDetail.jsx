@@ -425,8 +425,8 @@ export default function ContentsDetail() {
                             <h4 className="text-light">
                                 닉네임({review.reviewWriter})
                                 {/* <span className="ms-3 trust"><FaCheckCircle /></span> */}
-                                <span className="ms-3" style={{color:"#00ff55ff"}}>멤버신뢰도 {realiability} </span>
-                                {review.reviewEtime && " (수정됨)"}
+                                <span className="fs-5 text-secondary">{review.reviewEtime && " (수정됨)"}</span>
+                                <span className="fs-5 ms-2 p-1 px-2 rounded bg-secondary" style={{color:"#00ff55ff"}}>멤버신뢰도 {realiability} </span>
                             </h4>
 
                             {/* 오른쪽 - 자동으로 밀기 */}
@@ -562,7 +562,7 @@ export default function ContentsDetail() {
                         to={`/review/${contentsId}/${review.reviewNo}`}>
 
                         {/* 별점 */}
-                        <div className="mt-3 d-flex align-items-center">
+                        <div className="mt-1 d-flex align-items-center">
                             {[1, 2, 3, 4, 5].map((num) => (
                                 <FaStar key={num} style={{ color: num <= review.reviewRating ? "#ffc107" : "#979797ff", marginRight: "2px" }} />
                             ))}

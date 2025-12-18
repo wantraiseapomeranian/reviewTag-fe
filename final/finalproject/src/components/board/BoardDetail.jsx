@@ -23,6 +23,9 @@ export default function BoardDetail() {
         boardLike: 0, boardUnlike: 0, boardReplyCount: 0,
         boardNotice: "", boardViewCount: 0
     });
+
+    const [showText, setShowText] = useState();
+
     const [contentsTitle, setContentsTitle] = useState("");
 
     const [boardResponseVO, setBoardResponseVO] = useState({
@@ -46,6 +49,9 @@ export default function BoardDetail() {
         loadReply();
     }, [boardNo]);
 
+    useEffect(() => {
+        loadData();
+    }, [boardResponseVO]);
 
     useEffect(() => {
         if (board.boardContentsId) {
@@ -59,9 +65,9 @@ export default function BoardDetail() {
 
 
     // 조회수 : 로컬 스토리지에서 검사 + 증가 요청
-    const viewTimeLimit = 60 * 60 * 1000 ; // 1시간
-    const checkView = useCallback(async()=>{
-        if(!loginId) return;
+    const viewTimeLimit = 60 * 60 * 1000; // 1시간
+    const checkView = useCallback(async () => {
+        if (!loginId) return;
         const key = `view_${loginId}_${boardNo}`;
         const now = Date.now();
 
@@ -69,19 +75,19 @@ export default function BoardDetail() {
         const viewed = stored ? JSON.parse(stored) : null;
 
         // 값이 없거나 30분이 지났다면
-        if(!viewed||now-viewed.time > viewTimeLimit){
-            localStorage.setItem(key,JSON.stringify({ time: now })); // 로컬스토리지 key저장
+        if (!viewed || now - viewed.time > viewTimeLimit) {
+            localStorage.setItem(key, JSON.stringify({ time: now })); // 로컬스토리지 key저장
             //조회 수 증가 요청
-            try{const response = await axios.post(`/board/viewUpdate/${boardNo}`);}
-            catch(e){console.log("조회 수 증가 실패")};
+            try { const response = await axios.post(`/board/viewUpdate/${boardNo}`); }
+            catch (e) { console.log("조회 수 증가 실패") };
         };
-    },[loginId, boardNo])
-    
-     // 조회수 증가요청 실행
-    useEffect(()=>{
+    }, [loginId, boardNo])
+
+    // 조회수 증가요청 실행
+    useEffect(() => {
         checkView();
         cleanExpiredViews(); // 로컬 스토리지에서 만료된 키 제거
-    },[checkView])
+    }, [checkView])
 
     // callback
     const changeStrValue = useCallback(e => {
@@ -110,6 +116,7 @@ export default function BoardDetail() {
         try {
             const { data } = await axios.get(`/board/${boardNo}`);
             setBoard(data);
+            if(board.boardUnlike>=10) setShowText(false);
         }
         catch (err) {
             console.error("게시글 상세 로드 실패: ", err);
@@ -136,6 +143,7 @@ export default function BoardDetail() {
             const { data } = await axios.post("/board/check", null,
                 { params: { loginId: loginId, boardNo: boardNo } });
             setBoardResponseVO(data);
+            if (boardResponseVO.unlikeCount >= 10) setShowText(false);
         }
         catch (err) {
             console.error("[checkResponse] 실패 : ", err);
@@ -317,24 +325,33 @@ export default function BoardDetail() {
 
     //rendar
     return (<>
-        <div className="container">
+        <div className="container mt-5">
+            <div className="d-flex align-items-center mb-4 mt-4">
+                <h2 className="fw-bold text-white mb-0" 
+                    onClick={()=>{navigate("/board/list")}}
+                    style={{cursor:"pointer"}}>
+                자유게시판
+                </h2>
+            </div>
+
+            <hr className="text-light mt-5" />
 
             <div className="row">
                 <div className="col text-light d-flex align-items-center">
                     {/* 제목 */}
-                    <h1 className="m-0 me-3">
+                    <h3 className="m-0 me-3 fw-bold">
                         {board.boardTitle}
                         {board.boardEtime && (
                             <span className="ms-2 fs-6 text-secondary fw-normal">
                                 (수정됨)
                             </span>
                         )}
-                    </h1>
+                    </h3>
                     {/* 컨텐츠 제목 벳지 */}
                     {contentsTitle && (
                         <Link className="text-decoration-none" to={`/contents/detail/${board.boardContentsId}`}>
-                            <h5 className="mt-4">
-                                <span className="badge bg-primary">
+                            <h5 className="mt-2">
+                                <span className="badge bg-primary text-truncate">
                                     {contentsTitle}
                                 </span>
                             </h5>
@@ -343,23 +360,43 @@ export default function BoardDetail() {
                 </div>
             </div>
 
-            <div className="row mt-4">
+            <hr className="text-light mb-3" />
+
+            <div className="row">
                 <div className="col text-light">
-                    <h3>{board.boardWriter}</h3>
+                    <h5 onClick={()=>navigate(`/member/profile/info/${board.boardWriter}`)}
+                        style={{cursor:"pointer"}}>
+                    {board.boardWriter}
+                    </h5>
                 </div>
 
             </div>
 
-            <hr className="text-light" />
+            <hr className="text-light mb-0 mt-2" />
 
-            <div className="row">
+            <div className="row mt-2">
                 <div className="col text-light d-flex align-items-center justify-content-end text-nowrap">
                     <span className="ms-4 me-5"><FaRegEye className="me-1" />{board.boardViewCount}</span>
                     <span>{getDisplayDate(board.boardWtime)}</span>
                 </div>
             </div>
             {/* 본문 */}
-            <div
+            {board.boardUnlike >= 10 && !showText ? (
+                <div
+                    onClick={() => setShowText(true)}
+                    className="text-danger fw-bold"
+                    style={{
+                        cursor: "pointer",
+                         minHeight: "200px",
+                        whiteSpace: "pre-wrap",
+                        overflowX: "auto",
+                        overflowY: "hidden",
+                        maxWidth: "100%",
+                        wordBreak: "break-word"
+                    }}>
+                    ⚠️ 블라인드 처리된 게시글 입니다. (클릭하여 보기)
+                </div>
+            ) : (<div
                 className="text-light"
                 style={{
                     minHeight: "200px",
@@ -370,7 +407,10 @@ export default function BoardDetail() {
                     wordBreak: "break-word"
                 }}
                 dangerouslySetInnerHTML={{ __html: board.boardText }}
-            ></div>
+            ></div>)}
+                
+            
+           
 
             {/* 좋아요 싫어요 */}
             <div className="row mt-5">
@@ -388,7 +428,7 @@ export default function BoardDetail() {
                                 <FaRegThumbsUp className="mb-1" />
                             </h1>
                         )}
-                        <h2 className="text-center mt-4">{boardResponseVO.likeCount}</h2>
+                        <h2 className="text-center mt-4">{board.boardLike}</h2>
                     </div>
                     <div className="ms-2">
                         {/* 싫어요 */}
@@ -403,7 +443,7 @@ export default function BoardDetail() {
                                 <FaRegThumbsDown className="mt-1" />
                             </h1>
                         )}
-                        <h2 className="text-center mt-4">{boardResponseVO.unlikeCount}</h2>
+                        <h2 className="text-center mt-4">{board.boardUnlike}</h2>
                     </div>
                 </div>
             </div>

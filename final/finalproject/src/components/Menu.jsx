@@ -7,6 +7,7 @@ import './Menu.css'
 import { MdLiveTv, MdMovie } from "react-icons/md";
 import { FaHeart, FaGear, FaRankingStar } from "react-icons/fa6";
 import { FaClipboardList, FaHome } from "react-icons/fa";
+import { TbMoneybag } from "react-icons/tb";
 
 
 export default function Menu() {

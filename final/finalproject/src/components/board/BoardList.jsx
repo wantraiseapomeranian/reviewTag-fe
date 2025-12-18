@@ -125,7 +125,7 @@ export default function BoardList() {
 
     return (
         <div className="container mt-5">
-            <div className="d-flex justify-content-between align-items-center mb-4 mt-4">
+            <div className="d-flex align-items-center mb-4 mt-4">
                 <h2 className="fw-bold text-white mb-0">자유게시판</h2>
             </div>
 
