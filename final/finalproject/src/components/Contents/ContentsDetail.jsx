@@ -388,7 +388,7 @@ export default function ContentsDetail() {
 
             try {
             //API 호출
-            await axios.post("/review/report/");
+            await axios.post("/review/report/", payload);
 
             //성공 처리
             toast.success("신고가 정상적으로 접수되었습니다.");

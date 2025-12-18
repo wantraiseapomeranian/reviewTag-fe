@@ -56,6 +56,7 @@ import MemberProfileInfo from "./member/MemberPofileInfo";
 import MemberProfileReview from "./member/MemberProfileReview";
 import Private from "./guard/Private";
 import Admin from "./guard/Admin";
+import AdminReviewReport from "./admin/AdminReviewReport";
 export default function Content() {
     return (<>
 
@@ -154,7 +155,7 @@ export default function Content() {
                     <Route path="/admin" element={<Admin><AdminMain /></Admin>}>
                         <Route index element={<Admin><AdminMemberPage/></Admin>}></Route>
                         <Route path="/admin/member" element={<Admin><AdminMemberPage /></Admin>} />
-                        {/* <Route path="review" element={<AdminReviewPage />} /> */}
+                        <Route path="/admin/review/report" element={<AdminReviewReport />} />
                         <Route path="/admin/member/:memberId" element={<Admin><AdminMemberDetail /></Admin>} />
                         <Route path="/admin/quiz" element={<Admin><AdminQuizPage /></Admin>} />
 
