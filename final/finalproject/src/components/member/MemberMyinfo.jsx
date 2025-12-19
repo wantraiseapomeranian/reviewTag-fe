@@ -1,62 +1,115 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback, useMemo } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
+import { useAtom, useSetAtom } from "jotai";
 import axios from "axios";
+import { clearLoginState, loginNicknameState } from "../../utils/jotai";
 import "./MemberCustom.css"; 
 
 export default function MemberMyinfo() {
     const { loginId } = useParams();
-    const [data, setData] = useState(null);
     const navigate = useNavigate();
 
-    
-    useEffect(() => {
-        axios.get(`/member/mypage/${loginId}`)
-            .then(res => setData(res.data))
-            .catch(err => console.error("데이터 로딩 실패", err));
-    }, [loginId]);
 
-    const deleteMember = async () => {
+    // 전역 상태
+    const [loginNickname, setLoginNickname] = useAtom(loginNicknameState);
+    const clearLogin = useSetAtom(clearLoginState);
+
+    // 로컬 상태 (데이터 통합)
+    const [data, setData] = useState(null);
+
+    // 1. 데이터 로드 로직
+    const loadData = useCallback(async () => {
+        if (!loginId) return;
+        try {
+            const res = await axios.get(`/member/mypage/${loginId}`);
+            setData(res.data);
+            // 닉네임이 변경되었을 수 있으므로 전역 상태 동기화
+            if (res.data.member?.memberNickname) {
+                setLoginNickname(res.data.member.memberNickname);
+            }
+        } catch (err) {
+            console.error("데이터 로딩 실패", err);
+        }
+    }, [loginId, setLoginNickname]);
+
+    useEffect(() => {
+        loadData();
+    }, [loadData]);
+
+    // 2. 회원 탈퇴 로직
+    const deleteMember = useCallback(async () => {
         if (!window.confirm("⚠️ 경고: 탈퇴 시 모든 신뢰도와 포인트가 사라집니다. 계속하시겠습니까?")) return;
         try {
             await axios.delete(`/member/${loginId}`);
             alert("탈퇴 처리가 완료되었습니다.");
+            clearLogin(); // 전역 상태 초기화
             navigate("/");
-        } catch (err) { alert("처리 중 오류 발생"); }
-    };
+        } catch (err) {
+            alert("처리 중 오류 발생");
+        }
+    }, [loginId, navigate, clearLogin]);
 
-    if (!data) return <div style={{color: '#fff', textAlign: 'center', paddingTop: '40vh'}}>로딩 중...</div>;
+    // 3. 신뢰도 배지 및 상태 계산 (useMemo)
+    const reliabilityInfo = useMemo(() => {
+        if (!data?.member) return { score: 0, status: "danger", badge: null };
+        
+        const rel = data.member.memberReliability || 0;
+        const status = rel <= 49 ? "danger" : "safe";
+        
+        let badge = null;
+        if (rel >= 50) badge = { text: "🔷 검증된 리뷰어", class: "rel-high" };
+        else if (rel >= 20) badge = { text: "🔵 신뢰 리뷰어", class: "rel-mid" };
+        else if (rel >= 6) badge = { text: "🟢 활동 리뷰어", class: "rel-low" };
+
+        return { score: rel, status, badge };
+    }, [data]);
+
+    // 로딩 처리
+    if (!data) return <div className="loading-container">로딩 중...</div>;
 
     const { member, point } = data;
-    const reliability = member.memberReliability || 0;
-    const relStatus = reliability <= 49 ? "danger" : "safe";
 
-    const isUrl = point.bgSrc && (point.bgSrc.startsWith('http') || point.bgSrc.startsWith('/'));
+    // 배경 스타일 설정
+    const isUrl = point?.bgSrc && (point.bgSrc.startsWith('http') || point.bgSrc.startsWith('/'));
     const heroStyle = isUrl ? { backgroundImage: `url(${point.bgSrc})` } : {};
-    const bgClass = !isUrl ? point.bgSrc : "";
 
     return (
         <div className="mypage-info-wrapper">
-            {/* 1. 상단 히어로 (골드 엣지 + 신뢰도 게이지) */}
-            <div className={`profile-hero-v2 ${bgClass}`} style={heroStyle}>
+            {/* 1. 상단 히어로 (배경 + 아이콘 + 신뢰도 게이지) */}
+            <div className={`profile-hero-v2 ${!isUrl ? point?.bgSrc : ""}`} style={heroStyle}>
                 <div className="hero-overlay-v2">
-                    <img src={point.iconSrc} alt="Icon" className="avatar-img-v2" style={{width: '130px', marginBottom: '15px'}} />
-                    <h1 className={`nickname-v2 ${point.nickStyle || ''}`}>{point.nickname}</h1>
-                    <div className="reliability-section" style={{display: 'flex', flexDirection: 'column', alignItems: 'center'}}>
-                        <div className="reliability-bar-container" style={{width: '350px', height: '12px', background: 'rgba(255,255,255,0.1)', borderRadius: '20px', overflow: 'hidden'}}>
-                            <div className={`rel-fill ${relStatus}`} style={{ width: `${reliability}%`, height: '100%' }}></div>
+                    <img src={point?.iconSrc} alt="Icon" className="avatar-img-v2" />
+                    
+                    <h1 className={`nickname-v2 ${point?.nickStyle || ''}`}>
+                        {member.memberNickname}
+                        {reliabilityInfo.badge && (
+                            <span className={`reviewer-badge ${reliabilityInfo.badge.class}`}>
+                                {reliabilityInfo.badge.text}
+                            </span>
+                        )}
+                    </h1>
+
+                    <div className="reliability-section">
+                        <div className="reliability-bar-container">
+                            <div 
+                                className={`rel-fill ${reliabilityInfo.status}`} 
+                                style={{ width: `${reliabilityInfo.score}` }}
+                            ></div>
                         </div>
-                        <span className={`rel-text ${relStatus}`} style={{marginTop: '12px', fontWeight: '800', fontSize: '1.2rem'}}>
-                             {relStatus === 'danger' ? '⚠️ 위험: ' : '신뢰도: '} {reliability}%
+                        <span className={`rel-text ${reliabilityInfo.status}`}>
+                             {reliabilityInfo.status === 'danger' ? '⚠️ 위험: ' : '신뢰도: '} {reliabilityInfo.score}
                         </span>
                     </div>
                 </div>
             </div>
 
+
             {/* 2. 활동 통계 카드 (복구된 영역) */}
+
             <div className="activity-stats-row">
                 <div className="stat-card">
                     <span className="stat-label">보유 포인트</span>
-                    <span className="stat-value text-red">{point.point?.toLocaleString()} P</span>
+                    <span className="stat-value text-gold">{member.memberPoint?.toLocaleString()} P</span>
                 </div>
                 <div className="stat-card">
                     <span className="stat-label">작성한 리뷰</span>
@@ -72,21 +125,41 @@ export default function MemberMyinfo() {
                 </div>
             </div>
 
-            {/* 3. 계정 상세 정보 */}
+            {/* 3. 상세 정보 관리 (표 형식을 카드 스타일로 개선) */}
             <div className="account-info-card">
-                <h3 className="card-title-v2" style={{color: 'var(--gold-main)', borderLeft: '5px solid var(--gold-main)', paddingLeft: '20px', marginBottom: '40px', fontSize: '1.8rem', fontWeight: '900'}}>상세 정보 관리</h3>
+                <h3 className="card-title-v2">상세 정보 관리</h3>
                 <div className="info-list-v2">
-                    <div className="info-item-v2"><span className="label-with-icon">아이디</span><span className="value-v2">{member.memberId}</span></div>
-                    <div className="info-item-v2"><span className="label-with-icon">이메일</span><span className="value-v2">{member.memberEmail}</span></div>
-                    <div className="info-item-v2"><span className="label-with-icon">연락처</span><span className="value-v2">{member.memberContact}</span></div>
-                    <div className="info-item-v2"><span className="label-with-icon">생년월일</span><span className="value-v2">{member.memberBirth}</span></div>
+                    <div className="info-item-v2">
+                        <span className="label-v2">아이디</span>
+                        <span className="value-v2">{member.memberId}</span>
+                    </div>
+                    <div className="info-item-v2">
+                        <span className="label-v2">등급</span>
+                        <span className="value-v2">{member.memberLevel}</span>
+                    </div>
+                    <div className="info-item-v2">
+                        <span className="label-v2">이메일</span>
+                        <span className="value-v2">{member.memberEmail}</span>
+                    </div>
+                    <div className="info-item-v2">
+                        <span className="label-v2">연락처</span>
+                        <span className="value-v2">{member.memberContact}</span>
+                    </div>
+                    <div className="info-item-v2">
+                        <span className="label-v2">생년월일</span>
+                        <span className="value-v2">{member.memberBirth}</span>
+                    </div>
+                    <div className="info-item-v2">
+                        <span className="label-v2">주소</span>
+                        <span className="value-v2">{member.memberAddress1} {member.memberAddress2}</span>
+                    </div>
                 </div>
             </div>
 
-            {/* 4. 버튼 영역 */}
+            {/* 4. 액션 버튼 영역 */}
             <div className="mypage-actions-v2">
-                <Link to="/member/edit" className="btn-main">정보 수정하기</Link>
-                <Link to="/member/password" className="btn-sub">비밀번호 변경</Link>
+                <Link to={`/member/mypage/edit/${loginId}`} className="btn-main">정보 수정하기</Link>
+                <Link to={`/member/mypage/password/${loginId}`} className="btn-sub">비밀번호 변경</Link>
                 <button className="btn-out" onClick={deleteMember}>회원 탈퇴</button>
             </div>
         </div>
