@@ -103,3 +103,36 @@
     color: #666;
 }
 .wish-empty-icon { font-size: 4rem; margin-bottom: 20px; display: block; opacity: 0.5; }
+
+/* Glassmorphism 효과 예시 */
+.wish-glass-card {
+    background: rgba(255, 255, 255, 0.05);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 12px;
+    padding: 12px;
+    transition: transform 0.3s;
+}
+
+.wish-glass-card:hover {
+    transform: translateY(-5px);
+    border-color: rgba(255, 255, 255, 0.3);
+}
+
+.btn-remove-wish-glass {
+    position: absolute;
+    top: 5px;
+    right: 5px;
+    background: rgba(0, 0, 0, 0.5);
+    border: none;
+    color: white;
+    border-radius: 50%;
+    width: 25px;
+    height: 25px;
+    font-size: 12px;
+    transition: background 0.3s;
+}
+
+.btn-remove-wish-glass:hover {
+    background: #d33;
+}

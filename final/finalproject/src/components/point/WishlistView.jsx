@@ -1,16 +1,21 @@
-import React, { useState, useEffect, useCallback } from 'react';
-import axios from "axios"; // axios import 수정
+import React, { useEffect, useState, useCallback } from 'react';
+import axios from 'axios';
 import { useAtomValue } from "jotai"; 
 import { loginIdState } from "../../utils/jotai"; 
 import { toast } from "react-toastify";
+import Swal from "sweetalert2";
 import "./WishlistView.css";
+// 1. 상세 모달 컴포넌트 임포트 (경로는 프로젝트 구조에 맞게 수정하세요)
+import PointItemDetailView from "./PointitemDetailView"; 
 
 export default function WishlistView({ refreshPoint }) { 
     const loginId = useAtomValue(loginIdState); 
     const [wishes, setWishes] = useState([]);
     const [loading, setLoading] = useState(true);
+    
+    // 2. 모달 제어를 위한 상태 추가 (선택된 상품 번호)
+    const [selectedItemNo, setSelectedItemNo] = useState(null);
 
-    // 찜 목록 불러오기
     const loadWishes = useCallback(async () => {
         if (!loginId) {
             setWishes([]);
@@ -34,76 +39,97 @@ export default function WishlistView({ refreshPoint }) {
         loadWishes();
     }, [loadWishes]);
 
-    // 찜 삭제 핸들러
-    const handleRemove = async (targetItemNo) => {
-        if (!window.confirm("이 상품을 찜 목록에서 삭제하시겠습니까?")) return;
+    const handleRemove = async (e, targetItemNo, itemName) => {
+        e.stopPropagation(); // 3. 카드 클릭 이벤트(모달 열기)가 발생하지 않도록 차단
         
-        try {
-            // ★ 중요: 백엔드 PointItemWishVO가 { itemNo: long }을 받으므로 키 이름을 'itemNo'로 통일
-            await axios.post("/point/main/store/wish/delete", { itemNo: targetItemNo });
-            
-            toast.info("찜 목록에서 삭제되었습니다. 🗑️");
-            loadWishes(); // 목록 새로고침
-        } catch (error) {
-            console.error("삭제 실패:", error);
-            toast.error("삭제에 실패했습니다.");
+        const result = await Swal.fire({
+            title: '위시리스트 삭제',
+            text: `[${itemName}] 상품을 찜 목록에서 제거하시겠습니까?`,
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#d33',
+            confirmButtonText: '삭제',
+            background: '#1a1a1a',
+            color: '#fff'
+        });
+        
+        if (result.isConfirmed) {
+            try {
+                // 백엔드 엔드포인트에 맞춰 수정 (아까 400에러 났다면 필드명 확인 필수)
+                await axios.post("/point/main/store/wish/toggle", { itemNo: targetItemNo });
+                toast.info("찜 목록에서 삭제되었습니다. 🗑️");
+                loadWishes();
+            } catch (error) {
+                toast.error("삭제에 실패했습니다.");
+            }
         }
     };
 
-    if (loading) return <div className="text-center p-5 text-white"><div className="spinner-border text-primary"></div></div>;
-    if (!loginId) return <div className="alert alert-dark text-center mt-4 m-3 border-secondary text-white">🔒 로그인이 필요합니다.</div>;
+    if (loading) return (
+        <div className="text-center p-5">
+            <div className="spinner-border text-primary"></div>
+            <p className="text-white mt-2">목록을 불러오는 중...</p>
+        </div>
+    );
     
-    // 찜 목록이 없을 때
+    if (!loginId) return <div className="alert-glass text-center mt-4 m-3">🔒 로그인이 필요한 서비스입니다.</div>;
+    
     if (wishes.length === 0) return (
-        <div className="wish-empty">
+        <div className="wish-empty-glass">
             <span className="wish-empty-icon">💔</span>
             <h5 className="text-white fw-bold mb-2">찜한 상품이 없습니다.</h5>
-            <p className="small mb-0">스토어에서 마음에 드는 상품을 담아보세요!</p>
+            <p className="text-secondary small">스토어에서 마음에 드는 상품에 ❤️를 눌러보세요!</p>
         </div>
     );
 
     return (
-        <div className="mt-3">
-            {/* 헤더 */}
+        <div className="wishlist-wrapper mt-3">
             <div className="d-flex justify-content-between align-items-center mb-4 px-2">
-                <h5 className="fw-bold text-white mb-0">💖 나의 위시리스트 ({wishes.length})</h5>
+                <h5 className="fw-bold text-white mb-0">
+                    💖 MY WISHLIST <span className="wish-count-badge">{wishes.length}</span>
+                </h5>
             </div>
             
-            {/* 그리드 리스트 */}
             <div className="wish-grid">
                 {wishes.map((w) => (
-                    // ★ 수정: w.withListNo -> w.pointWishlistNo (DTO 필드명 일치)
-                    <div className="wish-card" key={w.pointWishlistNo}> 
-                        
-                        {/* 이미지 영역 */}
+                    <div 
+                        className="wish-glass-card" 
+                        key={w.pointWishlistNo}
+                        // 4. 카드 클릭 시 상세 모달 열기
+                        onClick={() => setSelectedItemNo(w.pointWishlistItemNo)} 
+                        style={{ cursor: 'pointer' }}
+                    > 
                         <div className="wish-img-wrapper">
                             {w.pointItemSrc ? (
                                 <img src={w.pointItemSrc} alt={w.pointItemName} className="wish-img" />
                             ) : (
-                                <div className="wish-img d-flex align-items-center justify-content-center bg-secondary text-white">
-                                    No Image
-                                </div>
+                                <div className="no-img-box">No Image</div>
                             )}
 
-                            {/* 삭제 버튼 (X) */}
                             <button 
-                                className="btn-remove-wish"
-                                // ★ 수정: w.withListItemNo -> w.pointWishlistItemNo (DTO 필드명 일치)
-                                onClick={() => handleRemove(w.pointWishlistItemNo)} 
+                                className="btn-remove-wish-glass"
+                                onClick={(e) => handleRemove(e, w.pointWishlistItemNo, w.pointItemName)}
                                 title="목록에서 제거"
                             >
                                 ✕
                             </button> 
                         </div>
 
-                        {/* 정보 영역 */}
                         <div className="wish-info">
-                            <h6 className="wish-title" title={w.pointItemName}>{w.pointItemName}</h6>
-                            <h6 className="wish-price">{w.pointItemPrice.toLocaleString()} P</h6>
+                            <h6 className="wish-title-text" title={w.pointItemName}>{w.pointItemName}</h6>
+                            <div className="wish-price-tag">{w.pointItemPrice.toLocaleString()} P</div>
                         </div>
                     </div>
                 ))}
             </div>
+
+            {/* 5. 상세 모달 렌더링 (selectedItemNo가 있을 때만 띄움) */}
+            {selectedItemNo && (
+                <PointItemDetailView
+                    itemNo={selectedItemNo} 
+                    onClose={() => setSelectedItemNo(null)} // 닫기 시 null로 변경
+                />
+            )}
         </div>
     );
 }

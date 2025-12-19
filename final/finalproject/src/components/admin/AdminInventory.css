@@ -1,0 +1,117 @@
+/* AdminInventory.css */
+
+.admin-inventory-wrapper {
+    background: #0d1117;
+    min-height: 100vh;
+    padding-bottom: 50px;
+    animation: fadeIn 0.4s ease-in-out;
+}
+
+/* Glass Card */
+.search-glass-card {
+    background: rgba(255, 255, 255, 0.03);
+    backdrop-filter: blur(15px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 15px;
+    padding: 25px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+}
+
+.admin-search-input {
+    background: rgba(0, 0, 0, 0.4) !important;
+    border: 1px solid rgba(255, 255, 255, 0.1) !important;
+    color: #fff !important;
+}
+
+.admin-search-input:focus {
+    border-color: #00d2d3 !important;
+    box-shadow: 0 0 15px rgba(0, 210, 211, 0.3) !important;
+}
+
+/* Tabs */
+.admin-nav-tabs .nav-link {
+    color: #888;
+    border: none;
+    padding: 12px 25px;
+    transition: 0.3s;
+}
+
+.admin-nav-tabs .nav-link.active {
+    color: #00d2d3;
+    background: rgba(0, 210, 211, 0.1);
+    border-bottom: 3px solid #00d2d3;
+}
+
+/* Table */
+.table-glass-container {
+    background: rgba(255, 255, 255, 0.02);
+    border-radius: 15px;
+    overflow: hidden;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.admin-table thead {
+    background: rgba(255, 255, 255, 0.05);
+}
+
+.admin-table thead th {
+    color: #00d2d3;
+    font-size: 0.85rem;
+    padding: 15px;
+}
+
+/* Rarity Badges */
+.badge.rarity-legendary { background: #f1c40f; color: #000; box-shadow: 0 0 10px #f1c40f66; }
+.badge.rarity-unique { background: #a366ff; color: #fff; }
+.badge.rarity-epic { background: #e74c3c; color: #fff; }
+.badge.rarity-rare { background: #3498db; color: #fff; }
+.badge.rarity-common { background: #95a5a6; color: #fff; }
+
+.admin-rarity-text {
+    font-size: 10px;
+    font-weight: bold;
+    color: #888;
+    margin-top: 2px;
+}
+
+/* Modal */
+.admin-modal-backdrop {
+    background: rgba(0, 0, 0, 0.8) !important;
+    backdrop-filter: blur(10px);
+}
+
+.glass-modal-content {
+    background: #161b22 !important;
+    border: 1px solid rgba(255, 255, 255, 0.1) !important;
+    border-radius: 20px !important;
+    animation: modalUp 0.3s ease-out;
+}
+
+.admin-grant-list {
+    max-height: 500px;
+    overflow-y: auto;
+    padding: 10px;
+}
+
+.grant-card {
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    border-radius: 12px;
+    transition: 0.3s;
+}
+
+.grant-card:hover {
+    background: rgba(255, 255, 255, 0.08);
+    transform: translateY(-5px);
+    border-color: #00d2d3;
+}
+
+/* Animations */
+@keyframes fadeIn {
+    from { opacity: 0; } to { opacity: 1; }
+}
+
+@keyframes modalUp {
+    from { transform: translateY(30px); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+}

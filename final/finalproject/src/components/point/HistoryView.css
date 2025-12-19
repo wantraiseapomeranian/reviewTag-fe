@@ -1,191 +1,153 @@
 /* HistoryView.css */
-
-/* 전체 래퍼: 약간의 그라데이션 배경 추가 가능 */
 .history-glass-wrapper {
-    color: #fff;
-    font-family: 'Noto Sans KR', sans-serif;
     padding: 10px;
+    color: #fff;
 }
 
-/* 1. 헤더 영역 */
+/* 헤더 스타일 */
 .history-header-glass {
     display: flex;
     justify-content: space-between;
     align-items: flex-end;
-    margin-bottom: 20px;
-    padding: 0 5px;
+    margin-bottom: 25px;
+    padding: 0 10px;
 }
 
 .title-glass {
-    font-size: 1.6rem;
-    font-weight: 800;
+    font-family: 'Black Han Sans', sans-serif;
+    font-size: 1.8rem;
+    color: #00d2d3;
     margin: 0;
-    background: linear-gradient(90deg, #fff, #a29bfe);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
 }
 
 .total-cnt-glass {
     font-size: 0.85rem;
-    color: #6c757d;
-    font-weight: 500;
-    margin-top: 5px;
-    display: block;
+    color: #888;
 }
 
-/* 필터 버튼 그룹 */
+/* 필터 버튼 스타일 */
 .glass-filter-group {
-    background: rgba(255, 255, 255, 0.05);
-    padding: 4px;
-    border-radius: 30px;
     display: flex;
-    gap: 0;
+    background: rgba(255, 255, 255, 0.05);
+    padding: 5px;
+    border-radius: 12px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .glass-filter-btn {
-    background: transparent;
     border: none;
-    color: #aaa;
-    padding: 6px 16px;
-    font-size: 0.85rem;
-    font-weight: 600;
-    cursor: pointer;
-    border-radius: 20px;
-    transition: all 0.3s ease;
-}
-
-.glass-filter-btn:hover {
-    color: #fff;
+    background: transparent;
+    color: #888;
+    padding: 6px 18px;
+    border-radius: 8px;
+    font-size: 0.9rem;
+    transition: 0.3s;
 }
 
 .glass-filter-btn.active {
-    background: linear-gradient(135deg, #6c5ce7, #a29bfe);
-    color: #fff;
-    box-shadow: 0 4px 10px rgba(108, 92, 231, 0.4);
+    background: #00d2d3;
+    color: #000;
+    font-weight: bold;
+    box-shadow: 0 4px 15px rgba(0, 210, 211, 0.3);
 }
 
-/* 2. 리스트 프레임 (Glass Effect) */
+/* 테이블 리스트 프레임 */
 .history-list-frame {
-    background: rgba(30, 30, 40, 0.6);
-    backdrop-filter: blur(10px);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    border-radius: 12px;
+    background: rgba(255, 255, 255, 0.03);
+    border-radius: 20px;
+    border: 1px solid rgba(255, 255, 255, 0.08);
     overflow: hidden;
-    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
 }
 
-/* 리스트 헤더 */
 .list-header-row {
     display: flex;
     padding: 15px 20px;
-    background: rgba(0, 0, 0, 0.2);
-    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-    font-size: 0.8rem;
-    font-weight: 700;
-    color: #888;
-    letter-spacing: 0.5px;
+    background: rgba(255, 255, 255, 0.05);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    font-size: 0.75rem;
+    color: #00d2d3;
+    font-weight: bold;
+    letter-spacing: 1px;
 }
 
-/* 컬럼 너비 정의 */
-.col-w-date   { width: 15%; min-width: 80px; }
-.col-w-type   { width: 15%; min-width: 80px; text-align: center; }
-.col-w-desc   { flex: 1; padding-left: 20px; }
-.col-w-amount { width: 20%; text-align: right; }
-
-/* 데이터 스크롤 영역 */
-.list-body-scroll {
-    max-height: 500px;
-    overflow-y: auto;
-}
-/* 스크롤바 커스텀 */
-.list-body-scroll::-webkit-scrollbar { width: 6px; }
-.list-body-scroll::-webkit-scrollbar-thumb { background: #444; border-radius: 3px; }
-.list-body-scroll::-webkit-scrollbar-track { background: transparent; }
-
-/* 행 스타일 */
+/* 로우(Row) 공통 스타일 */
 .history-row {
     display: flex;
     align-items: center;
     padding: 15px 20px;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.03);
-    transition: background 0.2s;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    transition: 0.2s;
 }
 
 .history-row:hover {
     background: rgba(255, 255, 255, 0.05);
 }
 
-/* 날짜 */
-.row-date { font-weight: bold; color: #ccc; font-size: 0.9rem; }
-.row-time { font-size: 0.75rem; color: #666; margin-top: 2px; }
+/* 컬럼별 너비 설정 */
+.col-w-date { width: 80px; text-align: center; }
+.col-w-type { width: 100px; text-align: center; }
+.col-w-desc { flex: 1; padding: 0 20px; text-align: left; }
+.col-w-amount { width: 120px; text-align: right; }
 
-/* 뱃지 */
-.type-badge {
-    display: inline-block;
-    padding: 4px 10px;
-    border-radius: 6px;
+.row-date { font-weight: bold; font-size: 0.95rem; }
+.row-time { font-size: 0.75rem; }
+
+/* 유형 뱃지 스타일 */
+.type-badge-glass {
     font-size: 0.7rem;
-    font-weight: 800;
+    padding: 3px 8px;
+    border-radius: 6px;
+    font-weight: bold;
     text-transform: uppercase;
-    letter-spacing: 0.5px;
 }
-.type-earn { background: rgba(0, 184, 148, 0.15); color: #00b894; border: 1px solid rgba(0, 184, 148, 0.2); }
-.type-use  { background: rgba(255, 118, 117, 0.15); color: #ff7675; border: 1px solid rgba(255, 118, 117, 0.2); }
+.type-badge-glass.get { background: rgba(0, 210, 211, 0.1); color: #00d2d3; border: 1px solid #00d2d3; }
+.type-badge-glass.use { background: rgba(255, 71, 87, 0.1); color: #ff4757; border: 1px solid #ff4757; }
+.type-badge-glass.send { background: rgba(255, 159, 67, 0.1); color: #ff9f43; border: 1px solid #ff9f43; }
+.type-badge-glass.received { background: rgba(84, 160, 255, 0.1); color: #54a0ff; border: 1px solid #54a0ff; }
 
-/* 금액 */
-.col-w-amount { font-size: 1.1rem; font-weight: 700; letter-spacing: 0.5px; }
-.amt-plus { color: #55efc4; text-shadow: 0 0 10px rgba(85, 239, 196, 0.2); }
-.amt-minus { color: #ff7675; }
+/* 금액 색상 */
+.amt-plus { color: #00d2d3; font-weight: bold; }
+.amt-minus { color: #ff4757; font-weight: bold; }
+.amt-text { font-size: 1.1rem; }
+.amt-unit { font-size: 0.75rem; margin-left: 3px; }
 
-/* 내용 텍스트 */
-.col-w-desc { color: #eee; font-size: 0.95rem; }
-
-/* Empty State */
-.empty-history {
-    padding: 60px 0;
-    text-align: center;
-    color: #666;
-}
-.empty-icon { font-size: 3rem; margin-bottom: 10px; opacity: 0.5; }
-
-/* 3. 페이지네이션 */
+/* 페이지네이션 스타일 */
 .glass-pagination {
     display: flex;
     justify-content: center;
     gap: 8px;
-    margin-top: 25px;
 }
 
 .glass-page-btn {
-    width: 36px;
-    height: 36px;
-    border: none;
-    border-radius: 10px;
     background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
     color: #aaa;
-    font-weight: bold;
-    cursor: pointer;
-    transition: all 0.2s;
-}
-
-.glass-page-btn:hover:not(:disabled) {
-    background: rgba(255, 255, 255, 0.15);
-    color: #fff;
-    transform: translateY(-2px);
+    width: 35px;
+    height: 35px;
+    border-radius: 10px;
+    transition: 0.3s;
 }
 
 .glass-page-btn.active {
-    background: linear-gradient(135deg, #6c5ce7, #a29bfe);
-    color: #fff;
-    box-shadow: 0 4px 10px rgba(108, 92, 231, 0.3);
+    background: #00d2d3;
+    color: #000;
+    font-weight: bold;
+    border-color: #00d2d3;
 }
 
-.glass-page-btn.arrow {
-    font-size: 1.1rem;
-    line-height: 1;
+.glass-page-btn:hover:not(.active) {
+    background: rgba(255, 255, 255, 0.1);
+    color: #fff;
 }
-.glass-page-btn:disabled {
-    opacity: 0.3;
-    cursor: default;
-    transform: none;
+
+/* 텅 빈 상태 */
+.empty-history {
+    padding: 60px 0;
+    text-align: center;
+    color: #555;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
 }
+.empty-icon { font-size: 3rem; opacity: 0.3; }

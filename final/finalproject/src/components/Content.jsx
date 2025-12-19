@@ -58,6 +58,7 @@ import Private from "./guard/Private";
 import Admin from "./guard/Admin";
 import AdminInventory from "./admin/AdminInventory";
 import AdminReviewReport from "./admin/AdminReviewReport";
+
 export default function Content() {
     return (<>
 
@@ -92,7 +93,7 @@ export default function Content() {
                     {/* 회원 페이지 */}
                     <Route path="/point/main" element={<Private><PointMain/></Private>}></Route>
                     <Route path="/point/ranking" element={<Private><PointRanking/></Private>}></Route>
-
+                
                     {/* 게시글 페이지 */}
                     <Route path="/board/list" element={<BoardList/>}></Route>
                     <Route path="/board/List/:contentsId" element={<BoardContentsList/>}></Route>

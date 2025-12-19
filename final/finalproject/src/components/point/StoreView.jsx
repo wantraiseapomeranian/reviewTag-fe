@@ -27,8 +27,6 @@ export default function StoreView({ loginLevel, refreshPoint }) {
     // 1. 상품 목록 불러오기
     const loadItems = useCallback(async () => {
         try {
-            // ★ [수정] URL 경로 수정 (/point/main/store/ -> /point/store)
-            // Controller의 @RequestMapping("/point/store")와 일치시킴
             const resp = await axios.get("/point/main/store"); 
             setItems(resp.data);
         } catch (e) { console.error(e); }
@@ -118,7 +116,7 @@ export default function StoreView({ loginLevel, refreshPoint }) {
             {/* 상단 헤더 */}
             <div className="d-flex justify-content-between align-items-center mb-4">
                 <h4 className="text-white fw-bold">
-                    🍿 굿즈 스토어 <span className="text-secondary fs-6 ms-2">({items.length}개의 상품)</span>
+                     popcorn 굿즈 스토어 <span className="text-secondary fs-6 ms-2">({items.length}개의 상품)</span>
                 </h4>
                 {loginLevel === "관리자" && (
                     <button className="btn btn-outline-light btn-sm fw-bold" onClick={() => setShowAddModal(true)}>
@@ -139,12 +137,8 @@ export default function StoreView({ loginLevel, refreshPoint }) {
                         const reqScore = getScore(item.pointItemReqLevel);
                         const canAccess = (myScore >= reqScore); 
                         
-                        // 인벤토리 확인 (inventoryItemNo가 long이지만 JS에선 number로 처리되므로 비교 가능)
                         const ownedCount = myItems.filter(i => i.inventoryItemNo === item.pointItemNo).length;
-                        
-                        // ★ [수정] DTO 필드명 변경 반영 (pointItemUniques -> pointItemIsLimitedPurchase)
                         const isUnique = item.pointItemIsLimitedPurchase === 1;
-                        
                         const isAlreadyOwned = isUnique && ownedCount > 0;
                         const isWished = wishList.includes(item.pointItemNo); 
                         const isSoldOut = item.pointItemStock <= 0;
@@ -162,18 +156,15 @@ export default function StoreView({ loginLevel, refreshPoint }) {
                                         </div>
                                     )}
 
-                                    {/* 찜 버튼 */}
                                     <button className="btn-wish" onClick={(e) => { e.stopPropagation(); handleToggleWish(item.pointItemNo); }}>
                                         {isWished ? "❤️" : "🤍"}
                                     </button>
 
-                                    {/* 뱃지들 */}
                                     <div className="badge-overlay">
                                         {isUnique && <span className="badge bg-danger">LIMITED</span>}
                                         {ownedCount > 0 && <span className="badge bg-info text-dark">보유중</span>}
                                     </div>
 
-                                    {/* 품절 오버레이 */}
                                     {isSoldOut && (
                                         <div className="badge-soldout">SOLD OUT</div>
                                     )}
@@ -185,9 +176,12 @@ export default function StoreView({ loginLevel, refreshPoint }) {
                                     <p className="goods-desc">{item.pointItemContent}</p>
                                     
                                     <div className="goods-meta">
-                                        <span className={item.pointItemStock < 5 ? "text-danger fw-bold" : ""}>
-                                            재고 {item.pointItemStock}
-                                        </span>
+                                        {/* ★ [수정] 관리자에게만 재고 표시 */}
+                                        {loginLevel === "관리자" && (
+                                            <span className={item.pointItemStock < 5 ? "text-danger fw-bold" : ""}>
+                                                재고 {item.pointItemStock}
+                                            </span>
+                                        )}
                                         <span className="badge bg-dark border border-secondary text-secondary">
                                             Lv.{item.pointItemReqLevel}
                                         </span>
@@ -223,7 +217,6 @@ export default function StoreView({ loginLevel, refreshPoint }) {
                                         )}
                                     </div>
 
-                                    {/* 관리자 컨트롤 (수정/삭제) */}
                                     {loginLevel === "관리자" && (
                                         <div className="admin-controls mt-2 pt-2 border-top border-secondary">
                                             <button className="btn btn-sm btn-outline-warning me-1" onClick={() => setEditTarget(item)}>수정</button>
