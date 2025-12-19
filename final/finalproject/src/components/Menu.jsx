@@ -104,10 +104,10 @@ export default function Menu() {
                 {/* 브랜딩 텍스트(이미지) : 메뉴 가장 좌측에 나오는 로고 또는 텍스트 */}
                 <Link className="navbar-brand cinema-brand text-light" to="/" onClick={closeMenu}>
                     <svg width="40" height="40" viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <circle cx="100" cy="100" r="96" fill="#1A1A2E" />
+                        <circle cx="100" cy="100" r="96" fill="#3dc1d3" />
                         <path d="M130 40H70C58.9543 40 50 48.9543 50 60V140C50 151.046 58.9543 160 70 160H130C141.046 160 150 151.046 150 140V60C150 48.9543 141.046 40 130 40Z" fill="#E94560" />
-                        <circle cx="100" cy="65" r="8" fill="#1A1A2E" />
-                        <path d="M50 100H150" stroke="#1A1A2E" strokeWidth="4" strokeDasharray="8 8" />
+                        <circle cx="100" cy="65" r="8" fill="#3dc1d3" />
+                        <path d="M50 100H150" stroke="#3dc1d3" strokeWidth="4" strokeDasharray="8 8" />
                         <text x="100" y="135" fontFamily="Arial, sans-serif" fontWeight="bold" fontSize="40" fill="#1A1A2E" textAnchor="middle">₩</text>
                     </svg>
                 </Link>

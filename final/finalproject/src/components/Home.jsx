@@ -286,11 +286,11 @@ export default function Home() {
                     <Link className="text-decoration-none link-body-emphasis" to="/">
                         <svg width="100%"
                             viewBox="0 0 750 150"
-                            style={{ maxWidth: "800px" , height: "auto"}}
+                            style={{ maxWidth: "800px" , height:"auto"}}
                             fill="none"
                             xmlns="http://www.w3.org/2000/svg">
                             <g transform="translate(20, 25)">
-                                <path d="M10 0H110C115.523 0 120 4.47715 120 10V30C120 35.5228 124.477 40 130 40C135.523 40 140 35.5228 140 30V10C140 4.47715 144.477 0 150 0H210C215.523 0 220 4.47715 220 10V90C220 95.5228 215.523 100 210 100H150C144.477 100 140 95.5228 140 90V70C140 64.4772 135.523 60 130 60C124.477 60 120 64.4772 120 70V90C120 95.5228 115.523 100 110 100H10C4.47715 100 0 95.5228 0 90V10C0 4.47715 4.47715 0 10 0Z" fill="#E50914" />
+                                <path d="M10 0H110C115.523 0 120 4.47715 120 10V30C120 35.5228 124.477 40 130 40C135.523 40 140 35.5228 140 30V10C140 4.47715 144.477 0 150 0H210C215.523 0 220 4.47715 220 10V90C220 95.5228 215.523 100 210 100H150C144.477 100 140 95.5228 140 90V70C140 64.4772 135.523 60 130 60C124.477 60 120 64.4772 120 70V90C120 95.5228 115.523 100 110 100H10C4.47715 100 0 95.5228 0 90V10C0 4.47715 4.47715 0 10 0Z" fill="#FD6565CC" />
 
                                 <circle cx="60" cy="20" r="5" fill="#141414" />
                                 <circle cx="60" cy="50" r="5" fill="#141414" />
@@ -305,7 +305,7 @@ export default function Home() {
                                 </g>
                             </g>
 
-                            <text x="250" y="95" fontFamily="'Helvetica Neue', Helvetica, Arial, sans-serif" fontWeight="900" fontSize="80" letterSpacing="-2">
+                            <text x="260" y="105" fontFamily="'Helvetica Neue', Helvetica, Arial, sans-serif" fontWeight="900" fontSize="80" letterSpacing="-2">
                                 <tspan fill="#FFFFFF">Review</tspan>
                                 <tspan fill="#D4AF37">Tag</tspan>
                             </text>
