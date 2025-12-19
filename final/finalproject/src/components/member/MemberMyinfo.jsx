@@ -8,6 +8,7 @@ export default function MemberMyinfo() {
     const [data, setData] = useState(null);
     const navigate = useNavigate();
 
+    
     useEffect(() => {
         axios.get(`/member/mypage/${loginId}`)
             .then(res => setData(res.data))
