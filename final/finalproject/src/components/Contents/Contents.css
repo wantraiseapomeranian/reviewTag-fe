@@ -105,4 +105,11 @@
     background-color: transparent !important;
     border: 0 0 0 transparent;   
 }
-
+.listRel {
+    color: #00f000;
+    font-size: 19px;
+}
+.listRel2 {
+    color: #6fa9ff;
+    font-size: 20px;
+}

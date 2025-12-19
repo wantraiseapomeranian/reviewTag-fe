@@ -57,6 +57,7 @@ import MemberProfileReview from "./member/MemberProfileReview";
 import Private from "./guard/Private";
 import Admin from "./guard/Admin";
 import AdminInventory from "./admin/AdminInventory";
+import AdminReviewReport from "./admin/AdminReviewReport";
 export default function Content() {
     return (<>
 
@@ -91,6 +92,7 @@ export default function Content() {
                     {/* 회원 페이지 */}
                     <Route path="/point/main" element={<Private><PointMain/></Private>}></Route>
                     <Route path="/point/ranking" element={<Private><PointRanking/></Private>}></Route>
+
                     {/* 게시글 페이지 */}
                     <Route path="/board/list" element={<BoardList/>}></Route>
                     <Route path="/board/List/:contentsId" element={<BoardContentsList/>}></Route>
@@ -154,12 +156,15 @@ export default function Content() {
                     <Route path="/admin" element={<Admin><AdminMain /></Admin>}>
                         <Route index element={<Admin><AdminMemberPage/></Admin>}></Route>
                         <Route path="/admin/member" element={<Admin><AdminMemberPage /></Admin>} />
-                        {/* <Route path="review" element={<AdminReviewPage />} /> */}
+                        <Route path="/admin/review/report" element={<AdminReviewReport />} />
                         <Route path="/admin/member/:memberId" element={<Admin><AdminMemberDetail /></Admin>} />
                         <Route path="/admin/quiz" element={<Admin><AdminQuizPage /></Admin>} />
+
                         <Route path="/admin/dailyquiz" element={<Admin><AdminDailyQuiz/></Admin>} />
                         <Route path="/admin/point" element={<Admin><AdminPoint/></Admin>}/>
                         <Route path="/admin/inventory" element={<Admin><AdminInventory/></Admin>}/>
+
+
                     </Route>
                 </Routes>
             </div>

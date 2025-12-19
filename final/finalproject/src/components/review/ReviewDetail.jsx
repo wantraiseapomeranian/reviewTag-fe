@@ -99,7 +99,7 @@ export default function ReviewDetail() {
                     setLikeCount(data.reviewLike);
                     setWriter(data.reviewWriter);
                     setSpoiler(data.reviewSpoiler);
-                    console.log(data.reviewWriter, "작성자");
+                    console.log(data, "데이터 구간");
                 }
                 if (accessToken && loginId) {
                     const { data: likeData } = await axios.post(
@@ -268,9 +268,10 @@ export default function ReviewDetail() {
     }
     //가격 입력창 제어 함수
     const changeNum = useCallback((e) => {
-        const regex = /[^0-9]+/g;
+       const regex = /[^0-9]+/g;
         const replacement = e.target.value.replace(regex, "");
-        const number = replacement.length == 0 ? "" : parseInt(replacement);
+        let number = replacement.length == 0 ? "" : parseInt(replacement);
+        if(number > 50000) number = 50000;
 
         const formattedNumber = number === 0 ? "" : number.toLocaleString('ko-KR');
         setPrice(formattedNumber);
@@ -349,6 +350,10 @@ export default function ReviewDetail() {
 
         axios.patch(`/review/${contentsId}/${reviewNo}`, payload)
             .then(() => {
+                if(reviewValid || invalidRegex) {
+                    toast.error("감상을 10글자 이상 작성해주세요");
+                    return;
+                }
                 toast.success("리뷰 수정 완료");
                 setReview(prev => ({
                     ...prev,
@@ -359,7 +364,6 @@ export default function ReviewDetail() {
             .catch(err => {
                 toast.error("수정 도중 오류가 발생했습니다");
             })
-        // const { data } = await axios.get(`/review/${contentsId}/${reviewNo}`, { headers });
     }, [review, reviewNo, contentsId]);
 
     //수정하기 버튼
@@ -393,14 +397,14 @@ export default function ReviewDetail() {
 
             try {
             //API 호출
-            await axios.post("/review/report/");
+            await axios.post("/review/report/", payload);
 
             //성공 처리
             toast.success("신고가 정상적으로 접수되었습니다.");
             setReportReason(""); // 선택 초기화
             setOtherReason("");  // 내용 초기화
             closeModal3();       // 모달 닫기
-
+            console.log("신고 성공");
         } catch (error) {
             console.error("신고 전송 실패:", error);
             
@@ -416,6 +420,33 @@ export default function ReviewDetail() {
             }
         }
         }, [reportReason, otherReason, review.reviewNo, loginId]);
+
+    //신뢰도 레벨
+    const rel = review?.memberReliability ?? 0;
+
+    const relRowLevel = useMemo(()=> { 
+       return rel >= 6 && rel <= 19;
+    },[rel])
+
+    const relMiddleLevel = useMemo(()=> { 
+        return rel >= 20 && rel <= 49;
+    },[rel])
+
+    const relHighLevel = useMemo(()=> { 
+        return rel >= 50;
+    },[rel])
+
+    //수정 조건
+    const reviewValid = useMemo(() => {
+        const regex = /^(?=.{10,})(?!.*([ㄱ-ㅎㅏ-ㅣ])\1{5,}).*$/;
+        return regex.test(review.reviewText);
+    }, [review.reviewText]);
+
+    const invalidRegex = /([ㄱ-ㅎㅏ-ㅣ])\1{4,}/;
+    const reviewClassInValid = useMemo(() => {
+        return invalidRegex.test(review.reviewText);
+    }, [review.reviewText]);
+
 
 
     //render
@@ -438,8 +469,19 @@ export default function ReviewDetail() {
                             ><BsThreeDotsVertical /></button>
                         )}
                     </div>
-                    <div className="mt-4 mb-4">
-                        <span className="userId">{review.reviewWriter}</span>
+                    <div className="mt-5 mb-4">
+                        <span className="userId">{review.memberNickname}</span>
+                        { relRowLevel &&(
+                        <span className="detailRel ms-3">🟢 활동 리뷰어</span>
+                        )}
+                        {relMiddleLevel &&(
+                        <span className="detailRel2 ms-3">🔵 신뢰 리뷰어</span>
+                        )}
+                        { relHighLevel &&(
+                        <span className="detailRel2 ms-3">🔷 검증된 리뷰어 </span>
+                        )}
+                        
+                        
                     </div>
                     <div className="col title mb-2">
                         {contentsDetail.contentsTitle}
@@ -447,12 +489,12 @@ export default function ReviewDetail() {
                     </div>
                     <div className="d-flex align-items-center mb-3">
                         {isWriter && (
-                            <span className="me-2">내 평가</span>
+                            <span className="me-3"><FaStar className="littleStar me-1"/>내 평가</span>
                         )}
-                        <span><FaStar className="littleStar me-1 mb-1" />{reviewDate}</span>
-                        <span className="ms-3"><FcMoneyTransfer className="me-2" />{price.toLocaleString()} 원</span>
+                        <span><FcMoneyTransfer className="me-1" />{price.toLocaleString()} 원</span>
+                        <span className="littleStar ms-3">{reviewDate}</span>
                         {review.reviewEtime && (
-                            <span className="ms-3" style={{ color: "#b1b1b1ff" }}>(수정됨)</span>
+                            <span className="ms-2" style={{ color: "#b1b1b1ff" }}>(수정됨)</span>
                         )}
 
 
@@ -489,8 +531,8 @@ export default function ReviewDetail() {
                             저장하기
                         </button>
                     </div>
-                    <div className="mt-4 mb-4">
-                        <span className="userId">{review.reviewWriter}</span>
+                    <div className="mt-5 mb-4">
+                        <span className="userId">{review.memberNickname}</span>
                     </div>
                     <div className="col title mb-2">
                         {contentsDetail.contentsTitle}
