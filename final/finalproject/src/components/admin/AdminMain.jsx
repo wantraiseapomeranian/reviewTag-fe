@@ -41,7 +41,7 @@ export default function AdminMain() {
                     </NavLink>
                     
                     <NavLink to="/admin/review/report" className="list-group-item list-group-item-action admin-menu-item" onClick={closeSidebar}>
-                        📝 리뷰 관리
+                        📝 리뷰 신고 관리
                     </NavLink>
                     
                     <NavLink to="/admin/quiz" className="list-group-item list-group-item-action admin-menu-item" onClick={closeSidebar}>

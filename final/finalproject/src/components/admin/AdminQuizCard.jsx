@@ -46,7 +46,7 @@ export default function AdminQuizCard({ quizData, refreshList }) {
                 <h5 className="mb-0 fw-bold text-truncate" style={{ maxWidth: '70%' }}>
                     [퀴즈] {quizData.quizQuestion}
                 </h5>
-                <span className="badge bg-danger fs-6">
+                <span className="badge bg-warning fs-6">
                     🚨 누적 신고: {quizData.totalReportCount}건
                 </span>
             </div>
