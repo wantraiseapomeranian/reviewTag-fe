@@ -614,12 +614,12 @@ export default function BoardDetail() {
 
             {/* 버튼 */}
             <div className="row mt-4 text-end">
-                {loginId && loginId === board.boardWriter ? (
+                {(loginId && loginId === board.boardWriter|| loginLevel === "관리자") ? (
                     <div className="col">
-                        {(loginId && loginId === board.boardWriter || loginLevel === "관리자") && (
-                            <button type="button" className="btn btn-danger me-2" onClick={deleteBoard}>삭제</button>
+                        <button type="button" className="btn btn-danger me-2" onClick={deleteBoard}>삭제</button>
+                        {(loginId && loginId === board.boardWriter) && (
+                            <Link className="btn btn-secondary me-2" to={`/board/edit/${board.boardNo}`}>수정</Link>
                         )}
-                        <Link className="btn btn-secondary me-2" to={`/board/edit/${board.boardNo}`}>수정</Link>
                         <Link className="btn btn-info " to="/board/list">목록</Link>
                     </div>
                 ) : (

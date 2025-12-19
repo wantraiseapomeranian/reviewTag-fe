@@ -285,9 +285,8 @@ export default function Home() {
                 <div className="col d-flex justify-content-center text-nowrap">
                     <Link className="text-decoration-none link-body-emphasis" to="/">
                         <svg width="100%"
-                            height="auto"
                             viewBox="0 0 750 150"
-                            style={{ maxWidth: "800px" }}
+                            style={{ maxWidth: "800px" , height: "auto"}}
                             fill="none"
                             xmlns="http://www.w3.org/2000/svg">
                             <g transform="translate(20, 25)">

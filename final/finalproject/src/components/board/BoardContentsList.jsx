@@ -153,7 +153,7 @@ export default function BoardContentsList() {
                 </div>
             </div>
             {/* 페이지네이션 */}
-            <div className="row mt-1">
+            <div className="row mt-4">
                 <div className="col-6 offset-3">
                     <Pagination
                         page={page}
@@ -163,14 +163,6 @@ export default function BoardContentsList() {
                         onPageChange={setPage}
                     />
                 </div>
-            </div>
-        </div>
-
-        <div className="row">
-            <div className="col">
-                <Link className="btn btn-success" to="/board/insert">
-                    <span>작성</span>
-                </Link>
             </div>
         </div>
     </>)
