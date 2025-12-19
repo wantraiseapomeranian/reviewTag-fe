@@ -171,9 +171,7 @@ import IconListView from "./IconListView";
                     <div className="cinema-content">
                         {tab === "store" && <StoreView loginLevel={loginLevel} refreshPoint={refreshAll} />}
                         {tab === "roulette" && <Roulette refreshPoint={refreshAll} />}
-                        {tab === "my_icon" && <MyIconView refreshPoint={refreshAll} />} 
-                        {/* {tab === "#" && */}
-                        <IconListView refreshPoint={refreshAll}></IconListView>
+                        {tab === "my_icon" && <><MyIconView refreshPoint={refreshAll} /> <IconListView refreshPoint={refreshAll}></IconListView></>} 
            
                         {/* ★ [추가] 랭킹 페이지 연결 */}
                         {tab === "ranking" && <PointRankingPage />}
