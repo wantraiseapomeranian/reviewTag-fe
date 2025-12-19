@@ -14,7 +14,7 @@ export default function ContentsListByGenre() {
     //state
     //contents 목록
     const [contentsList, setContentsList] = useState([]);
-    const [isLoading, setIsLoading] = useState(false);
+    const [isLoading, setIsLoading] = useState(true);
 
     //무한스크롤 페이지네이션
     const [page, setPage] = useState(1);//페이지번호
@@ -23,7 +23,8 @@ export default function ContentsListByGenre() {
     });
 
 
-    const loading = useRef(false);
+    const requestRef = useRef(false);
+     const loading = useRef(false);
 
     //effect
     useEffect(() => {
@@ -32,12 +33,16 @@ export default function ContentsListByGenre() {
         }
     }, [genreName, page]);
 
+    useEffect(() => {
+        setPage(1);
+        setContentsList([]);
+        loading.current = false;
+        setIsLoading(true);
+        window.scrollTo(0, 0);
+    }, [genreName]);
+
     //최초 1회 실행하여 window에 스크롤 이벤트를 추가
     useEffect(() => {
-        //함수를 변수처럼 생성
-        //- lodash 라이브러리를 이용해서 쓰로틀링(throttle) 처리를 구현
-        // const listener = e=>{console.log("Throttle 적용 전")};
-
         const listener = throttle(e => {
             const percent = getScrollPercent();
 
@@ -57,11 +62,15 @@ export default function ContentsListByGenre() {
 
     //callback
     const loadData = useCallback(async () => {
-        //로딩 시작(flag on)
-        loading.current = true;
+        //중복요청 방지
+        if (requestRef.current) return;
+        requestRef.current = true;
 
         try {
+            if (page === 1) setIsLoading(true);
+
             const response = await axios.get(`/api/tmdb/contents/list/${genreName}`, { params: { page: page } });
+
             if (page === 1) {//첫페이지면
                 setContentsList(response.data);
 
@@ -75,11 +84,11 @@ export default function ContentsListByGenre() {
             const { list, ...others } = response.data;
             setInfo(others);
 
-            //로딩 종료(flag off)
-            loading.current = false;
-
         } catch (error) {
             console.error("데이터 로드 실패:", error);
+        } finally {
+            setIsLoading(false);
+            requestRef.current = false;
         }
     }, [genreName, page]);
 
@@ -131,11 +140,12 @@ export default function ContentsListByGenre() {
 
 
     return (<>
-        {loading.current ? (
-            <div className="row mt-4 ms-3">
-                <div className="col">
-                    <span className="fs-3">로딩중...🏃‍♀️</span>
+        {isLoading && page === 1 ? (
+            <div className="text-center mt-5 text-white">
+                <div className="spinner-border text-primary" role="status">
+                    <span className="visually-hidden">Loading...</span>
                 </div>
+                <h4 className="mt-3">🎬 콘텐츠를 불러오는 중입니다...</h4>
             </div>
         ) : (
             <div className="container">

@@ -4,17 +4,33 @@ import { useCallback, useEffect, useRef, useState } from "react"
 import { FaComment, FaPen, FaRegEye, FaRegThumbsDown, FaRegThumbsUp, FaTrashAlt } from "react-icons/fa";
 import { Link, useNavigate, useParams } from "react-router-dom"
 import { toast } from "react-toastify";
-import { loginIdState } from "../../utils/jotai";
+import { loginIdState, loginLevelState } from "../../utils/jotai";
 import { cleanExpiredViews } from '../../utils/localStorage/cleanStorage';
+import { Modal } from "bootstrap";
+import { FaXmark } from "react-icons/fa6";
 
 
 export default function BoardDetail() {
 
     //통합 state
     const [loginId, setLoginId] = useAtom(loginIdState);
+    const [loginLevel, setLoginLevel] = useAtom(loginLevelState);
 
     const navigate = useNavigate();
     const { boardNo } = useParams();
+
+
+    //모달
+    const modal3 = useRef();
+
+    const openModal3 = () => {
+        const open = new Modal(modal3.current);
+        open.show();
+    }
+    const closeModal3 = () => {
+        const close = Modal.getInstance(modal3.current);
+        if (close) close.hide();
+    }
 
     //state
     const [board, setBoard] = useState({
@@ -116,7 +132,7 @@ export default function BoardDetail() {
         try {
             const { data } = await axios.get(`/board/${boardNo}`);
             setBoard(data);
-            if(board.boardUnlike>=10) setShowText(false);
+            if (board.boardUnlike >= 10) setShowText(false);
         }
         catch (err) {
             console.error("게시글 상세 로드 실패: ", err);
@@ -322,15 +338,64 @@ export default function BoardDetail() {
         }
     };
 
+    //신고 <기타 버튼>
+    const [reportReason, setReportReason] = useState("");
+    const [otherReason, setOtherReason] = useState("");
+
+
+    const sendData2 = useCallback(async () => {
+        if (!reportReason) {
+            toast.info("신고 사유를 선택해주세요");
+            return;
+        }
+        if (reportReason === "OTHER" && otherReason.trim() === "") {
+            toast.info("기타 사유를 입력해주세요");
+            return;
+        }
+
+        //전송할 데이터 구성
+        const payload = {
+            boardReportBoardNo: boardNo,       // 신고할 게시글 번호
+            boardReportType: reportReason,       // 신고 사유
+            boardReportContent: reportReason === "ETC" ? otherReason : null // 기타일 때만 내용 전송
+        };
+
+        try {
+            //API 호출
+            await axios.post("/board/report/", payload);
+
+            //성공 처리
+            toast.success("신고가 정상적으로 접수되었습니다.");
+            setReportReason(""); // 선택 초기화
+            setOtherReason("");  // 내용 초기화
+            closeModal3();       // 모달 닫기
+
+        } catch (error) {
+            console.error("신고 전송 실패:", error);
+
+            //에러 처리
+            if (error.response) {
+                if (error.response.status === 500) {
+                    toast.error("이미 신고하신 게시글입니다.");
+                } else if (error.response.status === 401) {
+                    toast.error("로그인이 만료되었습니다.");
+                } else {
+                    toast.error("신고 접수 중 오류가 발생했습니다.");
+                }
+            }
+        }
+    }, [reportReason, otherReason, boardNo, loginId]);
+
+
 
     //rendar
     return (<>
         <div className="container mt-5">
             <div className="d-flex align-items-center mb-4 mt-4">
-                <h2 className="fw-bold text-white mb-0" 
-                    onClick={()=>{navigate("/board/list")}}
-                    style={{cursor:"pointer"}}>
-                자유게시판
+                <h2 className="fw-bold text-white mb-0"
+                    onClick={() => { navigate("/board/list") }}
+                    style={{ cursor: "pointer" }}>
+                    자유게시판
                 </h2>
             </div>
 
@@ -360,14 +425,21 @@ export default function BoardDetail() {
                 </div>
             </div>
 
-            <hr className="text-light mb-3" />
+            <hr className="text-light mb-2" />
 
             <div className="row">
-                <div className="col text-light">
-                    <h5 onClick={()=>navigate(`/member/profile/info/${board.boardWriter}`)}
-                        style={{cursor:"pointer"}}>
-                    {board.boardWriter}
-                    </h5>
+                <div className="col text-light d-flex justify-content-between align-items-center">
+                    <span onClick={() => navigate(`/member/profile/info/${board.boardWriter}`)}
+                        style={{ cursor: "pointer" }} className="fs-4">
+                        {board.boardWriter}
+                    </span>
+                    {/* 신고 버튼 */}
+                    {loginId && loginId !== board.boardWriter && (
+                        <span className="ms-3 text-danger" onClick={openModal3}
+                            style={{ cursor: "pointer" }}>
+                            신고 🚨
+                        </span>
+                    )}
                 </div>
 
             </div>
@@ -387,7 +459,7 @@ export default function BoardDetail() {
                     className="text-danger fw-bold"
                     style={{
                         cursor: "pointer",
-                         minHeight: "200px",
+                        minHeight: "200px",
                         whiteSpace: "pre-wrap",
                         overflowX: "auto",
                         overflowY: "hidden",
@@ -408,9 +480,6 @@ export default function BoardDetail() {
                 }}
                 dangerouslySetInnerHTML={{ __html: board.boardText }}
             ></div>)}
-                
-            
-           
 
             {/* 좋아요 싫어요 */}
             <div className="row mt-5">
@@ -513,9 +582,6 @@ export default function BoardDetail() {
                                             ) : (
                                                 <span>{getDisplayDate(replyDto.replyWtime)}</span>
                                             )}
-                                            {!replyDto.owner && loginId && loginId !== replyDto.replyWriter && (
-                                                <span className="ms-3" style={{ cursor: "pointer" }}>신고 🚨</span>
-                                            )}
                                         </div>
                                     </div>
 
@@ -523,7 +589,7 @@ export default function BoardDetail() {
                                         {replyDto.replyContent}
                                     </div>
 
-                                    {replyDto.owner && (
+                                    {(replyDto.owner || loginLevel === "관리자") && (
                                         <div className="text-end">
                                             <FaPen
                                                 className="text-info me-3"
@@ -550,7 +616,9 @@ export default function BoardDetail() {
             <div className="row mt-4 text-end">
                 {loginId && loginId === board.boardWriter ? (
                     <div className="col">
-                        <button type="button" className="btn btn-danger me-2" onClick={deleteBoard}>삭제</button>
+                        {(loginId && loginId === board.boardWriter || loginLevel === "관리자") && (
+                            <button type="button" className="btn btn-danger me-2" onClick={deleteBoard}>삭제</button>
+                        )}
                         <Link className="btn btn-secondary me-2" to={`/board/edit/${board.boardNo}`}>수정</Link>
                         <Link className="btn btn-info " to="/board/list">목록</Link>
                     </div>
@@ -560,6 +628,92 @@ export default function BoardDetail() {
                     </div>
                 )}
 
+            </div>
+
+            {/* 신고 모달 */}
+            <div className="modal fade" id="ModalToggle3" data-bs-backdrop="static" tabIndex="-1" ref={modal3}
+                data-bs-keyboard="false">
+                <div className="modal-dialog modal-sm">
+                    <div className="three">
+                        <div className="modal-content">
+                            <div className="modal-body">
+                                <div className="row">
+                                    <div className="col report text-center mt-2 d-flex">
+                                        <div className="col-2 mt-1" style={{ marginLeft: "40%" }}>신고</div>
+                                        <div className="col-2">
+                                            <button type="button" className="modalButtonX2" onClick={closeModal3}>
+                                                <FaXmark />
+                                            </button>
+                                        </div>
+                                    </div>
+
+                                </div>
+                                <div style={{ color: "white" }} className="mt-3 reportCheck">
+                                    <div>
+                                        <input type="radio" className="ms-3 form-check-input" name="reportReason" value="INAPPOSITE"
+                                            checked={reportReason === "INAPPOSITE"}
+                                            onChange={(e) => {
+                                                setReportReason(e.target.value)
+                                                setOtherReason("");
+                                            }
+                                            } /><span className="ms-3">부적절한 컨텐츠</span>
+                                    </div>
+                                    <div className="mt-3">
+                                        <input type="radio" className="ms-3 form-check-input" name="reportReason" value="SPAM"
+                                            checked={reportReason === "SPAM"}
+                                            onChange={(e) => {
+                                                setReportReason(e.target.value)
+                                                setOtherReason("");
+                                            }
+                                            }
+                                        /><span className="ms-3"
+                                        >광고 및 도배</span><br />
+                                    </div>
+                                    <div className="mt-3">
+                                        <input type="radio" className="ms-3 form-check-input" name="reportReason" value="HATE"
+                                            checked={reportReason === "HATE"}
+                                            onChange={(e) => {
+                                                setReportReason(e.target.value)
+                                                setOtherReason("");
+                                            }
+                                            }
+                                        /><span className="ms-3"
+                                        >혐오 및 비방</span><br />
+                                    </div>
+                                    <div className="mt-3">
+                                        <input type="radio" className="ms-3 form-check-input" name="reportReason" value="ETC"
+                                            checked={reportReason === "ETC"}
+                                            onChange={(e) => {
+                                                setReportReason(e.target.value)
+                                                setOtherReason("");
+                                            }
+                                            } /><span className="ms-3">기타</span><br />
+                                    </div>
+                                    <hr className="HR" />
+                                </div>
+                                <div style={{ color: "#acacbbff" }} className="mt-4 ms-2 mb-3"><span>더 자세한 의견</span></div>
+
+                                {/* 기타 아닐 시 비활성화 */}
+                                {reportReason !== "ETC" && (
+                                    <textarea name="" className="idea2 ms-3" disabled></textarea>
+                                )}
+                                {/* 기타 일 시, 활성화 */}
+                                {reportReason === "ETC" && (
+                                    <textarea name="" className="idea ms-3" value={otherReason}
+                                        onChange={(e) => {
+                                            setOtherReason(e.target.value);
+                                        }
+                                        }></textarea>
+                                )}
+
+                                <div className="mt-4 d-flex justify-content-between">
+                                    <button type="button" className="reportB col-5 me-4 mb-1"
+                                        onClick={sendData2}>신고하기</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </>)

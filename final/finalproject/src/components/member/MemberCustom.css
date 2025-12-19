@@ -1,0 +1,170 @@
+:root {
+    --gold-main: #ffd700;
+    --gold-glow: rgba(255, 215, 0, 0.4);
+    --safe-green: #00ffcc;
+    --danger-red: #ff3b30;
+}
+
+/* 배경 및 레이아웃 */
+body { background-color: #0c0c0e !important; margin: 0; }
+.mypage-info-wrapper { max-width: 1400px; margin: 0 auto; padding: 40px; font-family: 'Pretendard', sans-serif; }
+
+/* 1. 히어로 영역 (골드 테두리 + 얼음 광택) */
+.profile-hero-v2 {
+    position: relative;
+    height: 420px;
+    border-radius: 40px;
+    overflow: hidden;
+    border: 3px solid var(--gold-main);
+    box-shadow: 0 0 50px rgba(0, 0, 0, 0.8), inset 0 0 20px var(--gold-glow);
+    margin-bottom: 40px;
+    z-index: 1;
+}
+
+/* 얼음 광택 효과 클래스 */
+.profile-hero-v2.bg-ice {
+    background: linear-gradient(135deg, #a5f3fc 0%, #06b6d4 100%) !important;
+}
+.profile-hero-v2.bg-ice::before {
+    content: ''; position: absolute; top: 0; left: 0; right: 0; bottom: 0;
+    background: linear-gradient(105deg, transparent 30%, rgba(255, 255, 255, 0.5) 50%, transparent 70%);
+    background-size: 200% 100%; animation: ice-shimmer 5s infinite; z-index: -1;
+}
+@keyframes ice-shimmer { 0% { background-position: -200% 0; } 100% { background-position: 200% 0; } }
+
+.hero-overlay-v2 {
+    width: 100%; height: 100%;
+    background: linear-gradient(to bottom, rgba(0,0,0,0.1) 0%, rgba(12, 12, 14, 0.9) 100%);
+    display: flex; flex-direction: column; justify-content: center; align-items: center;
+}
+
+/* 신뢰도 게이지 (49% 이하 빨간색) */
+.rel-fill.safe { background: linear-gradient(90deg, #00ffcc, #00ff88); box-shadow: 0 0 15px var(--safe-green); }
+.rel-fill.danger { background: linear-gradient(90deg, #ff4b2b, #ff3b30); box-shadow: 0 0 20px var(--danger-red); }
+.rel-text.danger { color: var(--danger-red); animation: blink 1.5s infinite; }
+@keyframes blink { 50% { opacity: 0.5; } }
+
+/* 2. 활동 통계 카드 (복구 및 강화) */
+.activity-stats-row {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 25px;
+    margin-bottom: 40px;
+}
+.activity-stats-row a {
+  text-decoration: none;
+  color: inherit;
+}
+.stat-card {
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    padding: 40px 20px;
+    border-radius: 30px;
+    text-align: center;
+    transition: 0.3s;
+}
+.stat-card:hover { transform: translateY(-10px); border-color: var(--gold-main); }
+.stat-label { color: #888; font-size: 1.1rem; font-weight: 600; }
+.stat-value { display: block; font-size: 2rem; font-weight: 800; color: #fff; margin-top: 15px; }
+.stat-value.text-red { color: #ff4d4d; text-shadow: 0 0 15px rgba(255, 77, 77, 0.3); }
+.stat-value.text-gold { color: var(--gold-main); text-shadow: 0 0 15px rgba(255, 77, 77, 0.3); }
+
+
+/* 3. 계정 상세 정보 (가독성 강화) */
+.account-info-card {
+    background: rgba(255, 255, 255, 0.02);
+    padding: 50px; border-radius: 40px; border: 1px solid rgba(255, 255, 255, 0.08);
+}
+.info-item-v2 {
+    background: rgba(0, 0, 0, 0.3); padding: 2px 45px; border-radius: 20px;
+    display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;
+}
+.label-with-icon { font-size: 1.3rem; color: #ccc; }
+.value-v2 { font-size: 1rem; color: #fff; font-weight: 800; }
+
+/* 4. 버튼 영역 (동일 크기) */
+.mypage-actions-v2 { margin-top: 60px; display: flex; justify-content: center; gap: 20px; }
+.mypage-actions-v2 a, .mypage-actions-v2 button {
+    flex: 1; max-width: 260px; height: 70px; display: flex; align-items: center; justify-content: center;
+    border-radius: 20px; font-size: 1.2rem; font-weight: 800; text-decoration: none; transition: 0.3s;
+}
+.btn-main { background: #fff; color: #000; }
+.btn-sub { background: rgba(255, 255, 255, 0.1); color: #fff; border: 1px solid rgba(255,255,255,0.2); }
+.btn-out { background: rgba(255, 59, 48, 0.1); border: 2px solid var(--danger-red); color: var(--danger-red); }
+.btn-out:hover { background: var(--danger-red); color: #fff; }
+
+/* 전체 레이아웃 컨테이너 */
+.mypage-container-wide {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 40px 20px;
+  min-height: 100vh;
+}
+
+/* 탭 네비게이션 바 */
+.mypage-tabs {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 15px;
+  background: rgba(255, 255, 255, 0.03); /* 아주 연한 유리 느낌 */
+  backdrop-filter: blur(15px);
+  padding: 12px;
+  border-radius: 24px;
+  margin-bottom: 50px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+}
+
+/* 개별 탭 버튼 스타일 */
+.mypage-tab {
+  padding: 16px 35px;
+  color: #888; /* 비활성 상태: 흐린 회색 */
+  text-decoration: none;
+  font-weight: 700;
+  font-size: 1.1rem;
+  border-radius: 18px;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  overflow: hidden;
+}
+
+/* 호버 시 효과 */
+.mypage-tab:hover {
+  color: #fff;
+  background: rgba(255, 255, 255, 0.05);
+  transform: translateY(-2px);
+}
+
+/* ✨ 핵심: 활성화된 탭 스타일 (골드 네온) */
+.mypage-tab.active {
+  color: var(--gold-main); /* 금색 글씨 */
+  background: rgba(255, 215, 0, 0.1); /* 은은한 금색 배경 */
+  border: 1px solid rgba(255, 215, 0, 0.4);
+  box-shadow: 0 0 20px rgba(255, 215, 0, 0.15);
+  text-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
+}
+
+/* 활성 탭 하단에 강조 선 추가 (선택사항) */
+.mypage-tab.active::after {
+  content: "";
+  position: absolute;
+  bottom: 8px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 60%;
+  height: 3px;
+  background: var(--gold-main);
+  border-radius: 10px;
+  box-shadow: 0 0 10px var(--gold-main);
+}
+
+/* 컨텐츠가 출력되는 영역 애니메이션 */
+.mypage-content-area {
+  animation: slideUp 0.6s ease-out;
+}
+
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(30px); }
+  to { opacity: 1; transform: translateY(0); }
+}

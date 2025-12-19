@@ -167,7 +167,6 @@ export default function WriteReview() {
         const replacement = e.target.value.replace(regex, "");
         let number = replacement.length == 0 ? "" : parseInt(replacement);
         if(number > 50000) number = 50000;
-
         const formattedNumber = number === 0 ? "" : number.toLocaleString('ko-KR');
         setPrice(formattedNumber);
 
@@ -272,6 +271,9 @@ export default function WriteReview() {
                             </div>
                             <div className="text-center mt-4">
                                 <span>별점이나 영화의 값어치를 입력해주세요</span>
+                            </div>
+                            <div className="text-center mt-2">
+                                <span className="text-light opacity-75">가격은 최대 50000원 까지 입니다</span>
                             </div>
                             <div className="mt-3 rating-box" value={review.reviewRating}>
                                 {[1, 2, 3, 4, 5].map((num) => (

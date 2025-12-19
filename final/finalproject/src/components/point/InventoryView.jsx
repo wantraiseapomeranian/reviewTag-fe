@@ -165,7 +165,7 @@ export default function InventoryView({ refreshPoint }) {
                                     <span className="inven-count-badge">x{item.inventoryQuantity}</span>
                                     {isEquipped && <span className="badge bg-success equipped-badge">착용중</span>}
                                 </div>
-
+                                    
                                 <div className="inven-info">
                                     <h6 className="inven-name" title={item.pointItemName}>{item.pointItemName}</h6>
                                     <span className="inven-type">{item.pointItemType}</span>

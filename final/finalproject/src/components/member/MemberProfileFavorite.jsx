@@ -82,9 +82,6 @@ export default function MemberProfileFavorite() {
                                                 <div className="text-truncate text-secondary small mb-3">
                                                     출연: {watchlist.contentsMainCast}
                                                 </div>
-                                                <div className="text-truncete text-light">
-                                                    기타 추가 내용
-                                                </div>
                                             </Link>
                                         </div>
                                     </div>

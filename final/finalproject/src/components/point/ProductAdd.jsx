@@ -13,7 +13,7 @@ export default function ProductAdd({ closeModal, reload }) {
         pointItemReqLevel: "일반회원", // 기본값
         pointItemContent: "",
         pointItemSrc: "",
-        pointItemUniques: 0 // ★ 기본값: 0 (중복 구매 가능)
+        pointItemIsLimitedPurchase: 0 // ★ 기본값: 0 (중복 구매 가능)
     });
 
     const changeInput = (e) => {
@@ -32,7 +32,7 @@ export default function ProductAdd({ closeModal, reload }) {
                 ...input,
                 pointItemPrice: Number(input.pointItemPrice),
                 pointItemStock: Number(input.pointItemStock),
-                pointItemUniques: Number(input.pointItemUniques)
+                pointItemIsLimitedPurchase : Number(input.pointItemIsLimitedPurchase )
             };
 
             const resp = await axios.post("/point/main/store/item/add", payload);
@@ -127,9 +127,11 @@ export default function ProductAdd({ closeModal, reload }) {
                         {/* 희귀도 (중복 구매 설정) */}
                         <div className="mb-2">
                             <label className="form-label fw-bold small">구매 제한 (희귀도)</label>
-                            <select name="pointItemUniques" className="form-select" onChange={changeInput} value={input.pointItemUniques}>
+                            <select name="pointItemIsLimitedPurchase" className="form-select" onChange={changeInput} value={input.pointItemIsLimitedPurchase}>
                                 <option value="0">🟢 중복 구매 가능 (여러 개 소지 가능)</option>
                                 <option value="1">🔴 중복 구매 불가 (1인당 1개 한정)</option>
+                                <option value="2"> 하루 1인당 2개 구매가능 </option>
+                                <option value="3"> 하루 1인당 3개 구매가능</option>
                             </select>
                         </div>
 

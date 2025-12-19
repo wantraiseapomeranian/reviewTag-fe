@@ -13,7 +13,7 @@ export default function ProductEdit({ target, closeModal, reload }) {
         pointItemReqLevel: "일반회원",
         pointItemContent: "",
         pointItemSrc: "",
-        pointItemUniques: 0
+        pointItemIsLimitedPurchase:0
     });
 
     // 모달이 열리면 target 데이터를 input에 채워넣음
@@ -39,7 +39,7 @@ export default function ProductEdit({ target, closeModal, reload }) {
                 ...input,
                 pointItemPrice: Number(input.pointItemPrice),
                 pointItemStock: Number(input.pointItemStock),
-                pointItemUniques: Number(input.pointItemUniques)
+                pointItemIsLimitedPurchase : Number(input.pointItemIsLimitedPurchase) 
             };
 
             // 수정 API 호출
@@ -131,7 +131,7 @@ export default function ProductEdit({ target, closeModal, reload }) {
                         {/* 희귀도 */}
                         <div className="mb-2">
                             <label className="form-label fw-bold small">구매 제한 (희귀도)</label>
-                            <select name="pointItemUniques" className="form-select" value={input.pointItemUniques} onChange={changeInput}>
+                            <select name="pointItemIsLimitedPurchase" className="form-select" value={input.pointItemIsLimitedPurchase} onChange={changeInput}>
                                 <option value="0">🟢 중복 구매 가능</option>
                                 <option value="1">🔴 1회 한정 (중복 불가)</option>
                             </select>

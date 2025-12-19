@@ -54,15 +54,15 @@ export default function MemberMymovie() {
                     </div>
         )}
 
-        <div className="row mt-4">
+        <div className="row mt-4 d-flex justify-content-center">
             {myReview.map((review) => (
-                <div className="col-6 col-sm-12 mx-2 my-2 mypage-review-card justify-content-between" key={review.reviewNo}>
+                <div className="col-12 col-sm-12 mx-2 my-2 mypage-review-card" key={review.reviewNo}>
                     <Link to={`/review/${review.reviewContents}/${review.reviewNo}`} className="reviewWrapper">
                         <div className="row mt-2">
-                            <div className="col-4 d-flex justify-content-center">
+                            <div className="col-5 col-sm-4 d-flex justify-content-center">
                                 <img className="img-fluid" src={getPosterUrl(review.contentsPosterPath)} style={{ height: "200px", objectFit: "cover", borderRadius: "4px" }} />
                             </div>
-                            <div className="col-8 text-light ">
+                            <div className="col-7 col-sm-8 text-light ">
                                 <div className="card-title fs-4 text-truncate">
                                     {review.contentsTitle}
                                 </div>

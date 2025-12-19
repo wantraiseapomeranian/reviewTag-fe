@@ -47,7 +47,7 @@ export default function MemberMypage(){
         <h1 className="text-center mt-4"> {loginNickname}님의 <span className="text-info">퀴즈</span></h1>
         
         {/* 나의 퀴즈 기록 통계 */}
-        <div className="quizCard border-0 shadow-sm quiz-dark-card">
+        <div className="mt-4 quizCard border-0 shadow-sm quiz-dark-card">
             <div className="card-header fw-bold border-0 text-center mt-2 fs-5">
                 <FaChartBar className="me-2" />
                 나의 퀴즈 기록
@@ -79,12 +79,14 @@ export default function MemberMypage(){
                     <div className="col-2">
                         {answerQuizRate.wrongCount}
                     </div>
-                    <div className="col-3 p-0 fs-bold rate-bar">
-                        <div className="rate-fill fs-6 text-dark" style={{ width: `${answerQuizRate.correctRate * 100}%` }}>
+                    <div className="col-3">
+                        <div className="rate-bar">
+                            <div className="rate-fill fs-6 text-dark" style={{ width: `${answerQuizRate.correctRate * 100}%` }}>
+                            </div>
+                            <span className="rate-text ">
+                                {(answerQuizRate.correctRate * 100).toFixed(2)}%
+                            </span>
                         </div>
-                        <span className="rate-text">
-                            {(answerQuizRate.correctRate * 100).toFixed(2)}%
-                        </span>
                     </div>
                 </div>
                 ))}

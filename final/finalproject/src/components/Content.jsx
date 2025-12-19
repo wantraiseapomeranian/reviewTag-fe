@@ -54,9 +54,14 @@ import MemberProfile from "./member/MemberProfile";
 import MemberProfileFavorite from "./member/MemberProfileFavorite";
 import MemberProfileInfo from "./member/MemberPofileInfo";
 import MemberProfileReview from "./member/MemberProfileReview";
+
+import PointRankingPage from "./point/PointRanking";
+import AdminBoard from "./admin/AdminBoard";
 import Private from "./guard/Private";
 import Admin from "./guard/Admin";
+import AdminInventory from "./admin/AdminInventory";
 import AdminReviewReport from "./admin/AdminReviewReport";
+
 export default function Content() {
     return (<>
 
@@ -152,16 +157,18 @@ export default function Content() {
                     <Route path="*" element={<TargetNotfound/>}></Route>
 
                     {/* 관리자 페이지 */}
+
                     <Route path="/admin" element={<Admin><AdminMain /></Admin>}>
                         <Route index element={<Admin><AdminMemberPage/></Admin>}></Route>
                         <Route path="/admin/member" element={<Admin><AdminMemberPage /></Admin>} />
+                        <Route path="/admin/board" element={<AdminBoard />} />
                         <Route path="/admin/review/report" element={<AdminReviewReport />} />
                         <Route path="/admin/member/:memberId" element={<Admin><AdminMemberDetail /></Admin>} />
                         <Route path="/admin/quiz" element={<Admin><AdminQuizPage /></Admin>} />
 
                         <Route path="/admin/dailyquiz" element={<Admin><AdminDailyQuiz/></Admin>} />
                         <Route path="/admin/point" element={<Admin><AdminPoint/></Admin>}/>
-
+                        <Route path="/admin/inventory" element={<Admin><AdminInventory/></Admin>}/>
 
                     </Route>
                 </Routes>
