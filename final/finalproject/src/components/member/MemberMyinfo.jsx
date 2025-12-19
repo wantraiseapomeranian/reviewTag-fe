@@ -2,13 +2,12 @@ import { useEffect, useState } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
 import axios from "axios";
 import "./MemberCustom.css"; 
-
 export default function MemberMyinfo() {
     const { loginId } = useParams();
     const [data, setData] = useState(null);
     const navigate = useNavigate();
 
-    
+
     useEffect(() => {
         axios.get(`/member/mypage/${loginId}`)
             .then(res => setData(res.data))
