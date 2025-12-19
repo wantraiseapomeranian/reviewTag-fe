@@ -34,7 +34,16 @@ export default function member(){
         if(loginId === null) return;
         axios.get(`/member/mypage/${loginId}`)
         .then(response=>{
-            setMember(response.data);  
+            const data = response.data;
+            const member = data.member;
+            setMember({
+                    ...member,
+                    memberPost: member.memberPost || "",
+                    memberAddress1: member.memberAddress1 || "",
+                    memberAddress2: member.memberAddress2 || "",
+                    memberContact: member.memberContact || "",
+                    memberBirth: member.memberBirth || ""
+                });  
         })
     },[]);
 
@@ -139,9 +148,20 @@ export default function member(){
     //최종 수정
     const sendData = useCallback(async()=>{
         if(memberValid === false) return ;
-        const {data} = await axios.put(`/member/${loginId}`,member);
-        navigate(`/member/mypage/myinfo/${loginId}`); // 메인페이지
-    },[member,memberValid])
+
+        const payload = {
+            ...member,
+            memberId: loginId,
+        };
+
+        try {
+            const { data } = await axios.put(`/member/${loginId}`, payload);
+            console.log("수정 결과:", data);
+            navigate(`/member/mypage/myinfo/${loginId}`);
+        } catch (error) {
+            console.error("수정 실패:", error);
+        }
+    },[member,memberValid, loginId])
 
     //render
     return (<>

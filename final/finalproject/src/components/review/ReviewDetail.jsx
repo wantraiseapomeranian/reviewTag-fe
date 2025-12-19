@@ -268,10 +268,10 @@ export default function ReviewDetail() {
     }
     //가격 입력창 제어 함수
     const changeNum = useCallback((e) => {
-       const regex = /[^0-9]+/g;
+        const regex = /[^0-9]+/g;
         const replacement = e.target.value.replace(regex, "");
         let number = replacement.length == 0 ? "" : parseInt(replacement);
-        if(number > 50000) number = 50000;
+        if (number > 50000) number = 50000;
 
         const formattedNumber = number === 0 ? "" : number.toLocaleString('ko-KR');
         setPrice(formattedNumber);
@@ -340,20 +340,34 @@ export default function ReviewDetail() {
         }))
     }, [])
 
+    //수정 조건
+    const reviewValid = useMemo(() => {
+        const regex = /^(?=[\s\S]{10,})(?!.*([ㄱ-ㅎㅏ-ㅣ])\1{5,})[\s\S]*$/;
+        return regex.test(review.reviewText);
+    }, [review.reviewText]);
+
+    const invalidRegex = /([ㄱ-ㅎㅏ-ㅣ])\1{5,}/;
+    const reviewClassInValid = useMemo(() => {
+        return invalidRegex.test(review.reviewText);
+    }, [review.reviewText]);
+
+
+
     const sendData = useCallback(() => {
+        if (!reviewValid || reviewClassInValid) {
+            toast.error("감상을 10글자 이상 작성해주세요");
+            return;
+        }
+
         const payload = {
             reviewText: review.reviewText,
             reviewRating: review.reviewRating,
             reviewSpoiler: review.reviewSpoiler,
             reviewPrice: review.reviewPrice
-        }
+        };
 
         axios.patch(`/review/${contentsId}/${reviewNo}`, payload)
             .then(() => {
-                if(reviewValid || invalidRegex) {
-                    toast.error("감상을 10글자 이상 작성해주세요");
-                    return;
-                }
                 toast.success("리뷰 수정 완료");
                 setReview(prev => ({
                     ...prev,
@@ -361,10 +375,12 @@ export default function ReviewDetail() {
                 }));
                 setReviewView(true);
             })
-            .catch(err => {
+            .catch(() => {
                 toast.error("수정 도중 오류가 발생했습니다");
-            })
-    }, [review, reviewNo, contentsId]);
+            });
+
+    }, [review, reviewNo, contentsId, reviewValid, reviewClassInValid]);
+
 
     //수정하기 버튼
     const [reviewView, setReviewView] = useState(true);
@@ -378,24 +394,24 @@ export default function ReviewDetail() {
     const [otherReason, setOtherReason] = useState("");
 
 
-    const sendData2 = useCallback(async() => {
-            if (!reportReason) {
-                toast.info("신고 사유를 선택해주세요");
-                return;
-            }
-            if (reportReason === "OTHER" && otherReason.trim() === "") {
-                toast.info("기타 사유를 입력해주세요");
-                return;
-            }
+    const sendData2 = useCallback(async () => {
+        if (!reportReason) {
+            toast.info("신고 사유를 선택해주세요");
+            return;
+        }
+        if (reportReason === "OTHER" && otherReason.trim() === "") {
+            toast.info("기타 사유를 입력해주세요");
+            return;
+        }
 
-            //전송할 데이터 구성
-            const payload = {
+        //전송할 데이터 구성
+        const payload = {
             reviewReportReviewId: review.reviewNo,       // 신고할 리뷰 번호
             reviewReportType: reportReason,       // 신고 사유
             reviewReportContent: reportReason === "OTHER" ? otherReason : null // 기타일 때만 내용 전송
-            };
+        };
 
-            try {
+        try {
             //API 호출
             await axios.post("/review/report/", payload);
 
@@ -407,7 +423,7 @@ export default function ReviewDetail() {
             console.log("신고 성공");
         } catch (error) {
             console.error("신고 전송 실패:", error);
-            
+
             //에러 처리
             if (error.response) {
                 if (error.response.status === 500) {
@@ -419,33 +435,24 @@ export default function ReviewDetail() {
                 }
             }
         }
-        }, [reportReason, otherReason, review.reviewNo, loginId]);
+    }, [reportReason, otherReason, review.reviewNo, loginId]);
 
     //신뢰도 레벨
     const rel = review?.memberReliability ?? 0;
 
-    const relRowLevel = useMemo(()=> { 
-       return rel >= 6 && rel <= 19;
-    },[rel])
+    const relRowLevel = useMemo(() => {
+        return rel >= 6 && rel <= 19;
+    }, [rel])
 
-    const relMiddleLevel = useMemo(()=> { 
+    const relMiddleLevel = useMemo(() => {
         return rel >= 20 && rel <= 49;
-    },[rel])
+    }, [rel])
 
-    const relHighLevel = useMemo(()=> { 
+    const relHighLevel = useMemo(() => {
         return rel >= 50;
-    },[rel])
+    }, [rel])
 
-    //수정 조건
-    const reviewValid = useMemo(() => {
-        const regex = /^(?=.{10,})(?!.*([ㄱ-ㅎㅏ-ㅣ])\1{5,}).*$/;
-        return regex.test(review.reviewText);
-    }, [review.reviewText]);
 
-    const invalidRegex = /([ㄱ-ㅎㅏ-ㅣ])\1{4,}/;
-    const reviewClassInValid = useMemo(() => {
-        return invalidRegex.test(review.reviewText);
-    }, [review.reviewText]);
 
 
 
@@ -471,17 +478,17 @@ export default function ReviewDetail() {
                     </div>
                     <div className="mt-5 mb-4">
                         <span className="userId">{review.memberNickname}</span>
-                        { relRowLevel &&(
-                        <span className="detailRel ms-3">🟢 활동 리뷰어</span>
+                        {relRowLevel && (
+                            <span className="detailRel ms-3">🟢 활동 리뷰어</span>
                         )}
-                        {relMiddleLevel &&(
-                        <span className="detailRel2 ms-3">🔵 신뢰 리뷰어</span>
+                        {relMiddleLevel && (
+                            <span className="detailRel2 ms-3">🔵 신뢰 리뷰어</span>
                         )}
-                        { relHighLevel &&(
-                        <span className="detailRel2 ms-3">🔷 검증된 리뷰어 </span>
+                        {relHighLevel && (
+                            <span className="detailRel2 ms-3">🔷 검증된 리뷰어 </span>
                         )}
-                        
-                        
+
+
                     </div>
                     <div className="col title mb-2">
                         {contentsDetail.contentsTitle}
@@ -489,7 +496,7 @@ export default function ReviewDetail() {
                     </div>
                     <div className="d-flex align-items-center mb-3">
                         {isWriter && (
-                            <span className="me-3"><FaStar className="littleStar me-1"/>내 평가</span>
+                            <span className="me-3"><FaStar className="littleStar me-1" />내 평가</span>
                         )}
                         <span><FcMoneyTransfer className="me-1" />{price.toLocaleString()} 원</span>
                         <span className="littleStar ms-3">{reviewDate}</span>

@@ -172,7 +172,7 @@ export default function MemberMyBoard(){
             </div>
         </div>
     </div>
-    
+                        
     
     </>)
 }

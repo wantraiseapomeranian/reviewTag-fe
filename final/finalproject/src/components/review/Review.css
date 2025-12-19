@@ -420,6 +420,7 @@ textAA:focus::placeholder {
     font-weight: bold;
     font-size: 18px;
     height: 800px;
+    white-space: pre-line;
 }
 
 .reviewText2 {

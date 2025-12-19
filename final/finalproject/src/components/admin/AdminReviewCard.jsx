@@ -1,9 +1,10 @@
-import React, { useMemo, useState } from 'react';
+import React, { useCallback, useMemo, useState } from 'react';
 import axios from 'axios';
 import Swal from 'sweetalert2';
 import './AdminQuiz.css';
 
 export default function AdminReviewCard({ reviewData, refreshList }) {
+    const [openReviewId, setOpenReviewId] = useState(null);
 
     // 기타 내용 펼침 여부 및 데이터
     const [isEtcOpen, setIsEtcOpen] = useState(false);
@@ -19,6 +20,7 @@ export default function AdminReviewCard({ reviewData, refreshList }) {
             Swal.fire('삭제 오류', 'error');
         }
     };
+
 
     //신고내용
     {/* 스포일러, 작품 안 보고 쓴 내용 */ }
@@ -41,22 +43,13 @@ export default function AdminReviewCard({ reviewData, refreshList }) {
         !AdAndExplicit &&
         !SwearAndBiased;
 
-    const OtherText = reviewData.reviewReportContent;
-
-    // 기타 내용 가져오기 (Lazy Loading)
-    const toggleEtcDetails = async () => {
-        if (!isEtcOpen && etcDetails.length === 0) {
-            try {
-                // API: 해당 퀴즈의 '기타' 신고 내용만 가져옴
-                const res = await axios.get(`/admin/quizzes/${quizData.quizId}/reports`);
-                setEtcDetails(res.data); // List<QuizReportDetailVO>
-            } catch (error) {
-                console.error("상세 내용 로드 실패");
-            }
-        }
-        setIsEtcOpen(!isEtcOpen);
-    };
-
+  // 기타 내용 가져오기
+    const OtherText = useCallback(()=>{
+        const text = reviewData.reviewReportContent;
+        setOpenReviewId(prev =>
+             prev === reviewData.reviewId ? null : reviewData.reviewId
+    )
+    },[reviewData.reviewId]);
 
 
     return (
@@ -68,7 +61,7 @@ export default function AdminReviewCard({ reviewData, refreshList }) {
                     [리뷰] {reviewData.contentsTitle}
                 </h5>
                 <span className="badge bg-warning fs-6">
-                    🚨 누적 신고: { }건
+                    🚨 누적 신고: {reviewData.reviewReportCount}건
                 </span>
             </div>
 
@@ -77,7 +70,7 @@ export default function AdminReviewCard({ reviewData, refreshList }) {
                 <div className="d-flex justify-content-between align-items-center flex-wrap">
                     {/* 왼쪽 그룹 */}
                     <div className="d-flex gap-2 align-items-center">
-                        <span>작성자: <strong>{reviewData.reviewWriter}</strong></span>
+                        <span>작성자: <strong>{reviewData.memberNickname}({reviewData.reviewWriter})</strong></span>
                         <span className="text-secondary opacity-50">|</span>
                         <span>
                             신고일: {new Date(reviewData.reviewReportDate).toLocaleDateString()}
@@ -92,7 +85,7 @@ export default function AdminReviewCard({ reviewData, refreshList }) {
             </div>
 
             {/* 3. 신고 사유 요약 박스 */}
-            <div className="report-stats-box d-flex align-items-center flex-wrap gap-2">
+            <div className="report-stats-box flex-wrap gap-2">
                 <span className="fw-bold me-2">[리뷰 내용]</span>
 
                 {SpoilerAndNowatch && (
@@ -121,13 +114,21 @@ export default function AdminReviewCard({ reviewData, refreshList }) {
                             style={{ fontSize: '0.8rem' }}
                             onClick={OtherText}
                         >
-                            📝 내용 보기
+                            📝 내용 보기 :  
                         </button>
                     </span>
                 )}
 
                 
+                {openReviewId === reviewData.reviewId && (
+                    <div className="mt-2 p-2 rounded bg-secondary ">
+                        {reviewData.reviewReportContent}
+                    </div>
+                )}
+                 
+
                 <div className="mt-3">{reviewData.reviewText}</div>
+
             </div>
 
             <div className="action-buttons d-flex justify-content-end flex-wrap gap-2">

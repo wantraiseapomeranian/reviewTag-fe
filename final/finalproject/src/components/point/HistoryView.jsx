@@ -13,20 +13,21 @@ export default function HistoryView() {
     // 필터 상태
     const [filterType, setFilterType] = useState("all"); 
 
-    // 데이터 로드
+    // [1] 데이터 로드 (백엔드 경로 /point/main/history 권장)
     const loadHistory = useCallback(async () => {
         try {
-            // 백엔드 컨트롤러 경로에 맞춰 호출 (예: /point/history?page=1&type=all)
-            // 주의: 백엔드 Controller 주소가 /point/main/store 라면 경로 확인 필요
-            // 만약 HistoryController가 따로 없다면 생성하거나 경로를 맞춰야 합니다.
+            // 백엔드에서 페이징 목록 조회를 담당하는 주소로 변경
             const resp = await axios.get(`/point/history?page=${page}&type=${filterType}`);
             const data = resp.data;
             
-            setHistoryList(data.list);
-            setTotalPage(data.totalPage);
-            setTotalCount(data.totalCount);
+            setHistoryList(data.list || []); // 데이터가 없을 경우 빈 배열 세팅
+            setTotalPage(data.totalPage || 0);
+            
+            // 만약 백엔드 VO에 totalCount가 없다면 list.length 등으로 대체 가능하나, 
+            // 정확한 개수를 위해 서버에서 넘겨주는 값을 권장합니다.
+            setTotalCount(data.totalCount || data.list?.length || 0); 
         } catch (e) {
-            console.error(e);
+            console.error("포인트 내역 로드 중 오류 발생:", e);
         }
     }, [page, filterType]);
 
@@ -41,46 +42,45 @@ export default function HistoryView() {
     };
 
     const handlePageChange = (newPage) => {
-        if (newPage >= 1 && newPage <= totalPage) {
+        if (newPage >= 1 && (totalPage === 0 || newPage <= totalPage)) {
             setPage(newPage);
         }
     };
 
-    // [로직] 유형별 텍스트 매핑
-    const getHistoryLabel = (item) => {
-        // DTO에 reason이 있다면 사용, 없다면 trxType으로 추론
+    // [2] 사유(Reason) 출력 로직 (가장 중요!)
+    const getHistoryDescription = (item) => {
+        // 1순위: 백엔드에서 보낸 구체적인 사유(Reason)
         if (item.pointHistoryReason) return item.pointHistoryReason;
 
+        // 2순위: 사유가 없을 경우 trxType을 기반으로 한 한글 변환(Fallback)
         const type = item.pointHistoryTrxType;
         const amt = item.pointHistoryAmount;
 
         switch(type) {
             case "USE": return "아이템 구매/사용";
-            case "GET": return amt > 0 ? "포인트 획득" : "사용";
+            case "GET": return amt > 0 ? "포인트 적립" : "포인트 변동";
             case "SEND": return "포인트 선물 보냄";
             case "RECEIVED": return "포인트 선물 받음";
-            case "ADMIN": return "관리자 조정";
-            default: return amt > 0 ? "포인트 적립" : "포인트 사용";
+            default: return amt > 0 ? "포인트 획득" : "포인트 사용";
         }
     };
 
-    // 날짜 포맷팅
+    // 날짜 및 시간 포맷팅
     const formatDate = (dateString) => {
         if (!dateString) return "-";
         const d = new Date(dateString);
         return `${String(d.getMonth()+1).padStart(2,'0')}.${String(d.getDate()).padStart(2,'0')}`;
     };
 
-    // 시간 포맷팅
     const formatTime = (dateString) => {
         if (!dateString) return "-";
         const d = new Date(dateString);
         return `${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`;
     };
-
+    
     // 페이지네이션 렌더링
     const renderPagination = () => {
-        if (totalPage === 0) return null;
+        if (totalPage <= 1) return null;
         const pageGroupSize = 5; 
         const currentGroup = Math.ceil(page / pageGroupSize); 
         const startPage = (currentGroup - 1) * pageGroupSize + 1;
@@ -94,25 +94,19 @@ export default function HistoryView() {
                     className="glass-page-btn arrow" 
                     onClick={() => handlePageChange(startPage - 1)} 
                     disabled={startPage === 1}
-                >
-                    &lt;
-                </button>
+                > &lt; </button>
                 {pages.map(p => (
                     <button 
                         key={p} 
                         className={`glass-page-btn ${p === page ? 'active' : ''}`} 
                         onClick={() => handlePageChange(p)}
-                    >
-                        {p}
-                    </button>
+                    > {p} </button>
                 ))}
                 <button 
                     className="glass-page-btn arrow" 
                     onClick={() => handlePageChange(endPage + 1)} 
                     disabled={endPage === totalPage}
-                >
-                    &gt;
-                </button>
+                > &gt; </button>
             </div>
         );
     };
@@ -127,7 +121,6 @@ export default function HistoryView() {
                     <span className="total-cnt-glass">Total: {totalCount} records</span>
                 </div>
                 
-                {/* 탭 스타일 필터 */}
                 <div className="glass-filter-group">
                     {[
                         { id: 'all', label: '전체' },
@@ -147,7 +140,6 @@ export default function HistoryView() {
 
             {/* 2. 리스트 컨테이너 */}
             <div className="history-list-frame">
-                {/* 헤더 행 */}
                 <div className="list-header-row">
                     <span className="col-w-date">DATE</span>
                     <span className="col-w-type">TYPE</span>
@@ -155,45 +147,42 @@ export default function HistoryView() {
                     <span className="col-w-amount">AMOUNT</span>
                 </div>
 
-                {/* 데이터 행 */}
                 <div className="list-body-scroll">
                     {historyList.length === 0 ? (
                         <div className="empty-history">
                             <div className="empty-icon">📁</div>
-                            <span>기록이 존재하지 않습니다.</span>
+                            <span>포인트 내역이 없습니다.</span>
                         </div>
                     ) : (
                         historyList.map((item) => {
+                            // 금액이 0보다 크거나 trxType이 GET이면 획득으로 간주
                             const isPositive = item.pointHistoryAmount > 0;
-                            const amountClass = isPositive ? "amt-plus" : "amt-minus";
-                            const label = getHistoryLabel(item);
+                            const isZero = item.pointHistoryAmount === 0;
+                            const amountClass = isZero ? "amt-zero" : (isPositive ? "amt-plus" : "amt-minus");
 
                             return (
-                                // ★ 수정됨: pointHistoryNo -> pointHistoryId
                                 <div className="history-row" key={item.pointHistoryId}>
-                                    {/* 날짜 */}
+                                    {/* 날짜/시간 (pointHistoryCreatedAt 반영) */}
                                     <div className="col-w-date">
-                                        {/* ★ 수정됨: pointHistoryDate -> pointHistoryCreatedAt */}
                                         <div className="row-date">{formatDate(item.pointHistoryCreatedAt)}</div>
                                         <div className="row-time">{formatTime(item.pointHistoryCreatedAt)}</div>
                                     </div>
 
                                     {/* 타입 뱃지 */}
                                     <div className="col-w-type">
-                                        <span className={`type-badge ${isPositive ? 'type-earn' : 'type-use'}`}>
-                                            {item.pointHistoryTrxType || (isPositive ? 'EARN' : 'USE')}
+                                        <span className={`type-badge ${isZero ? 'type-item' : (isPositive ? 'type-earn' : 'type-use')}`}>
+                                            {item.pointHistoryTrxType}
                                         </span>
                                     </div>
 
-                                    {/* 설명 */}
+                                    {/* 상세 설명 (pointHistoryReason 반영) */}
                                     <div className="col-w-desc">
-                                        {label}
+                                        {getHistoryDescription(item)}
                                     </div>
 
-                                    {/* 금액 */}
+                                    {/* 금액 (포맷팅) */}
                                     <div className={`col-w-amount ${amountClass}`}>
-                                        {isPositive ? '+' : ''}
-                                        {item.pointHistoryAmount.toLocaleString()}
+                                        {isPositive ? '+' : ''}{item.pointHistoryAmount.toLocaleString()} P
                                     </div>
                                 </div>
                             );
