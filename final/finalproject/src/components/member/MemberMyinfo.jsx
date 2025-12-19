@@ -4,6 +4,7 @@ import { useAtom, useSetAtom } from "jotai";
 import axios from "axios";
 import { clearLoginState, loginNicknameState } from "../../utils/jotai";
 import "./MemberCustom.css"; 
+import { FaFish } from "react-icons/fa6";
 
 export default function MemberMyinfo() {
     const { loginId } = useParams();
@@ -79,13 +80,15 @@ export default function MemberMyinfo() {
             {/* 1. 상단 히어로 (배경 + 아이콘 + 신뢰도 게이지) */}
             <div className={`profile-hero-v2 ${!isUrl ? point?.bgSrc : ""}`} style={heroStyle}>
                 <div className="hero-overlay-v2">
-                    <img src={point?.iconSrc} alt="Icon" className="avatar-img-v2" />
-                    <h1 className={`nickname-v2 ${point?.nickStyle || ''}`}>
+                    <span style={{fontSize:"60px"}}>
+                        <FaFish /> 
+                        </span>
+                    <h1 className={`nickname-v2 ms-2 ${point?.nickStyle || ''}`}>
                         {member.memberNickname}
                     </h1>
                         {reliabilityInfo.badge && (
                             <h3>
-                            <span className={`reviewer-badge ${reliabilityInfo.badge.class}`}>
+                            <span className={`reviewer-badge me-2 ${reliabilityInfo.badge.class}`}>
                                 {reliabilityInfo.badge.text}
                             </span>
                             </h3>

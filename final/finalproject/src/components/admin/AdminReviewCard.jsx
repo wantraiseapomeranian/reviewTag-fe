@@ -112,7 +112,7 @@ export default function AdminReviewCard({ reviewData, refreshList }) {
                         <button
                             className="ms-2 btn btn-sm btn-outline-primary py-0 d-flex align-items-center gap-1 text-nowrap"
                             style={{ fontSize: '0.8rem' }}
-                            onClick={OtherText}
+                            // onClick={OtherText}
                         >
                             📝 내용 보기 :  
                         </button>
