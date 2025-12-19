@@ -54,6 +54,7 @@ import MemberProfileFavorite from "./member/MemberProfileFavorite";
 import MemberProfileInfo from "./member/MemberPofileInfo";
 import MemberProfileReview from "./member/MemberProfileReview";
 import PointRankingPage from "./point/PointRanking";
+import AdminBoard from "./admin/AdminBoard";
 
 
 export default function Content() {
@@ -154,6 +155,7 @@ export default function Content() {
                         <Route path="/admin/member" element={<AdminMemberPage />} />
                         {/* <Route path="review" element={<AdminReviewPage />} /> */}
                         <Route path="/admin/member/:memberId" element={<AdminMemberDetail />} />
+                        <Route path="/admin/board" element={<AdminBoard />} />
                         <Route path="/admin/quiz" element={<AdminQuizPage />} />
                            <Route path="/admin/point" element={<AdminPoint />} />
                             <Route path="/admin/dailyquiz" element={<AdminDailyQuiz />} />

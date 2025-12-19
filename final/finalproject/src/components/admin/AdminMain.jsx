@@ -47,6 +47,10 @@ export default function AdminMain() {
                     <NavLink to="/admin/quiz" className="list-group-item list-group-item-action admin-menu-item" onClick={closeSidebar}>
                         👮‍♀️ 퀴즈 신고 관리
                     </NavLink>
+
+                    <NavLink to="/admin/board" className="list-group-item list-group-item-action admin-menu-item" onClick={closeSidebar}>
+                        👩‍✈️ 게시판 신고 관리
+                    </NavLink>
                     
                     <NavLink to="/admin/point" className="list-group-item list-group-item-action admin-menu-item" onClick={closeSidebar}>
                         💰 포인트 관리

@@ -20,9 +20,6 @@ export default function GenreList() {
     }, []);
 
     useEffect(() => {
-        // 현재 주소가 정확히 부모 경로('/contents/genreList')라면
-        // 뒷부분에 슬래시(/)가 있거나 없거나 처리하기 위해 정규식이나 endsWith 사용 가능
-        // 여기서는 가장 단순하게 경로 비교
         if (location.pathname === "/contents/genreList" || location.pathname === "/contents/genreList/") {
             // '전체' 목록 페이지로 이동 (replace: true는 뒤로가기 시 갇히는 것 방지)
             navigate("listByGenre/전체", { replace: true });
@@ -48,6 +45,7 @@ export default function GenreList() {
         setQuery(""); // 입력창 비우기 (선택사항)
     }, [query, navigate]);
 
+
     //render
     return (<>
         <div className="container mt-2">
@@ -71,13 +69,12 @@ export default function GenreList() {
 
             <div className="row mt-4 genre-form">
                 <div className="col p-4 rounded">
-                    {/* <button className="btn me-2 mt-2"><Link to="/contents/genreList/listByGenre/전체" className="text-decoration-none link-body-emphasis">전체</Link></button> */}
                     {genre.map(genreDto => (
-                        <button className="btn me-2 mt-2" key={genreDto.genreId}>
+                        <div className="btn me-2 mt-2" key={genreDto.genreId}>
                             <Link to={`/contents/genreList/listByGenre/${genreDto.genreName}`} className="genreLink" >
                                 {genreDto.genreName}
                             </Link>
-                        </button>
+                        </div>
                     ))}
                 </div>
             </div>

@@ -64,6 +64,8 @@ export default function MemberProfileInfo() {
 
                 </tbody>
             </table>
+            {loginId && loginId !== memberId && (
+
             <div className="row mt-2">
                 <div className="col text-end">
                     <button onClick={() => setShowDonate(true)} 
@@ -72,6 +74,7 @@ export default function MemberProfileInfo() {
                     </button>
                 </div>
             </div>
+            )}
             {/* 후원 모달 */}
             {showDonate && 
                 <Donate closeModal={() => setShowDonate(false)} 
