@@ -11,8 +11,15 @@ export default function IconAdmin() {
     const [totalCount, setTotalCount] = useState(0);
     const [filterType, setFilterType] = useState("ALL"); 
 
+
+    //검색어 state
+    const [query, setQuery] = useState("");
+    //검색결과 state
+    const [resultList, setResultList] = useState([]);
+
+
     const [form, setForm] = useState({ 
-        iconId: 0, iconName: "", iconRarity: "COMMON", iconCategory: "DEFAULT", iconSrc: "" 
+        iconId: 0, iconName: "", iconRarity: "COMMON", iconCategory: "DEFAULT", iconSrc: "" , iconContents:""
     });
     const [isEdit, setIsEdit] = useState(false);
 
@@ -50,7 +57,7 @@ export default function IconAdmin() {
             toast.success(isEdit ? "수정 완료" : "등록 완료");
             
             // 폼 초기화
-            setForm({ iconId: 0, iconName: "", iconRarity: "COMMON", iconCategory: "DEFAULT", iconSrc: "" });
+            setForm({ iconId: 0, iconName: "", iconRarity: "COMMON", iconCategory: "DEFAULT", iconSrc: "" , iconContents:""});
             setIsEdit(false);
             loadIcons();
         } catch(e) { toast.error("오류 발생"); }
@@ -93,6 +100,38 @@ export default function IconAdmin() {
         );
     };
 
+       //[검색 실행 statusMessage 제어]
+    const handleSearch = useCallback(async () => {
+        if (query.trim().length === 0) {
+            setResultList([]);
+            return;
+        }
+        setResultList([]);
+
+        try {
+            const response = await axios.get("/api/tmdb/search", { params: { query } });
+            //검색결과 리스트 state에 저장
+            setResultList(response.data);
+            console.log(response.data);
+
+            if (response.data.length === 0) {
+                setStatusMessage(`"${query}" 와 일치하는 검색 결과를 찾을 수 없습니다.`);
+            }
+            else {
+                setStatusMessage(`"${query}" 에 대한 검색 결과 : ${response.data.length} 개`);
+            }
+        }
+        catch (error) {
+            console.error("오류발생 : ", error);
+            setStatusMessage("검색 중 서버 오류 발생");
+        }
+
+    }, [query]);
+
+
+
+
+
     return (
         <div className="container py-4">
             <h4 className="fw-bold mb-3">🎨 아이콘 관리자 <span className="fs-6 text-muted">({totalCount}개)</span></h4>
@@ -101,7 +140,7 @@ export default function IconAdmin() {
             <div className="card p-3 mb-4 bg-light shadow-sm border-0">
                 <div className="row g-2">
                     <div className="col-md-3">
-                        <label className="small text-muted">이름</label>
+                        <label className="small text-muted">이름zzzz</label>
                         <input type="text" className="form-control" value={form.iconName} onChange={e=>setForm({...form, iconName:e.target.value})} />
                     </div>
                     <div className="col-md-2">
@@ -124,6 +163,19 @@ export default function IconAdmin() {
                             {isEdit ? "수정 저장" : "신규 등록"}
                         </button>
                         {isEdit && <button className="btn btn-secondary w-100 ms-1" onClick={()=>{setIsEdit(false); setForm({iconId:0, iconName:"", iconRarity:"COMMON", iconCategory:"DEFAULT", iconSrc:""})}}>취소</button>}
+                    </div>
+                    <div className="col-12">
+                        {/* 검색창 */}
+                        <div className="input-group mb-3">
+                            <input type="text" className="form-control" value={query}
+                                placeholder="영화/드라마 제목 검색"
+                                onChange={e => setQuery(e.target.value)}
+                                onKeyDown={(e) => { if (e.key === "Enter") handleSearch(); }}
+                            />
+                            <button className="btn btn-success" onClick={handleSearch}>
+                                검색
+                            </button>
+                        </div>
                     </div>
                 </div>
             </div>

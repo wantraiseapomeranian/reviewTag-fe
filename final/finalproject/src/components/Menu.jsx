@@ -152,11 +152,19 @@ export default function Menu() {
 
                         {isLogin === true ? (<>  {/* 로그인 시 나와야 하는 화면 */}
                             {isAdmin === true ? (
+                                <>
+                                <li className="nav-item" onClick={closeMenu}>
+                                    <Link className="nav-link" to="/point/main">
+                                        <FaHeart className="text-danger me-2" />
+                                        <span className="fw-bold text-light">{heart} / 5</span>
+                                    </Link>
+                                </li>
                                 <li className="nav-item" onClick={closeMenu}>
                                     <Link className="nav-link" to={`/admin`}>
                                         <span><FaGear /></span>
                                     </Link>
                                 </li>
+                                </>
                             ) : (
                                 <>
                                     {/* 하트 표시(누르면 포인트 상점으로 이동) */}

@@ -6,7 +6,6 @@ import { useNavigate, useParams, Outlet, useLocation, Link } from "react-router-
 import { ImEyePlus } from "react-icons/im";
 import { FaBookmark, FaChevronUp, FaHeart, FaPencil, FaStar, FaXmark } from "react-icons/fa6";
 import { FcMoneyTransfer } from "react-icons/fc";
-
 import "./SearchAndSave.css";
 import "./Contents.css";
 import { useAtom } from "jotai";
@@ -32,7 +31,7 @@ export default function ContentsDetail() {
 
     //통합 state
     const [loginId, setLoginId] = useAtom(loginIdState);
-
+    const [contentsIcon, setContentsIcon] = useState([]);
     const { contentsId } = useParams();
     const navigate = useNavigate();
 
@@ -59,6 +58,21 @@ export default function ContentsDetail() {
 
     //신뢰도 state
     const [realiability, setRealiability] = useState(0);
+
+
+    const loadContentsIcons = useCallback(async () => {
+        if (!contentsId) return;
+        try {
+            const {data} = await axios.get(`/icon/contents/${contentsId}`);
+            setContentsIcon(data);
+            console.log("내 아이콘 데이터:", data);
+        } catch (e) { console.error(e); }
+    }, [contentsId]);
+
+    useEffect(() => { loadContentsIcons(); }, [loadContentsIcons]);
+
+
+
 
     //effect
     //처음에 컨텐츠 정보와 리뷰 리스트를 불러오는 effect
@@ -762,6 +776,61 @@ export default function ContentsDetail() {
                         </table>
                     </div>
                 </div>
+
+
+                {/* 컨텐츠 관련 아이콘*/}
+                <div className="row g-3 mt-1">
+                    <div className="col">
+                        <h3 className="text-light">등록된 아이콘</h3>
+                    </div>
+                    {contentsIcon.length === 0 ? (
+                        <div className="empty-storage-glass">
+                            <div className="empty-icon">📁</div>
+                            <p>해당 콘텐츠에 등록된 아이콘이 없습니다</p>
+                        </div>
+                    ) : (
+                        <div className="row g-4 mt-0">
+                            {contentsIcon.map((icon) => {
+                                console.log(`[${icon.iconRarity}]`, icon.iconRarity.length);
+                                return (
+                                <div className="col-4 col-sm-3 col-md-2 text-center" key={icon.iconId}>
+                                <div 
+                                    className={`card h-100 shadow-sm icon-card  border-0}`}
+                                    style={{cursor: 'pointer', transition: 'transform 0.2s'}}
+                                    onMouseOver={(e) => e.currentTarget.style.transform = "scale(1.05)"}
+                                    onMouseOut={(e) => e.currentTarget.style.transform = "scale(1)"}
+                                >
+
+                                    <div className="card-body p-2 d-flex flex-column align-items-center justify-content-center">
+                                        <span className={`badge mb-1 ${
+                                            icon.iconRarity === 'LEGENDARY' ? 'bg-warning text-dark border border-dark' :
+                                            icon.iconRarity === 'UNIQUE'    ? 'bg-purple text-white' :
+                                            icon.iconRarity === 'EPIC'      ? 'bg-danger' :
+                                            icon.iconRarity === 'RARE'      ? 'bg-primary' :
+                                            icon.iconRarity === 'EVENT'     ? 'bg-event' : 
+                                            icon.iconRarity === 'COMMON'    ? 'bg-success' : 
+                                            'bg-secondary'
+                                        }`} style={{fontSize:'0.6rem'}}>
+                                            {icon.iconRarity}
+                                        </span>
+                                        <img 
+                                            src={icon.iconSrc}  className="mb-2"  style={{width: '50px', height: '50px', objectFit: 'contain'}} 
+                                            alt={icon.iconName} onError={(e)=>{e.target.src='https://placehold.co/50x50?text=IMG'}} 
+                                        />
+                                
+                                        <small className="text-dark fw-bold text-truncate w-100" style={{fontSize: '0.75rem'}}>
+                                            {icon.iconName}
+                                        </small>
+                                </div>
+                            </div>
+                            </div>
+                                );
+                            })}
+                        </div>
+                    )}
+                </div>
+
+
 
 
                 {/* 내 리뷰 */}
