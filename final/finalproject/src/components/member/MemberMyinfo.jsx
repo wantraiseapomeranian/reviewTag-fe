@@ -78,7 +78,10 @@ export default function MemberMyinfo() {
         <div className="mypage-info-wrapper">
             {/* 1. 멤버십 카드 스타일의 프로필 히어로 */}
             {/* <div className={`profile-hero-v2 ${!isUrl ? (point.bgSrc || "") : ""} ${point.frameSrc || ""}`} style={heroStyle}> */}
-            <div className={`profile-hero-v2 ${!isUrl ? (point.bgSrc || "") : ""} `} style={heroStyle}>
+         <div 
+                className={`profile-hero-v2 ${!isUrl ? (point.bgSrc || "") : ""} ${point.frameSrc || ""}`} 
+                style={heroStyle}
+            >
                 <div className="hero-content-v2">
                     <div className="avatar-box-v2">
                         <img src={point.iconSrc || "/default-profile.png"} className="avatar-img-v2" alt="icon" />

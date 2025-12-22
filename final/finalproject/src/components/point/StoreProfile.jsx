@@ -42,7 +42,7 @@ export default function StoreProfile({ refreshTrigger }) {
         <div className="store-profile-wrapper">
             {/* 배경(bgSrc)과 프레임(frameSrc) 클래스를 동시에 동적 바인딩 */}
             {/* <div className={`membership-card ${userInfo.bgSrc || ""} ${userInfo.frameSrc || ""} ${!isReady ? 'loading' : ''}`}> */}
-            <div className={`membership-card ${userInfo.bgSrc || ""}  ${!isReady ? 'loading' : ''}`}>
+           <div className={`membership-card ${userInfo.bgSrc || ""} ${userInfo.frameSrc || ""} ${!isReady ? 'loading' : ''}`}>
                 
                 {!isReady ? (
                     <div className="loading-box">
