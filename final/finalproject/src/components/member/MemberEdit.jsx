@@ -95,7 +95,7 @@ export default function MemberEdit() {
     const sendData = async () => {
         if (!memberValid) return;
         try {
-            await axios.put(`/member/edit/${loginId}`, member);
+            await axios.put(`/member/${loginId}`, member);
             await Swal.fire({
                 title: '수정 완료',
                 text: '회원 정보가 성공적으로 변경되었습니다.',
