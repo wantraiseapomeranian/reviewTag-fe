@@ -1,264 +1,154 @@
-import { FaAsterisk, FaEraser, FaEye, FaEyeSlash, FaKey, FaMagnifyingGlass, FaPaperPlane, FaSpinner, FaUser } from "react-icons/fa6";
+import { FaEraser, FaMagnifyingGlass, FaUser, FaCakeCandles, FaPhone, FaXmark } from "react-icons/fa6";
 import axios from "axios";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { useNavigate, useParams } from "react-router-dom"
-//Daum 우편번호/주소검색 API
-import { useDaumPostcodePopup } from 'react-daum-postcode';
+import { useNavigate, useParams, Link } from "react-router-dom";
+import Swal from "sweetalert2";
+import { useDaumPostcodePopup } from "react-daum-postcode";
+import DatePicker from "react-datepicker";
+import "react-datepicker/dist/react-datepicker.css";
+import { ko } from 'date-fns/locale';
+import "./MemberDetail.css";
 
-export default function member(){
+const contactRegex = /^010[1-9][0-9]{7}$/;
 
-    const {loginId} = useParams();
-
-    //도구
+export default function MemberEdit() {
+    const { loginId } = useParams();
     const navigate = useNavigate();
+    const memberAddress2Ref = useRef(null);
+    const open = useDaumPostcodePopup(); // 주소 팝업 오픈 함수
 
-    //state
-    const [member, setMember] = useState({
-        memberId : "", memberPw : "", memberPwCheck : "", memberNickname : "",
-        memberEmail : "", memberBirth : "", memberContact : "",
-        memberPost : "", memberAddress1 : "", memberAddress2 : ""
+    const [member, setMember] = useState({ 
+        memberBirth: "", memberContact: "", memberPost: "", memberAddress1: "", memberAddress2: "" 
     });
-    const [memberClass, setMemberClass] = useState({
-        memberEmail : "is-valid", memberBirth : "is-valid", memberContact : "is-valid",
-        memberPost : "is-valid", memberAddress1 : "is-valid", memberAddress2 : "is-valid"
+    const [memberClass, setMemberClass] = useState({ 
+        memberBirth: "", memberContact: "", memberPost: "", memberAddress1: "", memberAddress2: "" 
     });
-    const [certNumber, setCertNumber] = useState("");
-    const [certNumberClass, setCertNumberClass] = useState("");
 
-    // 출력할 피드백
-    const [memberPwFeedback, setMemberPwFeedback] = useState("");
-    const [memberEmailFeedback, setMemberEmailFeedback] = useState("");
-    const [certNumberFeedback, setCertNumberFeedback] = useState("");
-    
-    useEffect(()=>{
-        if(loginId === null) return;
-        axios.get(`/member/mypage/${loginId}`)
-        .then(response=>{
-            const data = response.data;
-            const member = data.member;
+    // 1. 검증 로직
+    const getValidation = useCallback((m) => {
+        const isBirthValid = m.memberBirth !== "";
+        const isContactValid = m.memberContact === "" ? true : contactRegex.test(m.memberContact);
+        const isAddrValid = (m.memberPost && m.memberAddress1 && m.memberAddress2) || (!m.memberPost && !m.memberAddress1 && !m.memberAddress2);
+        return { isBirthValid, isContactValid, isAddrValid };
+    }, []);
+
+    const memberValid = useMemo(() => {
+        const { isBirthValid, isContactValid, isAddrValid } = getValidation(member);
+        return isBirthValid && isContactValid && isAddrValid;
+    }, [member, getValidation]);
+
+    const handleBlur = useCallback(() => {
+        const { isBirthValid, isContactValid, isAddrValid } = getValidation(member);
+        setMemberClass({
+            memberBirth: isBirthValid ? "is-valid" : "is-invalid",
+            memberContact: isContactValid ? "is-valid" : "is-invalid",
+            memberPost: isAddrValid ? (member.memberPost ? "is-valid" : "") : "is-invalid",
+            memberAddress1: isAddrValid ? (member.memberAddress1 ? "is-valid" : "") : "is-invalid",
+            memberAddress2: isAddrValid ? (member.memberAddress2 ? "is-valid" : "") : "is-invalid"
+        });
+    }, [member, getValidation]);
+
+    useEffect(() => {
+        if (!loginId) return;
+        axios.get(`/member/mypage/${loginId}`).then(res => {
+            const m = res.data.member;
             setMember({
-                    ...member,
-                    memberPost: member.memberPost || "",
-                    memberAddress1: member.memberAddress1 || "",
-                    memberAddress2: member.memberAddress2 || "",
-                    memberContact: member.memberContact || "",
-                    memberBirth: member.memberBirth || ""
-                });  
-        })
-    },[]);
+                memberBirth: m.memberBirth ?? "",
+                memberContact: m.memberContact ?? "",
+                memberPost: m.memberPost ?? "",
+                memberAddress1: m.memberAddress1 ?? "",
+                memberAddress2: m.memberAddress2 ?? ""
+            });
+        });
+    }, [loginId]);
 
-    // callback
-    const changeStrValue = useCallback(e=>{
-        const {name, value} = e.target;
-        setMember(prev=>({...prev, [name]:value}))
-    },[])
-
-    const changeDateValue = useCallback((date)=>{
-        // → 별도의 포맷 전환 절차가 필요
-        const replacement = format(date,"yyyy-MM-dd");
-        setMember(prev=>({...prev, memberBirth : replacement}));
-    },[]);
-
-
-    //생년월일
-        const checkMemberBirth = useCallback(e=>{
-            const regex = /^(19[0-9]{2}|20[0-9]{2})-((02-(0[1-9]|1[0-9]|2[0-9]))|((0[469]|11)-(0[1-9]|1[0-9]|2[0-9]|30))|((0[13578]|1[02])-(0[1-9]|1[0-9]|2[0-9]|3[01])))$/
-            if(member.memberContact === null) return;
-            const valid = member.memberContact.length === 0 || regex.test(member.memberBirth); 
-            setMemberClass({...memberClass, memberBirth : valid ? "is-valid" : "is-invalid"});
-        },[member, memberClass])
-
-    //연락처
-        const checkMemberContact = useCallback(e=>{
-            const regex = /^010[1-9][0-9]{7}$/
-            const valid = member.memberContact.length === 0 || regex.test(member.memberContact); 
-            setMemberClass({...memberClass, memberContact : valid ? "is-valid" : "is-invalid"});
-        },[member, memberClass])
-
-    // 주소
-        const open = useDaumPostcodePopup("//t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js");
-        const searchAddress = useCallback(()=>{
-            open({onComplete : (data)=>{
-                let addr = ''; // 주소 변수
-                
-                if (data.userSelectedType === 'R') { 
-                    addr = data.roadAddress;
-                } else { 
-                    addr = data.jibunAddress;
-                }
-                setMember(prev=>({
+    // 주소 검색 핸들러
+    const handleAddressSearch = () => {
+        open({
+            onComplete: (data) => {
+                setMember(prev => ({
                     ...prev,
-                    memberPost : data.zonecode, // 우편번호
-                    memberAddress1 : addr,  // 기본주소
-                    memberAddress2 : ""
-                }))
-                // 상세주소 입력창으로 포커스 이동
+                    memberPost: data.zonecode,
+                    memberAddress1: data.address
+                }));
+                setMemberClass(prev => ({
+                    ...prev,
+                    memberPost: "is-valid",
+                    memberAddress1: "is-valid"
+                }));
                 memberAddress2Ref.current.focus();
-            }});
-        },[])
+            }
+        });
+    };
 
-    // 상세주소 입력창을 제어할 ref
-    const memberAddress2Ref = useRef();
+    // 날짜 변경 핸들러 (시차 문제 방지)
+    const handleDateChange = (date) => {
+        if (!date) return;
+        const year = date.getFullYear();
+        const month = String(date.getMonth() + 1).padStart(2, '0');
+        const day = String(date.getDate()).padStart(2, '0');
+        const formattedDate = `${year}-${month}-${day}`;
+        setMember({ ...member, memberBirth: formattedDate });
+    };
 
-    // 주소 초기화
-    const clearMemberAddress = useCallback(()=>{
-        setMember(prev=>({
-            ...prev, memberPost : "", memberAddress1 : "", memberAddress2 : ""
-        }))
-        setMemberClass(prev=>({
-            ...prev, memberPost : "", memberAddress1 : "", memberAddress2 : ""
-        }))
-    },[])
-
-    //주소 초기화 버튼이 표시되어야 하는지 판정
-    const hasAnyCharacter = useMemo(()=>{
-        if(member.memberPost === null) return;
-        if(member.memberPost.length > 0 ) return true;
-        if(member.memberAddress1.length > 0 ) return true;
-        if(member.memberAddress2.length > 0 ) return true;
-        return false;
-    },[member])
-    //주소 검사
-    const checkMemberAddress = useCallback((e)=>{
-        const {memberPost, memberAddress1, memberAddress2} = member;
-        const fill = memberPost.length > 0 && memberAddress1.length > 0 && memberAddress2.length > 0;
-        const empty = memberPost.length === 0 && memberAddress1.length === 0 && memberAddress2.length === 0;
-        const valid = fill || empty;
-        setMemberClass(prev=>({
-            ...prev,
-            memberPost : valid ? "is-valid" : "is-invalid",
-            memberAddress1 : valid ? "is-valid" : "is-invalid",
-            memberAddress2 : valid ? "is-valid" : "is-invalid"
-        }));
-    }, [member, memberClass]);
-
-    //memo
-    // 모든 항목이 유효한지 검사(선택항목은 is-invalid가 아니어야함)
-    const memberValid = useMemo(()=>{
-        //선택항목
-        if(memberClass.memberBirth==="is-invalid") return false;
-        if(memberClass.memberContact==="is-invalid") return false;
-        if(memberClass.memberPost==="is-invalid") return false;
-        if(memberClass.memberAddress1==="is-invalid") return false;
-        if(memberClass.memberAddress2==="is-invalid") return false;
-        return true;
-    },[memberClass])
-
-    //callback
-    //최종 수정
-    const sendData = useCallback(async()=>{
-        if(memberValid === false) return ;
-
-        const payload = {
-            ...member,
-            memberId: loginId,
-        };
-
+    // 서버 전송
+    const sendData = async () => {
+        if (!memberValid) return;
         try {
-            const { data } = await axios.put(`/member/${loginId}`, payload);
-            console.log("수정 결과:", data);
+            await axios.put(`/member/edit/${loginId}`, member);
+            await Swal.fire({
+                title: '수정 완료',
+                text: '회원 정보가 성공적으로 변경되었습니다.',
+                icon: 'success',
+                background: '#161618',
+                color: '#fff',
+                confirmButtonColor: '#00ffcc'
+            });
             navigate(`/member/mypage/myinfo/${loginId}`);
-        } catch (error) {
-            console.error("수정 실패:", error);
+        } catch (err) {
+            Swal.fire({ title: '오류 발생', text: '수정 중 문제가 발생했습니다.', icon: 'error', background: '#161618', color: '#fff' });
         }
-    },[member,memberValid, loginId])
+    };
 
-    //render
-    return (<>
-
-        <div className="member-form ">
-        <h2 className="text-center">회원 기본정보 수정</h2>
-        <hr/>
-
-        {/* 생년월일 */}
-        <div className="row">
-            <label className="col-sm-3 col-form-label">생년월일</label>
-            <div className="col-sm-9">
-                <input type="text" className={`form-control ${memberClass.memberBirth}`} 
-                            name="memberBirth" value={member.memberBirth}
-                            onChange={changeStrValue}
-                            onBlur={checkMemberBirth}
-                            />
-                <div className="valid-feedback"></div>
-                <div className="invalid-feedback">잘못된 날짜 형식입니다</div>
+    return (
+        <div className="member-detail-wrapper">
+            <h2>기본 정보 수정</h2>
+            <hr className="mb-4" style={{borderColor: '#333'}}/>
+            
+            <label className="mb-2"><FaCakeCandles className="me-2 text-info" /> 생년월일</label>
+            <div className="datepicker-container mb-4">
+                <DatePicker
+                    selected={member.memberBirth ? new Date(member.memberBirth) : null}
+                    onChange={handleDateChange}
+                    onBlur={handleBlur}
+                    dateFormat="yyyy-MM-dd"
+                    locale={ko}
+                    placeholderText="날짜를 선택하세요"
+                    className={`form-control ${memberClass.memberBirth}`}
+                    maxDate={new Date()}
+                    showYearDropdown
+                    scrollableYearDropdown
+                    yearDropdownItemNumber={100}
+                />
             </div>
+
+            <label className="mb-2"><FaPhone className="me-2 text-info" /> 연락처</label>
+            <input name="memberContact" value={member.memberContact} onChange={e => setMember({...member, memberContact: e.target.value})} onBlur={handleBlur} className={`form-control mb-4 ${memberClass.memberContact}`} placeholder="01012345678" />
+
+            <label className="mb-2">주소</label>
+            <div className="d-flex gap-2 mb-2">
+                <input readOnly value={member.memberPost} className={`form-control w-50 ${memberClass.memberPost}`} placeholder="우편번호" />
+                <button type="button" onClick={handleAddressSearch} className="btn-address-tool"><FaMagnifyingGlass /></button>
+            </div>
+            <input readOnly value={member.memberAddress1} className={`form-control mb-2 ${memberClass.memberAddress1}`} placeholder="기본주소" />
+            <input ref={memberAddress2Ref} name="memberAddress2" value={member.memberAddress2} onChange={e => setMember({...member, memberAddress2: e.target.value})} onBlur={handleBlur} className={`form-control ${memberClass.memberAddress2}`} placeholder="상세주소" />
+
+            <button className="btn-member-edit mt-5" disabled={!memberValid} onClick={sendData}>
+                <FaUser className="me-2"/> 정보 수정 완료
+            </button>
+            <Link to={`/member/mypage/myinfo/${loginId}`} className="btn-cancel">
+                <FaXmark className="me-2"/> 취소하고 돌아가기
+            </Link>
         </div>
-
-        {/* 연락처 */}
-        <div className="row mt-4">
-            <label className="col-sm-3 col-form-label">연락처</label>
-            <div className="col-sm-9">
-                <input type="text" className={`form-control ${memberClass.memberContact}`} 
-                            name="memberContact" value={member.memberContact}
-                            onChange={changeStrValue}
-                            onBlur={checkMemberContact}
-                            />
-                <div className="valid-feedback"></div>
-                <div className="invalid-feedback">010으로 시작하는 11자리 번호를 입력하세요(- 사용불가)</div>
-            </div>
-        </div>
-        
-        {/* 주소 (Post, Address1, Address2) */}
-       <div className="row mt-3">
-            <label className="col-sm-3 col-form-label">주소</label>
-            <div className="col-sm-9 d-flex align-items-center text-nowrap">
-                <input type="text" name="memberPost" className={`form-control w-auto ${memberClass.memberPost}`}
-                            placeholder="우편번호" value={member.memberPost}
-                            onChange={changeStrValue} readOnly
-                            onClick={searchAddress}
-                            />
-                <button type="button" className="btn btn-secondary ms-2"
-                            onClick={searchAddress}
-                            >
-                    <FaMagnifyingGlass/>
-                </button>
-                {/* 지우기 버튼은 한글자라도 있으면 나와야 한다 */}
-                {hasAnyCharacter === true && (
-                    <button type="button" className="btn btn-danger ms-2" 
-                        onClick={clearMemberAddress}
-                        >
-                        <FaEraser/>
-                    </button>
-                    )}
-                <div className="valid-feedback" ></div>
-                <div className="invalid-feedback" ></div>
-            </div>
-
-            <div className="col-sm-9 offset-sm-3 mt-2">
-                <input type="text" name="memberAddress1" className={`form-control ${memberClass.memberAddress1}`}
-                    placeholder="기본주소" value={member.memberAddress1}
-                    onChange={changeStrValue} readOnly
-                    onClick={searchAddress}
-                    />
-                <div className="valid-feedback" ></div>
-                <div className="invalid-feedback" ></div>
-            </div>
-            <div className="col-sm-9 offset-sm-3 mt-2">
-                <input type="text" name="memberAddress2" className={`form-control ${memberClass.memberAddress2}`}
-                    placeholder="상세주소" value={member.memberAddress2}
-                    onChange={changeStrValue}
-                    ref={memberAddress2Ref}
-                    onBlur={checkMemberAddress}
-                     />
-                <div className="valid-feedback" ></div>
-                <div className="invalid-feedback" >주소는 모두 작성해야 합니다</div>
-            </div>
-       
-       </div>
-        
-        {/* 가입버튼  */}
-        <div className="row mt-4">
-            <div className="col">
-                <button type="button" className="btn btn-lg btn-success w-100"
-                            disabled={memberValid === false}
-                            onClick = {sendData}
-                            >
-                <FaUser className="me-2"/>
-                <span>수정</span>
-                </button>
-            </div>
-        </div>
-</div>
-
-    </>)
+    );
 }

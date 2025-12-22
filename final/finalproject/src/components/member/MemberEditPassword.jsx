@@ -1,121 +1,116 @@
-import { FaAsterisk, FaEye, FaEyeSlash, FaUser } from "react-icons/fa6";
+import { FaAsterisk, FaEye, FaEyeSlash, FaUser, FaLock, FaXmark } from "react-icons/fa6";
 import axios from "axios";
 import { useCallback, useMemo, useState } from "react";
-import { useNavigate, useParams } from "react-router-dom"
-import "./Member.css";
+import { useParams, Link, useNavigate } from "react-router-dom";
+import Swal from "sweetalert2"; 
+import "./MemberDetail.css"; 
 
-export default function MemberEditPassword(){
-    //도구
-    const {loginId} = useParams();
+const pwRegex = /^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[!@#$])[A-Za-z0-9!@#$]{8,16}$/;
+
+export default function MemberEditPassword() {
+    const { loginId } = useParams();
     const navigate = useNavigate();
 
-    //state
-    const [member, setMember] = useState({
-        memberPw : "", memberPwCheck : ""
-    });
-    const [memberClass, setMemberClass] = useState({
-        memberPw : "", memberPwCheck : ""
-    });
-    // 출력할 피드백
+    const [member, setMember] = useState({ memberPw: "", memberPwCheck: "" });
+    const [memberClass, setMemberClass] = useState({ memberPw: "", memberPwCheck: "" });
     const [memberPwFeedback, setMemberPwFeedback] = useState("");
+    const [showPassword, setShowPassword] = useState(false);
 
-    // callback
-    const changeStrValue = useCallback(e=>{
-        const {name, value} = e.target;
-        setMember(prev=>({...prev, [name]:value}))
-    },[])
+    const getValidation = useCallback((m) => {
+        const isPwValid = m.memberPw === "" ? null : pwRegex.test(m.memberPw);
+        let isCheckValid = null;
+        let feedback = "";
 
-    
-    // 비밀번호
-    const checkMemberPw = useCallback(async(e)=>{
-        //비밀번호 형식검사
-        const regex = /^(?=.*?[A-Z]+)(?=.*?[a-z]+)(?=.*?[0-9]+)(?=.*?[!@#$]+)[A-Za-z0-9!@#$]{8,16}$/;
-        const valid = regex.test(member.memberPw);
-        setMemberClass(prev=>({...prev,memberPw : valid ? "is-valid" : "is-invalid"}));
-        //비밀번호 중복검사
-        if(member.memberPw.length > 0){
-            const valid2 = member.memberPw === member.memberPwCheck;
-            setMemberClass(prev=>({...prev, memberPwCheck : valid2 ? "is-valid" : "is-invalid"}));
-            setMemberPwFeedback("비밀번호 확인이 일치하지 않습니다")
-        } else { // 비밀번호 미입력
-            setMemberClass(prev =>({...prev, memberPwCheck : "is-invalid"}));
-            setMemberPwFeedback("비밀번호는 필수 항목입니다")
+        if (m.memberPwCheck.length > 0) {
+            isCheckValid = m.memberPw === m.memberPwCheck;
+            feedback = isCheckValid ? "" : "비밀번호가 일치하지 않습니다";
+        } else if (m.memberPw.length > 0) {
+            isCheckValid = false;
+            feedback = "비밀번호 확인을 입력하세요";
         }
-    },[member,memberClass])
-    
-        //비밀번호 숨김/표시
-        const [showPassword, setShowPassword] = useState(false);
+        return { isPwValid, isCheckValid, feedback };
+    }, []);
 
+    const memberValid = useMemo(() => {
+        const { isPwValid, isCheckValid } = getValidation(member);
+        return isPwValid === true && isCheckValid === true;
+    }, [member, getValidation]);
 
-    //memo
-    // 모든 항목이 유효한지 검사(선택항목은 is-invalid가 아니어야함)
-    const memberValid = useMemo(()=>{
-        if(memberClass.memberPw !== "is-valid") return false;
-        if(memberClass.memberPwCheck !== "is-valid") return false;
-        return true;
-    },[memberClass])
+    const handleBlur = useCallback(() => {
+        const { isPwValid, isCheckValid, feedback } = getValidation(member);
+        setMemberClass({
+            memberPw: isPwValid === null ? "" : (isPwValid ? "is-valid" : "is-invalid"),
+            memberPwCheck: isCheckValid === null ? "" : (isCheckValid ? "is-valid" : "is-invalid")
+        });
+        setMemberPwFeedback(feedback);
+    }, [member, getValidation]);
 
-    //callback
-    //최종 수정
-    const sendData = useCallback(async()=>{
-        if(memberValid === false) return ;
-        const {data} = await axios.put(`/member/password/${loginId}`,member);
-        navigate(`/member/mypage/myinfo/${loginId}`); // 메인페이지
-    },[member,memberValid])
+    const changeStrValue = useCallback(e => {
+        const { name, value } = e.target;
+        setMember(prev => ({ ...prev, [name]: value }));
+    }, []);
 
+    const sendData = useCallback(async () => {
+        if (!memberValid) return;
+        try {
+            await axios.put(`/member/password/${loginId}`, { memberPw: member.memberPw });
+            await Swal.fire({ 
+                title: '변경 완료', 
+                text: '성공적으로 변경되었습니다. 보안을 위해 다시 로그인해주세요.', 
+                icon: 'success', 
+                background: '#161618', 
+                color: '#fff', 
+                confirmButtonColor: '#00ffcc' 
+            });
+            navigate(`/member/mypage/myinfo/${loginId}`);
+        } catch (err) {
+            Swal.fire({ title: '변경 실패', icon: 'error', background: '#161618', color: '#fff' });
+        }
+    }, [member, memberValid, loginId, navigate]);
 
-    //render
-    return (<>
-    <div className="member-form">
-        <h2 className="text-center">비밀번호 변경</h2>
-        <hr/>
-
-        {/* 비밀번호 */}
-        <div className="row">
-            <label className="col-md-3 col-form-label">
-                    비밀번호<FaAsterisk className="text-danger"/>
-                {showPassword === true ? (
-                        <FaEye className="ms-2" onClick={e=>setShowPassword(false)}/>
-                    ) : (
-                        <FaEyeSlash className="ms-2"onClick={e=>setShowPassword(true)}/>
-                    ) }
-            </label>
-            <div className="col-lg-6 col-md-9">
-                <input type={showPassword===true ? "text" : "password"} className={`form-control ${memberClass.memberPw}`} 
-                            name="memberPw" value={member.memberPw}
-                            onChange={changeStrValue}
-                            onBlur={checkMemberPw}
-                            />
-                <div className="valid-feedback">사용 가능한 비밀번호입니다</div>
-                <div className="invalid-feedback">대/소문자, 숫자, 특수문자를 반드시 1개 포함하여 8~16자로 작성하세요</div>
+    return (
+        <div className="member-detail-wrapper">
+            <h2 className="d-flex align-items-center justify-content-center">
+                <FaLock className="me-3" style={{color: '#ffd700'}}/>비밀번호 변경
+            </h2>
+            <p className="text-center text-secondary mb-5">보안을 위해 강력한 비밀번호를 설정해 주세요.</p>
+            
+            <div className="mb-4">
+                <label className="d-flex align-items-center mb-2">
+                    새 비밀번호 <FaAsterisk className="text-danger ms-1" style={{fontSize: '0.6rem'}}/>
+                    <span className="ms-auto" onClick={() => setShowPassword(!showPassword)} style={{cursor:'pointer', color:'#666'}}>
+                        {showPassword ? <FaEye /> : <FaEyeSlash />}
+                    </span>
+                </label>
+                <input 
+                    type={showPassword ? "text" : "password"} 
+                    className={`form-control ${memberClass.memberPw}`}
+                    name="memberPw" value={member.memberPw}
+                    onChange={changeStrValue} onBlur={handleBlur}
+                    placeholder="대/소문자, 숫자, 특수문자 포함 8~16자"
+                />
+                <div className="invalid-feedback">형식에 맞지 않는 비밀번호입니다</div>
             </div>
-        </div>
-        {/* 비밀번호 확인 */}
-        <div className="row mt-1">
-            <label className="col-md-3 col-form-label"></label>
-            <div className="col-lg-6 col-md-9">
-                <input type={showPassword===true ? "text" : "password"}  className={`form-control ${memberClass.memberPwCheck}`} 
-                            name="memberPwCheck" value={member.memberPwCheck}
-                            onChange={changeStrValue}
-                            onBlur={checkMemberPw}
-                            />
-                <div className="valid-feedback">비밀번호가 일치합니다</div>
+
+            <div className="mb-4">
+                <label className="mb-2">비밀번호 확인</label>
+                <input 
+                    type={showPassword ? "text" : "password"} 
+                    className={`form-control ${memberClass.memberPwCheck}`}
+                    name="memberPwCheck" value={member.memberPwCheck}
+                    onChange={changeStrValue} onBlur={handleBlur}
+                    placeholder="비밀번호를 재입력하세요"
+                />
                 <div className="invalid-feedback">{memberPwFeedback}</div>
             </div>
+
+            <button type="button" className="btn-member-edit mt-5" disabled={!memberValid} onClick={sendData}>
+                <FaUser className="me-2"/> 비밀번호 변경하기
+            </button>
+            
+            <Link to={`/member/mypage/myinfo/${loginId}`} className="btn-cancel">
+                <FaXmark className="me-2"/> 취소하고 돌아가기
+            </Link>
         </div>
-        
-        {/* 수정버튼  */}
-        <div className="row mt-4">
-            <div className="col">
-                <button type="button" className="btn btn-lg btn-success w-100"
-                            disabled={memberValid === false}
-                            onClick = {sendData}
-                            >
-                <FaUser className="me-2"/>
-                <span>비밀번호 변경</span>
-                </button>
-            </div>
-        </div>
-    </div>
-    </>)
+    );
 }
