@@ -1,15 +1,13 @@
-/* AdminStore.css */
+/* AdminStore.css - Prefix [as-] 전면 적용 */
 
-/* 전체 컨테이너 */
-.admin-store-container {
+.as-container {
     padding: 40px;
     background: #0c0c0e;
     min-height: 100vh;
     color: #fff;
 }
 
-/* 헤더 영역 */
-.admin-header {
+.as-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -18,22 +16,21 @@
     padding-bottom: 20px;
 }
 
-.admin-header h1 {
+.as-header h1 {
     font-size: 2rem;
     font-weight: 900;
     letter-spacing: -1px;
     margin: 0;
 }
 
-.admin-subtitle {
+.as-subtitle {
     font-size: 1rem;
     color: #888;
     font-weight: 400;
     margin-left: 10px;
 }
 
-/* 테이블 영역 */
-.admin-table-wrapper {
+.as-table-wrapper {
     background: #1e1e22;
     border-radius: 20px;
     padding: 10px;
@@ -41,12 +38,12 @@
     overflow: hidden;
 }
 
-.admin-item-table {
+.as-item-table {
     width: 100%;
     border-collapse: collapse;
 }
 
-.admin-item-table th {
+.as-item-table th {
     padding: 20px;
     text-align: center;
     color: #888;
@@ -54,15 +51,14 @@
     border-bottom: 1px solid rgba(255, 255, 255, 0.05);
 }
 
-.admin-item-table td {
+.as-item-table td {
     padding: 15px;
     text-align: center;
     border-bottom: 1px solid rgba(255, 255, 255, 0.03);
     vertical-align: middle;
 }
 
-/* [추가] 리스트 내 이미지 박스 스타일 */
-.admin-list-img-box {
+.as-list-img-box {
     width: 60px;
     height: 60px;
     background: #000;
@@ -76,18 +72,17 @@
     transition: transform 0.2s;
 }
 
-.admin-list-img-box:hover {
-    transform: scale(1.1); /* 호버 시 살짝 확대 */
+.as-list-img-box:hover {
+    transform: scale(1.1);
 }
 
-.admin-list-img-box img {
+.as-list-img-box img {
     width: 100%;
     height: 100%;
-    object-fit: contain; /* 이미지 비율 유지 */
+    object-fit: contain;
 }
 
-/* 아이템 타입 배지 */
-.item-badge {
+.as-item-badge {
     padding: 5px 12px;
     border-radius: 6px;
     font-size: 0.75rem;
@@ -95,19 +90,15 @@
     display: inline-block;
 }
 
-/* 유형별 색상 (JS 코드의 pointItemType과 매칭) */
-.item-badge.HEART_RECHARGE { background: rgba(255, 59, 48, 0.15); color: #ff3b30; }
-.item-badge.DECO_FRAME { background: rgba(255, 215, 0, 0.15); color: #ffd700; }
-.item-badge.DECO_ICON { background: rgba(56, 189, 248, 0.15); color: #38bdf8; }
-.item-badge.DECO_BG { background: rgba(74, 222, 128, 0.15); color: #4ade80; }
-.item-badge.CHANGE_NICK { background: rgba(168, 85, 247, 0.15); color: #a855f7; }
+/* 유형별 색상 */
+.as-badge-HEART_RECHARGE { background: rgba(255, 59, 48, 0.15); color: #ff3b30; }
+.as-badge-DECO_FRAME { background: rgba(255, 215, 0, 0.15); color: #ffd700; }
+.as-badge-DECO_ICON { background: rgba(56, 189, 248, 0.15); color: #38bdf8; }
+.as-badge-DECO_BG { background: rgba(74, 222, 128, 0.15); color: #4ade80; }
+.as-badge-CHANGE_NICK { background: rgba(168, 85, 247, 0.15); color: #a855f7; }
 
-/* 유형별 이미지 강조 효과 */
-.admin-list-img-box.DECO_FRAME { border: 2px solid #ffd700; }
-.admin-list-img-box.DECO_BG { border: 2px solid #4ade80; }
-
-/* 모달(Modal) 디자인 */
-.admin-modal-overlay {
+/* 모달 디자인 */
+.as-modal-overlay {
     position: fixed;
     top: 0; left: 0; right: 0; bottom: 0;
     background: rgba(0, 0, 0, 0.85);
@@ -118,20 +109,19 @@
     backdrop-filter: blur(8px);
 }
 
-.admin-modal-content {
+.as-modal-content {
     background: #1e1e22;
     width: 100%;
-    max-width: 550px; /* 약간 넓게 조정 */
+    max-width: 550px;
     padding: 35px;
     border-radius: 30px;
     border: 1px solid rgba(255, 255, 255, 0.1);
     box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6);
     max-height: 90vh;
-    overflow-y: auto; /* 내용 많을 시 스크롤 */
+    overflow-y: auto;
 }
 
-/* [추가] 모달 내 상단 미리보기 섹션 */
-.modal-preview-section {
+.as-modal-preview-section {
     display: flex;
     gap: 20px;
     align-items: center;
@@ -142,7 +132,7 @@
     border: 1px dashed rgba(255, 255, 255, 0.1);
 }
 
-.modal-img-display {
+.as-modal-img-display {
     width: 100px;
     height: 100px;
     background: #000;
@@ -152,48 +142,38 @@
     border: 1px solid #444;
 }
 
-.modal-img-display img {
+.as-modal-img-display img {
     width: 100%;
     height: 100%;
     object-fit: contain;
 }
 
-.modal-img-info {
+.as-modal-img-info {
     flex-grow: 1;
 }
 
-.modal-img-info label {
+.as-modal-img-info label {
     display: block;
     margin-bottom: 8px;
     font-size: 0.85rem;
     color: #aaa;
 }
 
-.modal-img-info input {
-    width: 100%;
-    padding: 10px;
-    background: #121214;
-    border: 1px solid #333;
-    border-radius: 10px;
-    color: #4ade80; /* URL은 포인트 컬러로 강조 */
-    font-size: 0.9rem;
-}
-
-/* 폼 그룹 및 그리드 */
-.form-group {
-    margin-bottom: 20px;
-}
-
-.row {
+/* 부트스트랩 row/col 대체용 레이아웃 */
+.as-flex-row {
     display: flex;
     gap: 15px;
 }
 
-.col-6 {
+.as-col-6 {
     flex: 1;
 }
 
-.form-group label {
+.as-form-group {
+    margin-bottom: 20px;
+}
+
+.as-form-group label {
     display: block;
     margin-bottom: 8px;
     color: #aaa;
@@ -201,9 +181,8 @@
     font-weight: 600;
 }
 
-.form-group input, 
-.form-group select, 
-.form-group textarea {
+.as-input-field, 
+.as-select-field {
     width: 100%;
     padding: 14px;
     background: #121214;
@@ -215,13 +194,13 @@
     transition: border-color 0.3s;
 }
 
-.form-group input:focus, .form-group select:focus {
+.as-input-field:focus, .as-select-field:focus {
     outline: none;
     border-color: #4ade80;
 }
 
-/* 버튼 스타일 */
-.btn-primary {
+/* 버튼 스타일 - btn-primary 변수명 중복 해결 */
+.as-btn-add-main {
     background: #fff;
     color: #000;
     padding: 14px 28px;
@@ -232,18 +211,18 @@
     transition: 0.2s;
 }
 
-.btn-primary:hover {
+.as-btn-add-main:hover {
     transform: translateY(-2px);
     background: #f0f0f0;
 }
 
-.action-btns {
+.as-action-btns {
     display: flex;
     justify-content: center;
     gap: 10px;
 }
 
-.btn-sm {
+.as-btn-sm {
     padding: 8px 16px;
     border-radius: 8px;
     font-size: 0.85rem;
@@ -253,14 +232,13 @@
     transition: 0.2s;
 }
 
-.btn-sm.edit { background: #333; color: #fff; }
-.btn-sm.edit:hover { background: #444; }
+.as-btn-edit { background: #333; color: #fff; }
+.as-btn-edit:hover { background: #444; }
 
-.btn-sm.delete { background: rgba(255, 59, 48, 0.1); color: #ff3b30; }
-.btn-sm.delete:hover { background: rgba(255, 59, 48, 0.2); }
+.as-btn-delete { background: rgba(255, 59, 48, 0.1); color: #ff3b30; }
+.as-btn-delete:hover { background: rgba(255, 59, 48, 0.2); }
 
-/* 모달 액션 버튼 */
-.modal-actions {
+.as-modal-actions {
     display: flex;
     justify-content: flex-end;
     align-items: center;
@@ -268,7 +246,7 @@
     gap: 15px;
 }
 
-.btn-save {
+.as-btn-save {
     background: #4ade80;
     color: #000;
     padding: 14px 35px;
@@ -278,7 +256,7 @@
     cursor: pointer;
 }
 
-.btn-cancel {
+.as-btn-cancel {
     background: transparent;
     color: #888;
     border: none;
@@ -286,9 +264,9 @@
     font-weight: 600;
 }
 
-/* 유틸리티 */
-.text-gold { color: #ffd700; font-weight: 800; }
-.text-muted { color: #666; font-size: 0.85rem; }
-.text-danger { color: #ff3b30; }
-.font-bold { font-weight: 700; }
-.mt-1 { margin-top: 5px; }
+/* 유틸리티 클래스 Prefix */
+.as-text-gold { color: #ffd700; font-weight: 800; }
+.as-text-muted-small { color: #666; font-size: 0.85rem; }
+.as-text-danger-small { color: #ff3b30; font-size: 0.85rem; }
+.as-font-bold { font-weight: 700; }
+.as-mt-1 { margin-top: 5px; }

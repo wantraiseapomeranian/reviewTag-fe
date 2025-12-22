@@ -12,36 +12,27 @@ export default function AdminPoint() {
     // 탭 상태 (POINT: 포인트/회원관리, ICON: 아이콘관리)
     const [activeTab, setActiveTab] = useState("POINT");
     const TMDB_IMAGE_BASE_URL = "https://image.tmdb.org/t/p/w500";
-    //검색어 state
-    const [query, setQuery] = useState("");
-    //검색결과 state
-    const [resultList, setResultList] = useState([]);
-    //사용자가 선택한 영화 정보 state
-    const [contentsDetail, setContentsDetail] = useState({contentsId: null, contentsTitle: ""});
-    //영화를 선택했는지 안했는지 여부를 저장하는 state
-    const [isSelect, setIsSelect] = useState(false);
-    //영화 로딩 상태 state
-    const [isLoading, setIsLoading] = useState(false);
-    //상태 메세지 state
-    const [statusMessage, setStatusMessage] = useState("");
-    //모달용 도구
-        const modal = useRef();
-        const quillRef = useRef(null);
     
-        const openModal = useCallback(() => {
-            const instance = Modal.getOrCreateInstance(modal.current);
-            instance.show();
-        }, [modal]);
-        const closeModal = useCallback(() => {
-            const instance = Modal.getInstance(modal.current);
-            instance.hide();
-        }, [modal]);
-        const clearAndCloseModal = useCallback(() => {
-            closeModal();
-            setTimeout(() => { clearData(); }, 100);
-        }, [modal]);
+    // 검색 및 모달 관련 상태
+    const [query, setQuery] = useState("");
+    const [resultList, setResultList] = useState([]);
+    const [contentsDetail, setContentsDetail] = useState({contentsId: null, contentsTitle: ""});
+    const [isSelect, setIsSelect] = useState(false);
+    const [isLoading, setIsLoading] = useState(false);
+    const [statusMessage, setStatusMessage] = useState("");
+    
+    // 모달용 도구
+    const modal = useRef();
+    const openModal = useCallback(() => {
+        const instance = Modal.getOrCreateInstance(modal.current);
+        instance.show();
+    }, [modal]);
+    const closeModal = useCallback(() => {
+        const instance = Modal.getInstance(modal.current);
+        instance.hide();
+    }, [modal]);
 
-    // ================= [TAB 1] 포인트 및 회원 관리 상태 =================
+    // [TAB 1] 포인트 및 회원 관리 상태
     const [memberList, setMemberList] = useState([]); 
     const [keyword, setKeyword] = useState(""); 
     const [inputPoints, setInputPoints] = useState({});
@@ -51,7 +42,6 @@ export default function AdminPoint() {
     const [editModeId, setEditModeId] = useState(null);
     const [editData, setEditData] = useState({ memberNickname: "", memberLevel: "" });
 
-    // 회원 목록 로드
     const loadMembers = useCallback(async () => {
         try {
             const resp = await axios.get("/admin/point/list", {
@@ -61,7 +51,6 @@ export default function AdminPoint() {
             setPointTotalPage(resp.data.totalPage || 0);
             setPointTotalCount(resp.data.totalCount || 0);
         } catch (e) {
-            console.error("회원 로드 실패", e);
             toast.error("회원 목록을 불러오지 못했습니다.");
         }
     }, [keyword, pointPage]);
@@ -70,11 +59,9 @@ export default function AdminPoint() {
         if(activeTab === "POINT") loadMembers();
     }, [activeTab, pointPage, loadMembers]);
 
-    // 포인트 지급/차감
     const handlePointUpdate = async (memberId, mode) => {
         const amountStr = inputPoints[memberId];
         if (!amountStr || isNaN(amountStr)) return toast.warning("숫자를 입력하세요.");
-        
         const amountValue = parseInt(amountStr);
         const finalAmount = mode === 'minus' ? -amountValue : amountValue;
 
@@ -84,10 +71,7 @@ export default function AdminPoint() {
             icon: 'question',
             showCancelButton: true,
             confirmButtonColor: mode === 'plus' ? '#238636' : '#da3633',
-            confirmButtonText: '확인',
-            cancelButtonText: '취소',
-            background: '#161b22',
-            color: '#f0f6fc'
+            background: '#161b22', color: '#f0f6fc'
         });
 
         if (result.isConfirmed) {
@@ -100,7 +84,6 @@ export default function AdminPoint() {
         }
     };
 
-    // 회원 정보 수정 저장
     const saveEdit = async (memberId) => {
         try {
             await axios.post("/admin/point/edit", { memberId, ...editData });
@@ -110,13 +93,13 @@ export default function AdminPoint() {
         } catch (e) { toast.error("수정 실패"); }
     };
 
-    // ================= [TAB 2] 아이콘 DB 관리 상태 =================
+    // [TAB 2] 아이콘 DB 관리 상태
     const [iconList, setIconList] = useState([]);
     const [iconFilter, setIconFilter] = useState("ALL");
     const [iconPage, setIconPage] = useState(1);
     const [iconTotalPage, setIconTotalPage] = useState(0);
     const [iconTotalCount, setIconTotalCount] = useState(0);
-    const [iconForm, setIconForm] = useState({ iconId: 0, iconName: "", iconCategory : "DEFAULT",iconRarity: "COMMON", iconSrc: "", iconContents:"" });
+    const [iconForm, setIconForm] = useState({ iconId: 0, iconName: "", iconCategory : "DEFAULT", iconRarity: "COMMON", iconSrc: "", iconContents:"" });
     const [isIconEdit, setIsIconEdit] = useState(false);
 
     const loadIcons = useCallback(async () => {
@@ -127,14 +110,13 @@ export default function AdminPoint() {
             setIconList(resp.data.list || []);
             setIconTotalCount(resp.data.totalCount || 0);
             setIconTotalPage(resp.data.totalPage || 0);
-        } catch(e) { console.error("아이콘 로드 실패", e); }
+        } catch(e) { console.error(e); }
     }, [iconPage, iconFilter]);
 
     useEffect(() => {
         if(activeTab === "ICON") loadIcons();
     }, [activeTab, iconPage, iconFilter, loadIcons]);
 
-    // 아이콘 등록/수정 제출
     const handleIconSubmit = async () => {
         if(!iconForm.iconName || !iconForm.iconSrc) return toast.warning("이름과 소스 URL은 필수입니다.");
         try {
@@ -148,7 +130,6 @@ export default function AdminPoint() {
         } catch(e) { toast.error("처리 중 오류 발생"); }
     };
 
-    // 아이콘 삭제
     const handleIconDelete = async (id, name) => {
         const result = await Swal.fire({
             title: '아이콘 삭제',
@@ -167,97 +148,59 @@ export default function AdminPoint() {
         }
     };
 
-    // 공통 페이지네이션 렌더러
     const renderPagination = (current, total, setter) => {
         if (total <= 1) return null;
         let pages = [];
         for (let i = 1; i <= total; i++) {
             pages.push(
-                <button key={i} className={`btn-pagination ${current === i ? 'active' : ''}`} onClick={() => setter(i)}>
+                <button key={i} className={`ap-btn-pagination ${current === i ? 'active' : ''}`} onClick={() => setter(i)}>
                     {i}
                 </button>
             );
         }
-        return <div className="pagination-group">{pages}</div>;
+        return <div className="ap-pagination-group">{pages}</div>;
     };
 
-    
-       //[검색 실행 statusMessage 제어]
     const handleSearch = useCallback(async () => {
-        if (query.trim().length === 0) {
-            setResultList([]);
-            return;
-        }
-        setResultList([]);
-
+        if (query.trim().length === 0) { setResultList([]); return; }
         try {
             const response = await axios.get("/api/tmdb/search", { params: { query } });
-            //검색결과 리스트 state에 저장
             setResultList(response.data);
-        }
-        catch (error) {
-            console.error("오류발생 : ", error);
-            setStatusMessage("검색 중 서버 오류 발생");
-        }
-
+        } catch (error) { setStatusMessage("검색 중 서버 오류 발생"); }
     }, [query]);
 
-        // [컨텐츠 선택 및 DB저장]
     const handleSelectAndSave = useCallback(async (contents) => {
         setIsLoading(true);
-        setIsSelect(true);//리스트 숨김을 위해 state 변경
-
         try {
-            //데이터 restController로 전송
-            const response = await axios.post("/api/tmdb/save", {
-                contentsId: contents.contentsId,
-                type: contents.type
-            });
-
-            //응답 데이터 상세정보 업데이트
+            const response = await axios.post("/api/tmdb/save", { contentsId: contents.contentsId, type: contents.type });
             setContentsDetail(response.data);
-            setIsSelect(true);
             setIconForm(prev => ({ ...prev, iconContents: contents.contentsId }));
-            console.log(iconForm);
-        }
-        catch (error) {
-            console.error("저장 API 오류 : ", error);
-            setIsSelect(false); //저장 실패 시 리스트를 다시 보여주기 위한 처리 
-        }
-        finally {
-            setIsLoading(false);
-            closeModal();
-        }
-    }, [iconForm, isSelect, isLoading]);
-
-    //[포스터 이미지 url 생성 함수]
-    const getPosterUrl = useCallback((path) => {
-        return path ? `${TMDB_IMAGE_BASE_URL}${path}` : 'https://placehold.co/500x750/cccccc/333333?text=No+Image';
-    }, []);
+        } catch (error) { console.error(error); }
+        finally { setIsLoading(false); closeModal(); }
+    }, [closeModal]);
 
     return (
-        <div className="admin-point-container">
-            <div className="admin-max-width">
+        <div className="ap-container">
+            <div className="ap-max-width">
                 
-                {/* 상단 탭 제어 */}
-                <div className="admin-header-flex">
-                    <h2 className="admin-title">🛡️ 시스템 관리자 모드</h2>
-                    <div className="admin-tab-group">
-                        <button className={`tab-item ${activeTab === 'POINT' ? 'active' : ''}`} onClick={() => setActiveTab('POINT')}>💰 포인트/회원</button>
-                        <button className={`tab-item ${activeTab === 'ICON' ? 'active' : ''}`} onClick={() => setActiveTab('ICON')}>🎨 아이콘 DB</button>
-                        <button className="tab-item store-link" onClick={() => navigate('/point/main')}>🏠 상점가기</button>
+                <div className="ap-header-flex">
+                    <h2 className="ap-title">🛡️ 시스템 관리자 모드</h2>
+                    <div className="ap-tab-group">
+                        <button className={`ap-tab-item ${activeTab === 'POINT' ? 'active' : ''}`} onClick={() => setActiveTab('POINT')}>💰 포인트/회원</button>
+                        <button className={`ap-tab-item ${activeTab === 'ICON' ? 'active' : ''}`} onClick={() => setActiveTab('ICON')}>🎨 아이콘 DB</button>
+                        <button className="ap-tab-item ap-store-link" onClick={() => navigate('/point/main')}>🏠 상점가기</button>
                     </div>
                 </div>
 
                 {/* [TAB 1] 포인트 관리 섹션 */}
                 {activeTab === 'POINT' && (
-                    <div className="admin-content-card">
-                        <div className="search-bar">
-                            <input type="text" className="glass-input" placeholder="유저 ID 또는 닉네임 검색..." value={keyword} onChange={e => setKeyword(e.target.value)} onKeyPress={e => e.key === 'Enter' && loadMembers()} />
-                            <button className="search-btn" onClick={loadMembers}>조회</button>
+                    <div className="ap-content-card">
+                        <div className="ap-search-bar">
+                            <input type="text" className="ap-glass-input" placeholder="유저 ID 또는 닉네임 검색..." value={keyword} onChange={e => setKeyword(e.target.value)} onKeyPress={e => e.key === 'Enter' && loadMembers()} />
+                            <button className="ap-search-btn" onClick={loadMembers}>조회</button>
                         </div>
 
-                        <table className="admin-glass-table">
+                        <table className="ap-table">
                             <thead>
                                 <tr><th>회원정보</th><th>등급</th><th>보유 포인트</th><th>포인트 조절</th><th>작업</th></tr>
                             </thead>
@@ -266,34 +209,34 @@ export default function AdminPoint() {
                                     const isEditing = editModeId === m.memberId;
                                     return (
                                         <tr key={m.memberId}>
-                                            <td className="text-left">
-                                                <div className="id-txt">{m.memberId}</div>
+                                            <td className="ap-text-left">
+                                                <div className="ap-id-txt">{m.memberId}</div>
                                                 {isEditing ? 
-                                                    <input className="edit-input" value={editData.memberNickname} onChange={e => setEditData({...editData, memberNickname: e.target.value})} /> 
-                                                    : <div className="nick-txt">{m.memberNickname}</div>}
+                                                    <input className="ap-edit-input" value={editData.memberNickname} onChange={e => setEditData({...editData, memberNickname: e.target.value})} /> 
+                                                    : <div className="ap-nick-txt">{m.memberNickname}</div>}
                                             </td>
                                             <td>
                                                 {isEditing ? 
-                                                    <select className="edit-select" value={editData.memberLevel} onChange={e => setEditData({...editData, memberLevel: e.target.value})}>
+                                                    <select className="ap-edit-select" value={editData.memberLevel} onChange={e => setEditData({...editData, memberLevel: e.target.value})}>
                                                         <option>일반회원</option><option>우수회원</option><option>VIP</option><option>관리자</option>
                                                     </select> 
-                                                    : <span className={`badge-lv ${m.memberLevel === '관리자' ? 'admin' : 'user'}`}>{m.memberLevel}</span>}
+                                                    : <span className={`ap-badge-lv ${m.memberLevel === '관리자' ? 'admin' : 'user'}`}>{m.memberLevel}</span>}
                                             </td>
-                                            <td className="point-amount">{m.memberPoint.toLocaleString()} P</td>
+                                            <td className="ap-point-amount">{m.memberPoint.toLocaleString()} P</td>
                                             <td>
-                                                <div className="point-control">
-                                                    <input type="number" className="point-input" placeholder="0" value={inputPoints[m.memberId] || ""} onChange={e => setInputPoints({...inputPoints, [m.memberId]: e.target.value})} />
-                                                    <button className="btn-point plus" onClick={() => handlePointUpdate(m.memberId, 'plus')}>+</button>
-                                                    <button className="btn-point minus" onClick={() => handlePointUpdate(m.memberId, 'minus')}>-</button>
+                                                <div className="ap-point-control">
+                                                    <input type="number" className="ap-point-input" placeholder="0" value={inputPoints[m.memberId] || ""} onChange={e => setInputPoints({...inputPoints, [m.memberId]: e.target.value})} />
+                                                    <button className="ap-btn-point plus" onClick={() => handlePointUpdate(m.memberId, 'plus')}>+</button>
+                                                    <button className="ap-btn-point minus" onClick={() => handlePointUpdate(m.memberId, 'minus')}>-</button>
                                                 </div>
                                             </td>
                                             <td>
                                                 {isEditing ? 
-                                                    <div className="btn-group-sm">
-                                                        <button className="btn-save" onClick={() => saveEdit(m.memberId)}>저장</button>
-                                                        <button className="btn-cancel" onClick={() => setEditModeId(null)}>취소</button>
+                                                    <div className="ap-btn-group-sm">
+                                                        <button className="ap-btn-save" onClick={() => saveEdit(m.memberId)}>저장</button>
+                                                        <button className="ap-btn-cancel" onClick={() => setEditModeId(null)}>취소</button>
                                                     </div> 
-                                                    : <button className="btn-edit" onClick={() => { setEditModeId(m.memberId); setEditData({ memberNickname: m.memberNickname, memberLevel: m.memberLevel }); }}>수정</button>}
+                                                    : <button className="ap-btn-edit" onClick={() => { setEditModeId(m.memberId); setEditData({ memberNickname: m.memberNickname, memberLevel: m.memberLevel }); }}>수정</button>}
                                             </td>
                                         </tr>
                                     );
@@ -306,62 +249,48 @@ export default function AdminPoint() {
 
                 {/* [TAB 2] 아이콘 관리 섹션 */}
                 {activeTab === 'ICON' && (
-                    <div className="admin-content-card">
-                        <div className="icon-form-box">
-                            <h5 className="form-title">{isIconEdit ? "✏️ 아이콘 수정" : "➕ 새 아이콘 등록"}</h5>
-                            {/*  컨텐츠 선택  */}
-                            <div className="row mt-1">
-                                <div className="col">
-                                    <div className="input-group text-nowarp" onClick={openModal} style={{ cursor: "pointer" }}>
-                                        <input type="text"
-                                            className={"glass-input form-control"}
-                                            value={contentsDetail.contentsTitle || ""} // 선택된 영화 제목 표시
-                                            placeholder="관련 컨텐츠"
-                                            readOnly
-                                            style={{ cursor: "pointer" }}
-                                        />
-                                        <input type="hidden" readOnly name="iconContents" value={contentsDetail.contentsId || ""} />
-                                        {/* 선택된 컨텐츠가 있으면 뱃지 표시 */}
-                                        {contentsDetail.contentsId && (
-                                            <span className="input-group-text bg-success text-white">선택됨</span>
-                                        )}
-                                    </div>
+                    <div className="ap-content-card">
+                        <div className="ap-icon-form-box">
+                            <h5 className="ap-form-title">{isIconEdit ? "✏️ 아이콘 수정" : "➕ 새 아이콘 등록"}</h5>
+                            <div className="ap-flex-row ap-mt-1">
+                                <div className="ap-input-group-custom" onClick={openModal}>
+                                    <input type="text" className="ap-glass-input ap-w-100" value={contentsDetail.contentsTitle || ""} placeholder="관련 컨텐츠 선택" readOnly />
+                                    {contentsDetail.contentsId && <span className="ap-badge-selected">선택됨</span>}
                                 </div>
                             </div>
-                            <div className="d-flex gap-2 mb-3 mt-2">
-                                <input type="text" className="glass-input" placeholder="아이콘 이름" value={iconForm.iconName} onChange={e => setIconForm({...iconForm, iconName: e.target.value})} />
-                                <select className="glass-input" value={iconForm.iconRarity} onChange={e => setIconForm({...iconForm, iconRarity: e.target.value})}>
+                            <div className="ap-flex-row ap-mt-2 ap-gap-2">
+                                <input type="text" className="ap-glass-input" placeholder="아이콘 이름" value={iconForm.iconName} onChange={e => setIconForm({...iconForm, iconName: e.target.value})} />
+                                <select className="ap-glass-input" value={iconForm.iconRarity} onChange={e => setIconForm({...iconForm, iconRarity: e.target.value})}>
                                     <option>COMMON</option><option>RARE</option><option>EPIC</option><option>UNIQUE</option><option>LEGENDARY</option><option>EVENT</option>
                                 </select>
-                                <input type="text" className="glass-input flex-grow-1" placeholder="이미지 URL (https://...)" value={iconForm.iconSrc} onChange={e => setIconForm({...iconForm, iconSrc: e.target.value})} />
-                                <button className="search-btn active" onClick={handleIconSubmit}>{isIconEdit ? "수정완료" : "등록"}</button>
-                                {isIconEdit && <button className="search-btn" onClick={() => { setIsIconEdit(false); setIconForm({ iconId: 0, iconName: "", iconRarity: "COMMON", iconSrc: "" }); }}>취소</button>}
+                                <input type="text" className="ap-glass-input ap-flex-grow" placeholder="이미지 URL (https://...)" value={iconForm.iconSrc} onChange={e => setIconForm({...iconForm, iconSrc: e.target.value})} />
+                                <button className="ap-btn-main active" onClick={handleIconSubmit}>{isIconEdit ? "수정완료" : "등록"}</button>
+                                {isIconEdit && <button className="ap-btn-main" onClick={() => { setIsIconEdit(false); setIconForm({ iconId: 0, iconName: "", iconRarity: "COMMON", iconSrc: "" }); }}>취소</button>}
                             </div>
-
                         </div>
 
-                        <div className="filter-bar">
+                        <div className="ap-filter-bar">
                             {['ALL', 'COMMON', 'RARE', 'EPIC', 'UNIQUE', 'LEGENDARY'].map(f => (
-                                <button key={f} className={`filter-pill ${iconFilter === f ? 'active' : ''}`} onClick={() => { setIconFilter(f); setIconPage(1); }}>{f}</button>
+                                <button key={f} className={`ap-filter-pill ${iconFilter === f ? 'active' : ''}`} onClick={() => { setIconFilter(f); setIconPage(1); }}>{f}</button>
                             ))}
                         </div>
 
-                        <table className="admin-glass-table">
+                        <table className="ap-table">
                             <thead>
                                 <tr><th>ID</th><th>미리보기</th><th>아이콘 명칭</th><th>등급</th><th>콘텐츠</th><th>관리</th></tr>
                             </thead>
                             <tbody>
                                 {iconList.map(icon => (
                                     <tr key={icon.iconId}>
-                                        <td className="text-secondary">{icon.iconId}</td>
-                                        <td><img src={icon.iconSrc} alt="preview" className="icon-preview-img" /></td>
-                                        <td className="fw-bold">{icon.iconName}</td>
-                                        <td><span className={`rarity-badge ${icon.iconRarity.toLowerCase()}`}>{icon.iconRarity}</span></td>
+                                        <td className="ap-text-secondary">{icon.iconId}</td>
+                                        <td><img src={icon.iconSrc} alt="preview" className="ap-icon-preview-img" /></td>
+                                        <td className="ap-fw-bold">{icon.iconName}</td>
+                                        <td><span className={`ap-rarity-badge ${icon.iconRarity.toLowerCase()}`}>{icon.iconRarity}</span></td>
                                         <td>{icon.iconContents}</td>
                                         <td>
-                                            <div className="btn-group-sm">
-                                                <button className="btn-edit" onClick={() => { setIconForm(icon); setIsIconEdit(true); window.scrollTo(0, 0); }}>수정</button>
-                                                <button className="btn-cancel" onClick={() => handleIconDelete(icon.iconId, icon.iconName)}>삭제</button>
+                                            <div className="ap-btn-group-sm">
+                                                <button className="ap-btn-edit" onClick={() => { setIconForm(icon); setIsIconEdit(true); window.scrollTo(0, 0); }}>수정</button>
+                                                <button className="ap-btn-cancel" onClick={() => handleIconDelete(icon.iconId, icon.iconName)}>삭제</button>
                                             </div>
                                         </td>
                                     </tr>
@@ -372,59 +301,33 @@ export default function AdminPoint() {
                     </div>
                 )}
             </div>
-                        {/* 모달(Modal) */}
-            <div className="modal fade" tabIndex="-1" data-bs-backdrop="static" ref={modal} data-bs-keyboard="false">
+
+            {/* 부트스트랩 모달 (클래스명 유지하되 내부 요소 커스텀) */}
+            <div className="modal fade" tabIndex="-1" ref={modal} data-bs-backdrop="static">
                 <div className="modal-dialog modal-lg modal-dialog-scrollable">
-                    <div className="modal-content">
-                        <div className="modal-header">
-                            <h5 className="modal-title">컨텐츠 검색</h5>
-                            <button type="button" className="btn-close" onClick={closeModal}></button>
+                    <div className="modal-content ap-modal-content">
+                        <div className="modal-header ap-modal-header">
+                            <h5 className="modal-title">콘텐츠 검색</h5>
+                            <button type="button" className="btn-close btn-close-white" onClick={closeModal}></button>
                         </div>
-                        <div className="modal-body">
-                            {/* 검색창 */}
-                            <div className="input-group mb-3">
-                                <input type="text" className="form-control" value={query}
-                                    placeholder="영화/드라마 제목 검색"
-                                    onChange={e => setQuery(e.target.value)}
-                                    onKeyDown={(e) => { if (e.key === "Enter") handleSearch(); }}
-                                />
-                                <button className="btn btn-success" onClick={handleSearch} disabled={isLoading}>
-                                    검색
-                                </button>
+                        <div className="modal-body ap-modal-body">
+                            <div className="ap-search-bar">
+                                <input type="text" className="ap-glass-input ap-flex-grow" value={query} placeholder="영화/드라마 제목 검색" onChange={e => setQuery(e.target.value)} onKeyDown={(e) => e.key === "Enter" && handleSearch()} />
+                                <button className="ap-search-btn active" onClick={handleSearch} disabled={isLoading}>검색</button>
                             </div>
-
-                            {/* 상태 메시지 */}
-                            <div className="mb-3 text-secondary small">
-                                {statusMessage}
-                            </div>
-
-                            {/* 검색 결과 목록 */}
-                            <div className="list-group">
+                            <div className="ap-status-msg">{statusMessage}</div>
+                            <div className="ap-list-group">
                                 {resultList.map(result => (
-                                    <button key={result.contentsId}
-                                        className="list-group-item list-group-item-action d-flex align-items-center p-2"
-                                        onClick={() => handleSelectAndSave(result)}>
-
-                                        <img src={getPosterUrl(result.posterPath)}
-                                            alt={result.title}
-                                            className="rounded me-3"
-                                            style={{ width: "50px", height: "75px", objectFit: "cover" }} />
-
-                                        <div className="flex-fill">
-                                            <div className="fw-bold">{result.title}</div>
-                                            <div className="text-muted small">
-                                                {result.type} | {result.releaseDate || "날짜 미상"}
-                                            </div>
+                                    <button key={result.contentsId} className="ap-list-item" onClick={() => handleSelectAndSave(result)}>
+                                        <img src={result.posterPath ? `${TMDB_IMAGE_BASE_URL}${result.posterPath}` : ''} alt="" className="ap-list-img" />
+                                        <div className="ap-list-info">
+                                            <div className="ap-fw-bold">{result.title}</div>
+                                            <div className="ap-text-secondary ap-small">{result.type} | {result.releaseDate || "미상"}</div>
                                         </div>
-                                        <div className="ms-2">
-                                            <span className="badge bg-primary rounded-pill">선택</span>
-                                        </div>
+                                        <span className="ap-badge-select">선택</span>
                                     </button>
                                 ))}
                             </div>
-                        </div>
-                        <div className="modal-footer">
-                            <button type="button" className="btn btn-secondary" onClick={closeModal}>닫기</button>
                         </div>
                     </div>
                 </div>

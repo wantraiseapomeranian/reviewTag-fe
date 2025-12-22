@@ -107,16 +107,15 @@ export default function AdminStore() {
     };
 
     return (
-        <div className="admin-store-container">
-            <header className="admin-header">
-                <h1>STORE ADMIN <span className="admin-subtitle">상품 관리 시스템</span></h1>
-                <button className="btn-primary" onClick={openAddModal}>+ 새 상품 등록</button>
+        <div className="as-container">
+            <header className="as-header">
+                <h1>STORE ADMIN <span className="as-subtitle">상품 관리 시스템</span></h1>
+                <button className="as-btn-add-main" onClick={openAddModal}>+ 새 상품 등록</button>
             </header>
 
-            <div className="admin-table-wrapper">
-                <table className="admin-item-table">
+            <div className="as-table-wrapper">
+                <table className="as-item-table">
                     <thead>
-                        {/* ⚠️ tr 내부의 주석을 제거하고 태그를 바짝 붙였습니다 */}
                         <tr>
                             <th>번호</th>
                             <th>미리보기</th>
@@ -131,7 +130,7 @@ export default function AdminStore() {
                             <tr key={item.pointItemNo}>
                                 <td>{item.pointItemNo}</td>
                                 <td>
-                                    <div className={`admin-list-img-box ${item.pointItemType}`}>
+                                    <div className={`as-list-img-box as-type-${item.pointItemType}`}>
                                         <img 
                                             src={item.pointItemSrc || fallbackImage} 
                                             alt="item" 
@@ -140,21 +139,21 @@ export default function AdminStore() {
                                     </div>
                                 </td>
                                 <td>
-                                    <span className={`item-badge ${item.pointItemType}`}>{item.pointItemType}</span>
-                                    <div className="font-bold mt-1">{item.pointItemName}</div>
+                                    <span className={`as-item-badge as-badge-${item.pointItemType}`}>{item.pointItemType}</span>
+                                    <div className="as-font-bold as-mt-1">{item.pointItemName}</div>
                                 </td>
                                 <td>
-                                    <div className="text-gold">{item.pointItemPrice?.toLocaleString()} P</div>
-                                    <div className="text-muted small">재고: {item.pointItemStock}</div>
+                                    <div className="as-text-gold">{item.pointItemPrice?.toLocaleString()} P</div>
+                                    <div className="as-text-muted-small">재고: {item.pointItemStock}</div>
                                 </td>
                                 <td>
                                     {item.pointItemIsLimitedPurchase === 1 ? '1회 한정' : '제한없음'}
-                                    <div className="text-danger small">일일: {item.pointItemDailyLimit}회</div>
+                                    <div className="as-text-danger-small">일일: {item.pointItemDailyLimit}회</div>
                                 </td>
                                 <td>
-                                    <div className="action-btns">
-                                        <button className="btn-sm edit" onClick={() => openEditModal(item)}>수정</button>
-                                        <button className="btn-sm delete" onClick={() => handleDelete(item.pointItemNo)}>삭제</button>
+                                    <div className="as-action-btns">
+                                        <button className="as-btn-sm as-btn-edit" onClick={() => openEditModal(item)}>수정</button>
+                                        <button className="as-btn-sm as-btn-delete" onClick={() => handleDelete(item.pointItemNo)}>삭제</button>
                                     </div>
                                 </td>
                             </tr>
@@ -164,22 +163,23 @@ export default function AdminStore() {
             </div>
 
             {showModal && (
-                <div className="admin-modal-overlay">
-                    <div className="admin-modal-content">
+                <div className="as-modal-overlay">
+                    <div className="as-modal-content">
                         <h2>{formData.pointItemNo ? `상품 수정 (No.${formData.pointItemNo})` : '신규 상품 등록'}</h2>
                         <form onSubmit={handleSave}>
-                            <div className="modal-preview-section">
-                                <div className="modal-img-display">
+                            <div className="as-modal-preview-section">
+                                <div className="as-modal-img-display">
                                     <img 
                                         src={formData.pointItemSrc || fallbackImage} 
                                         alt="미리보기" 
                                         onError={(e) => { e.target.src = fallbackImage; }}
                                     />
                                 </div>
-                                <div className="modal-img-info">
+                                <div className="as-modal-img-info">
                                     <label>이미지 경로 (URL)</label>
                                     <input 
                                         name="pointItemSrc" 
+                                        className="as-input-field"
                                         value={formData.pointItemSrc} 
                                         onChange={handleInputChange} 
                                         placeholder="https://..."
@@ -187,26 +187,26 @@ export default function AdminStore() {
                                 </div>
                             </div>
 
-                            <div className="form-group">
+                            <div className="as-form-group">
                                 <label>상품명</label>
-                                <input name="pointItemName" value={formData.pointItemName} onChange={handleInputChange} required />
+                                <input className="as-input-field" name="pointItemName" value={formData.pointItemName} onChange={handleInputChange} required />
                             </div>
                             
-                            <div className="row">
-                                <div className="form-group col-6">
+                            <div className="as-flex-row">
+                                <div className="as-form-group as-col-6">
                                     <label>가격 (P)</label>
-                                    <input type="number" name="pointItemPrice" value={formData.pointItemPrice} onChange={handleInputChange} />
+                                    <input className="as-input-field" type="number" name="pointItemPrice" value={formData.pointItemPrice} onChange={handleInputChange} />
                                 </div>
-                                <div className="form-group col-6">
+                                <div className="as-form-group as-col-6">
                                     <label>재고</label>
-                                    <input type="number" name="pointItemStock" value={formData.pointItemStock} onChange={handleInputChange} />
+                                    <input className="as-input-field" type="number" name="pointItemStock" value={formData.pointItemStock} onChange={handleInputChange} />
                                 </div>
                             </div>
 
-                            <div className="row">
-                                <div className="form-group col-6">
+                            <div className="as-flex-row">
+                                <div className="as-form-group as-col-6">
                                     <label>아이템 유형</label>
-                                    <select name="pointItemType" value={formData.pointItemType} onChange={handleInputChange}>
+                                    <select className="as-select-field" name="pointItemType" value={formData.pointItemType} onChange={handleInputChange}>
                                         <option value="HEART_RECHARGE">하트 충전권</option>
                                         <option value="DECO_FRAME">프로필 테두리</option>
                                         <option value="DECO_ICON">프로필 아이콘</option>
@@ -214,9 +214,9 @@ export default function AdminStore() {
                                         <option value="DECO_BG">프로필 배경</option>
                                     </select>
                                 </div>
-                                <div className="form-group col-6">
+                                <div className="as-form-group as-col-6">
                                     <label>구매 등급</label>
-                                    <select name="pointItemReqLevel" value={formData.pointItemReqLevel} onChange={handleInputChange}>
+                                    <select className="as-select-field" name="pointItemReqLevel" value={formData.pointItemReqLevel} onChange={handleInputChange}>
                                         <option value="일반회원">일반회원</option>
                                         <option value="우수회원">우수회원</option>
                                         <option value="관리자">관리자</option>
@@ -224,23 +224,23 @@ export default function AdminStore() {
                                 </div>
                             </div>
 
-                            <div className="row">
-                                <div className="form-group col-6">
+                            <div className="as-flex-row">
+                                <div className="as-form-group as-col-6">
                                     <label>1인 1회 제한</label>
-                                    <select name="pointItemIsLimitedPurchase" value={formData.pointItemIsLimitedPurchase} onChange={handleInputChange}>
+                                    <select className="as-select-field" name="pointItemIsLimitedPurchase" value={formData.pointItemIsLimitedPurchase} onChange={handleInputChange}>
                                         <option value={0}>N (중복가능)</option>
                                         <option value={1}>Y (1회한정)</option>
                                     </select>
                                 </div>
-                                <div className="form-group col-6">
+                                <div className="as-form-group as-col-6">
                                     <label>일일 구매 제한</label>
-                                    <input type="number" name="pointItemDailyLimit" value={formData.pointItemDailyLimit} onChange={handleInputChange} />
+                                    <input className="as-input-field" type="number" name="pointItemDailyLimit" value={formData.pointItemDailyLimit} onChange={handleInputChange} />
                                 </div>
                             </div>
 
-                            <div className="modal-actions">
-                                <button type="button" className="btn-cancel" onClick={() => setShowModal(false)}>취소</button>
-                                <button type="submit" className="btn-save">저장하기</button>
+                            <div className="as-modal-actions">
+                                <button type="button" className="as-btn-cancel" onClick={() => setShowModal(false)}>취소</button>
+                                <button type="submit" className="as-btn-save">저장하기</button>
                             </div>
                         </form>
                     </div>
