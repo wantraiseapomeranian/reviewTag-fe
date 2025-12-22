@@ -35,54 +35,62 @@ export default function MemberProfileInfo() {
         loadData();
     }, [loadData]);
 
-    const { profile, point } = data || {};
-    
-    //신뢰도 레벨
-    const rel = profile?.memberReliability ?? 0;
-    
-    const relRowLevel = useMemo(() => {
-        return rel >= 6 && rel <= 19;
-    }, [rel])
-    
-    const relMiddleLevel = useMemo(() => {
-        return rel >= 20 && rel <= 49;
-    }, [rel])
-    
-    const relHighLevel = useMemo(() => {
-        return rel >= 50;
-    }, [rel])
-    
-    
+    const { profile = {}, point = {} } = data || {};
+
+    // //신뢰도 레벨
+    // const rel = profile?.memberReliability ?? 0;
+
+    // const relRowLevel = useMemo(() => {
+    //     return rel >= 6 && rel <= 19;
+    // }, [rel])
+
+    // const relMiddleLevel = useMemo(() => {
+    //     return rel >= 20 && rel <= 49;
+    // }, [rel])
+
+    // const relHighLevel = useMemo(() => {
+    //     return rel >= 50;
+    // }, [rel])
+
+
     const formattedDate = useMemo(() => {
         if (!profile || !profile.memberJoin) return "";
         const date = profile.memberJoin;
         return date.substring(0, 16);
     }, [profile]);
-    
+
+    // 신뢰도 배지 계산
+    const reliabilityInfo = useMemo(() => {
+        const rel = data?.profile?.memberReliability || 0;
+        if (rel >= 50) return { text: "◆ 검증된 리뷰어", class: "rel-high" };
+        if (rel >= 20) return { text: "● 신뢰 리뷰어", class: "rel-mid" };
+        return { text: "● 일반 멤버", class: "rel-none" };
+    }, [data]);
+
+    const isUrl = point.bgSrc?.startsWith('http');
+    const heroStyle = isUrl ? { backgroundImage: `url(${point.bgSrc})` } : {};
+
     if (!data) {
         return <div className="text-white text-center mt-5">로딩중...</div>;
     }
-    
+
     return (<>
         <div className="mypage-info-wrapper">
             {/* 1. 상단 히어로 (배경 + 아이콘 + 신뢰도 게이지) */}
-            <div className="profile-hero-v2">
-                <div className="hero-overlay-v2">
-                    <img src={point?.iconSrc} alt="Icon" className="avatar-img-v2" />
-                    <h1 className="nickname-v2">
-                        {relRowLevel && (
-                            <span className="Rel2">🟢 활동 리뷰어</span>
-                        )}
-                        {relMiddleLevel && (
-                            <span className="Rel2">🔵 신뢰 리뷰어</span>
-                        )}
-                        {relHighLevel && (
-                            <span className="Rel2">🔷 검증된 리뷰어 </span>
-                        )}
-                        <div className="mt-1">
-                            <span>{profile.memberNickname}</span>
+            <div className={`profile-hero-v2 ${!isUrl ? (point.bgSrc || "") : ""} ${point.frameSrc || ""}`} style={heroStyle}>
+                <div className="hero-content-v2">
+                    <div className="avatar-box-v2">
+                        <img src={point?.iconSrc} alt="Icon" className="avatar-img-v2" />
+                    </div>
+                    <div className="user-info-v2">
+                        <h1 className="nickname-v2">
+                            {profile.memberNickname}
+                        </h1>
+                        <div className={`badge-v2 ${reliabilityInfo.class}`}>
+                            {reliabilityInfo.text}
                         </div>
-                    </h1>
+                    </div>
+
                 </div>
             </div>
 
