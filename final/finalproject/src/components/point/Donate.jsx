@@ -3,8 +3,8 @@ import axios from "axios";
 import { toast } from "react-toastify";
 import { useAtomValue } from "jotai";
 import { loginIdState } from "../../utils/jotai";
-import Swal from "sweetalert2"; // SweetAlert2 임포트
-import "./Donate.css"; // 전용 스타일 시트 권장
+import Swal from "sweetalert2"; 
+import "./Donate.css";
 
 export default function Donate({ closeModal, onSuccess }) {
     const loginId = useAtomValue(loginIdState);
@@ -13,7 +13,6 @@ export default function Donate({ closeModal, onSuccess }) {
     const [amount, setAmount] = useState("");
     const [loading, setLoading] = useState(false);
 
-    // [함수] 포인트 선물 실행 핸들러
     const handleDonate = async () => {
         // 1. 유효성 검사
         if (!targetId.trim()) {
@@ -26,7 +25,7 @@ export default function Donate({ closeModal, onSuccess }) {
             return toast.warning("올바른 포인트 금액을 입력해주세요.");
         }
 
-        // 2. SweetAlert2 확인창 띄우기
+        // 2. 확인창
         const result = await Swal.fire({
             title: '포인트 선물',
             html: `<div style="text-align: center;">
@@ -49,15 +48,14 @@ export default function Donate({ closeModal, onSuccess }) {
         setLoading(true);
 
         try {
-            // 3. 서버 요청 (백엔드: PointService.donatePoints 호출됨)
+            // 3. 서버 요청 (백엔드: @PostMapping("/donate") 호출)
             const resp = await axios.post("/point/donate", {
                 targetId: targetId,
                 amount: parseInt(amount)
             });
 
-            // 4. 응답 처리
+            // 4. 성공 응답 처리 (ResponseEntity.ok("success"))
             if (resp.data === "success") {
-                // 성공 시 화려한 Swal 연출
                 await Swal.fire({
                     icon: 'success',
                     title: '선물 완료!',
@@ -69,25 +67,17 @@ export default function Donate({ closeModal, onSuccess }) {
                     backdrop: `rgba(0,0,0,0.6) url("https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExbmZ0M255NnYycHF5NmR3eXNxcXRxNmR3eXNxcXRxNmR3eXNxcXRxJmVwPXYxX2ludGVybmFsX2dpZl9ieV9pZCZjdD1n/26tOZ42Mg6pbMubM4/giphy.gif") center center no-repeat`
                 });
                 
-                if (onSuccess) onSuccess(); // 부모 컴포넌트 포인트 갱신
-                closeModal(); // 모달 닫기
-            } else {
-                // 실패 처리 (잔액 부족 등)
-                const msg = resp.data.startsWith("fail:") ? resp.data.substring(5) : resp.data;
-                Swal.fire({
-                    icon: 'error',
-                    title: '선물 실패',
-                    text: msg,
-                    background: '#1a1a1a',
-                    color: '#fff'
-                });
+                if (onSuccess) onSuccess(); 
+                closeModal();
             }
         } catch (e) {
-            console.error(e);
+            // 5. 서버에서 보낸 에러 메시지 처리 (예: "보유 포인트가 부족합니다.")
+            const errorMsg = e.response?.data || "시스템 오류로 선물을 보내지 못했습니다.";
+            
             Swal.fire({
                 icon: 'error',
-                title: '오류 발생',
-                text: '시스템 오류로 선물을 보내지 못했습니다.',
+                title: '선물 실패',
+                text: errorMsg,
                 background: '#1a1a1a',
                 color: '#fff'
             });
@@ -98,10 +88,8 @@ export default function Donate({ closeModal, onSuccess }) {
 
     return (
         <div className="donate-modal-overlay" onClick={closeModal}>
-            {/* stopPropagation: 모달 내부 클릭 시 닫히지 않도록 방지 */}
             <div className="donate-modal-content animate__animated animate__zoomIn" onClick={(e) => e.stopPropagation()}>
                 
-                {/* 헤더 섹션 */}
                 <div className="donate-header">
                     <div className="donate-icon-circle">🎁</div>
                     <h4 className="donate-title">POINT GIFT</h4>
@@ -109,7 +97,6 @@ export default function Donate({ closeModal, onSuccess }) {
                     <button className="donate-close-btn" onClick={closeModal}>&times;</button>
                 </div>
 
-                {/* 입력 폼 섹션 */}
                 <div className="donate-body">
                     <div className="input-group-glass">
                         <label className="input-label">받는 사람 아이디</label>
@@ -135,24 +122,17 @@ export default function Donate({ closeModal, onSuccess }) {
                             <span className="unit-text">P</span>
                         </div>
                     </div>
-
-                    <div className="donate-info-text">
-                        * 선물한 포인트는 취소 및 환불이 불가능합니다.
-                    </div>
                 </div>
 
-                {/* 푸터 액션 섹션 */}
                 <div className="donate-footer">
                     <button 
-                        className="btn-donate-submit" 
+                        className="donate-submit-btn" 
                         onClick={handleDonate}
                         disabled={loading}
                     >
-                        {loading ? (
-                            <span className="spinner-border spinner-border-sm me-2"></span>
-                        ) : "선물 보내기 🚀"}
+                        {loading ? "전송 중..." : "포인트 선물하기"}
                     </button>
-                    <button className="btn-donate-cancel" onClick={closeModal}>취소</button>
+                    <button className="donate-cancel-btn" onClick={closeModal}>닫기</button>
                 </div>
             </div>
         </div>

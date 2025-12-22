@@ -1,6 +1,6 @@
 import { useAtom } from "jotai";
 import { useCallback, useEffect, useState } from "react";
-import { currentQuizIndexAtom, quizListAtom, userAnswersAtom } from "../../utils/jotai";
+import { currentQuizIndexAtom, heartState, quizListAtom, userAnswersAtom } from "../../utils/jotai";
 import { quizApi } from "./api/quizApi";
 import Swal from "sweetalert2";
 import "./QuizGameModal.css";
@@ -62,6 +62,9 @@ export default function QuizGameModal({ show, onClose, contentsId }) {
     const [quizList, setQuizList] = useAtom(quizListAtom);
     const [userAnswers, setUserAnswers] = useAtom(userAnswersAtom);
 
+    //하트 상태 관리
+    const [heart, setHeart] = useAtom(heartState);
+
     // 게임 상태 관리 (PLAYING / RESULT)
     const [gameState, setGameState] = useState('PLAYING');
     // 점수 결과 저장
@@ -101,6 +104,19 @@ export default function QuizGameModal({ show, onClose, contentsId }) {
     //callback
     //퀴즈 데이터 가져오기
     const loadQuizGame = useCallback(async () => {
+
+        //하트가 없으면 차단
+        if (heart <= 0) {
+            Swal.fire({
+                icon: 'warning',
+                title: '하트가 부족해요! 💔',
+                text: '내일 다시 도전해주세요.',
+                confirmButtonColor: '#fe8563'
+            });
+            onClose();
+            return;
+        }
+
         try {
             // 서버에서 랜덤 5문제 가져오기
             setGameState('PLAYING');
@@ -118,7 +134,7 @@ export default function QuizGameModal({ show, onClose, contentsId }) {
             });
             onClose();
         }
-    }, [contentsId, setQuizList, setCurrentIndex, setUserAnswers, onClose]);
+    }, [contentsId, setQuizList, setCurrentIndex, setUserAnswers, onClose, heart]);
 
 
     //보기 버튼 클릭
@@ -195,6 +211,9 @@ export default function QuizGameModal({ show, onClose, contentsId }) {
             });
 
             await quizApi.submitQuizLog(logList);
+            
+            //화면의 하트 개수도 1 줄이기
+            setHeart((prev) => prev - 1);
 
             //결과 상태 업데이트 및 화면 전환
             setScoreResult({

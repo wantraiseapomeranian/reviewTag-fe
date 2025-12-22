@@ -23,11 +23,11 @@ export default function QuizLanding() {
     const loginId = useAtomValue(loginIdState);
     const setQuizList = useSetAtom(quizListAtom);
 
-    //로딩 상태 관리
-    const [isLoading, setIsLoading] = useState(false);
-
     //하트 상태 관리
     const [heart, setHeart] = useAtom(heartState);
+
+    //로딩 상태 관리
+    const [isLoading, setIsLoading] = useState(false);
 
     //모달 상태 관리
     const [showGameModal, setShowGameModal] = useState(false);
@@ -58,6 +58,10 @@ export default function QuizLanding() {
             //나의 통계 가져오기
             if (loginId) {
                 const statsData = await quizApi.getMyStats(contentsId, loginId);
+
+                //하트 개수 갱신
+                const currentHeart = await quizApi.getMyHeart();
+                setHeart(currentHeart);
 
                 if (statsData) {
                     //console.log("📊 내 통계 데이터:", statsData);
@@ -171,9 +175,6 @@ export default function QuizLanding() {
 
             //서버에서 받아온 문제를 저장
             setQuizList(quizList);
-
-            //화면의 하트 개수도 1 줄이기
-            setHeart((prev) => prev - 1);
 
             //퀴즈가 있다면
             setShowGameModal(true);

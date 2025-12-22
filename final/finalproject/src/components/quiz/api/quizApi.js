@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const token = sessionStorage.getItem('accessTokenState'); 
+const token = sessionStorage.getItem('accessTokenState');
 
 export const quizApi = {
 
@@ -80,5 +80,18 @@ export const quizApi = {
   getMyStats: async (contentsId, memberId) => {
     const response = await axios.get(`/quiz/log/stats/${contentsId}/${memberId}`);
     return response.data;
+  },
+
+  //내 하트 개수 가져오기
+  getMyHeart: async () => {
+    try {
+      const response = await axios.get(`/heart/`);
+
+      return response.data.heartCount;
+
+    } catch (error) {
+      console.error("하트 조회 실패:", error);
+      return 0;
+    }
   },
 };

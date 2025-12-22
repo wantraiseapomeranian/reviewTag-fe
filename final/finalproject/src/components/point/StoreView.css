@@ -1,194 +1,133 @@
-/* StoreView.css - 시네마틱 굿즈 스토어 스타일 */
+/* [StoreView.css] - 굿즈 그리드 & 배지 시스템 */
 
-/* 1. 상품 리스트 그리드 */
+.store-container { padding: 20px; color: #fff; }
+
 .goods-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); /* 반응형 자동 배치 */
-    gap: 25px;
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); 
+    gap: 30px;
 }
 
-/* 2. 상품 카드 (영화 포스터 느낌) */
 .goods-card {
     background: #1f1f1f;
     border: 1px solid #333;
-    border-radius: 12px;
-    overflow: hidden;
-    transition: transform 0.3s, box-shadow 0.3s;
-    position: relative;
+    border-radius: 15px;
     display: flex;
     flex-direction: column;
     height: 100%;
-}
-
-.goods-card:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.5);
-    border-color: #555;
-}
-
-/* 품절/등급부족 시 흐리게 */
-.goods-card.disabled {
-    opacity: 0.6;
-    filter: grayscale(80%);
-}
-
-/* 3. 이미지 영역 */
-.goods-img-wrapper {
+    transition: all 0.3s ease;
     position: relative;
-    width: 100%;
-    padding-top: 100%; /* 1:1 비율 유지 */
+}
+
+.goods-card:hover { transform: translateY(-5px); border-color: #555; }
+
+/* 이미지 영역 */
+.goods-img-box {
+    position: relative;
+    padding-top: 100%; 
     background: #141414;
+    border-bottom: 1px solid #222;
+    border-radius: 15px 15px 0 0;
     overflow: hidden;
 }
 
-.goods-img {
+.goods-img-box img {
     position: absolute;
-    top: 0; left: 0;
-    width: 100%; height: 100%;
+    top: 0; left: 0; width: 100%; height: 100%;
     object-fit: cover;
-    transition: transform 0.5s;
 }
 
-.goods-card:hover .goods-img {
-    transform: scale(1.1); /* 호버 시 확대 효과 */
-}
-
-/* 뱃지들 */
+/* ------------------------------------------------------
+   이미지 위 배지 (보유중, LIMITED, SOLD OUT)
+------------------------------------------------------ */
 .badge-overlay {
     position: absolute;
-    top: 10px; left: 10px;
-    z-index: 5;
-    display: flex;
-    flex-direction: column;
-    gap: 5px;
+    top: 12px; left: 12px;
+    display: flex; flex-direction: column; gap: 6px;
+    z-index: 10;
+}
+
+/* 보유중 배지 */
+.badge-own {
+    background: #00d2d3;
+    color: #000;
+    padding: 4px 10px;
+    border-radius: 6px;
+    font-size: 0.75rem;
+    font-weight: 900;
+    box-shadow: 0 4px 10px rgba(0, 210, 211, 0.4);
+}
+
+.badge-ltd {
+    background: #fbbf24;
+    color: #000;
+    padding: 4px 10px;
+    border-radius: 6px;
+    font-size: 0.75rem;
+    font-weight: 900;
 }
 
 .badge-soldout {
     position: absolute;
-    top: 0; left: 0; width: 100%; height: 100%;
-    background: rgba(0,0,0,0.7);
-    display: flex; align-items: center; justify-content: center;
-    color: #ff4757; font-weight: 900; font-size: 1.5rem;
-    z-index: 10; letter-spacing: 2px;
-    border: 3px solid #ff4757;
-}
-
-/* 찜 버튼 (하트) */
-.btn-wish {
-    position: absolute;
-    top: 10px; right: 10px;
-    background: rgba(0,0,0,0.5);
-    border: none;
-    border-radius: 50%;
-    width: 35px; height: 35px;
-    display: flex; align-items: center; justify-content: center;
-    cursor: pointer;
-    z-index: 20;
-    transition: 0.2s;
-    font-size: 1.2rem;
-}
-.btn-wish:hover { background: rgba(0,0,0,0.8); transform: scale(1.1); }
-
-/* 4. 정보 영역 */
-.goods-info {
-    padding: 20px;
-    display: flex;
-    flex-direction: column;
-    flex-grow: 1;
-    background: linear-gradient(180deg, #1f1f1f 0%, #1a1a1a 100%);
-}
-
-.goods-title {
-    font-size: 1.1rem;
-    font-weight: 700;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(0, 0, 0, 0.75);
     color: #fff;
-    margin-bottom: 5px;
-    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.2rem; font-weight: 900; z-index: 15;
 }
 
-.goods-desc {
-    font-size: 0.85rem;
-    color: #aaa;
-    margin-bottom: 15px;
-    height: 40px; /* 2줄 정도 높이 확보 */
-    overflow: hidden;
-    display: -webkit-box;
-    -webkit-line-clamp: 2;
-    -webkit-box-orient: vertical;
-}
-
-.goods-meta {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 15px;
-    font-size: 0.85rem;
-    color: #888;
-}
-
-.goods-price {
-    font-size: 1.3rem;
-    font-weight: 900;
-    color: #00d2d3; /* 민트 포인트 */
-    text-shadow: 0 0 5px rgba(0, 210, 211, 0.3);
-}
-
-/* 5. 버튼 그룹 */
-.btn-group-custom {
-    display: flex;
-    gap: 8px;
-    margin-top: auto; /* 항상 바닥에 붙음 */
-}
-
-.btn-goods {
-    flex: 1;
-    padding: 10px 0;
-    border-radius: 6px;
-    border: none;
-    font-weight: 700;
-    font-size: 0.9rem;
-    transition: 0.3s;
-    background: #333;
-    color: #ccc;
-}
-
-.btn-goods.buy {
-    background: #e50914; /* 넷플릭스 레드 */
+/* 찜 버튼 */
+.wish-overlay {
+    position: absolute;
+    top: 12px; right: 12px;
+    width: 34px; height: 34px;
+    border-radius: 50%;
+    background: rgba(0, 0, 0, 0.5);
+    border: 1px solid rgba(255, 255, 255, 0.2);
     color: white;
-}
-.btn-goods.buy:hover {
-    background: #ff0f1f;
-    box-shadow: 0 0 15px rgba(229, 9, 20, 0.5);
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer; z-index: 20;
 }
 
-.btn-goods.gift {
-    background: transparent;
-    border: 1px solid #e50914;
-    color: #e50914;
-}
-.btn-goods.gift:hover {
-    background: rgba(229, 9, 20, 0.1);
-}
-
-.btn-goods.disabled {
-    background: #333;
-    color: #666;
-    cursor: not-allowed;
+/* 정보 영역 */
+.goods-content {
+    padding: 22px;
+    display: flex; flex-direction: column; flex-grow: 1;
+    background: linear-gradient(180deg, #1f1f1f 0%, #141414 100%);
+    border-radius: 0 0 15px 15px;
 }
 
-/* 관리자 버튼 (작게) */
-.admin-controls {
-    margin-top: 10px;
-    display: flex;
-    gap: 5px;
-    justify-content: flex-end;
+.item-name {
+    font-size: 1.15rem; font-weight: 800; color: #fff; margin-bottom: 12px;
+    height: 3.2rem; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;
+    overflow: hidden; line-height: 1.4;
 }
-.btn-mini {
-    font-size: 0.75rem;
-    padding: 3px 8px;
-    border-radius: 4px;
-    background: #444;
-    color: #ddd;
-    border: none;
+
+.item-meta-row {
+    height: 40px; display: flex; align-items: center; gap: 8px; margin-bottom: 15px;
 }
-.btn-mini:hover { background: #666; }
+
+.badge-lv { background: #333; color: #eee; padding: 2px 8px; border-radius: 4px; font-size: 0.7rem; font-weight: 700; }
+.badge-daily { background: rgba(229, 9, 20, 0.1); color: #ff4d4d; border: 1px solid rgba(229, 9, 20, 0.3); padding: 2px 8px; border-radius: 4px; font-size: 0.7rem; }
+
+.item-bottom-group { margin-top: auto; }
+.item-price { font-size: 1.6rem; font-weight: 900; color: #00d2d3; margin-bottom: 15px; }
+.item-price span { font-size: 0.9rem; color: #888; }
+
+/* 버튼 스타일 */
+.item-buttons { display: flex; gap: 8px; height: 45px; }
+.btn-buy, .btn-gift, .btn-locked { flex: 1; border-radius: 8px; font-weight: 800; cursor: pointer; border: none; transition: 0.2s; }
+
+.btn-buy { background: #e50914; color: white; }
+.btn-buy.owned { background: #1a1a1a; color: #00d2d3; border: 1px solid #00d2d3; cursor: default; } /* 보유함 버튼 상태 */
+
+.btn-gift { background: #2a2a2a; color: #fff; border: 1px solid #444; }
+.btn-locked { width: 100%; background: #111; color: #444; cursor: not-allowed; }
+
+/* 관리자 액션 */
+.admin-actions {
+    margin-top: 15px; padding-top: 12px; border-top: 1px solid rgba(255,255,255,0.05);
+    display: flex; justify-content: flex-end; gap: 8px;
+}
+.btn-edit { background: #333; color: #fbbf24; padding: 4px 10px; border-radius: 4px; font-size: 0.75rem; border: none; }
+.btn-del { background: #333; color: #f87171; padding: 4px 10px; border-radius: 4px; font-size: 0.75rem; border: none; }

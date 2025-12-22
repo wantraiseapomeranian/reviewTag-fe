@@ -3,9 +3,11 @@ import axios from "axios";
 import ProductAdd from "./ProductAdd";
 import ProductEdit from "./ProductEdit";
 import { toast } from "react-toastify";
+import { useSetAtom } from "jotai";
+import { pointRefreshAtom } from "../../utils/jotai"; 
+import Swal from "sweetalert2"; 
 import "./StoreView.css";
 
-// 3단계 등급 점수 변환
 function getScore(level) {
     if (level === "관리자") return 99;
     if (level === "우수회원") return 2;
@@ -16,239 +18,121 @@ function getScore(level) {
 export default function StoreView({ loginLevel, refreshPoint }) {
     const [items, setItems] = useState([]);       
     const [myItems, setMyItems] = useState([]);   
-    
-    // 모달 상태
+    const [wishList, setWishList] = useState([]); 
     const [showAddModal, setShowAddModal] = useState(false); 
     const [editTarget, setEditTarget] = useState(null);      
-    
-    const myScore = getScore(loginLevel);
-    const [wishList, setWishList] = useState([]); 
+    const setPointRefresh = useSetAtom(pointRefreshAtom);
 
-    // 1. 상품 목록 불러오기
-    const loadItems = useCallback(async () => {
+    const loadData = useCallback(async () => {
         try {
-            const resp = await axios.get("/point/main/store"); 
-            setItems(resp.data);
-        } catch (e) { console.error(e); }
-    }, []);
-
-    // 2. 내 보유 아이템 불러오기
-    const loadMyItems = useCallback(async () => {
-        if (!loginLevel) return; 
-        try {
-            const resp = await axios.get("/point/main/store/inventory/my");
-            setMyItems(resp.data);
-        } catch (e) { console.error(e); }
+            const [itemResp, myResp, wishResp] = await Promise.all([
+                axios.get("/point/main/store"),
+                loginLevel ? axios.get("/point/main/store/inventory/my") : Promise.resolve({ data: [] }),
+                loginLevel ? axios.get("/point/main/store/wish/check") : Promise.resolve({ data: [] })
+            ]);
+            setItems(itemResp.data);
+            setMyItems(myResp.data);
+            setWishList(wishResp.data);
+        } catch (e) { console.error("데이터 로딩 실패", e); }
     }, [loginLevel]);
 
-    // 3. 찜 목록 불러오기
-    const loadWishList = useCallback(async () => {
-        if (!loginLevel) return;
+    useEffect(() => { loadData(); }, [loadData]);
+
+    const handleBuy = async (item) => {
+        const res = await Swal.fire({ title: '구매 확인', text: `[${item.pointItemName}]을 구매하시겠습니까?`, icon: 'question', showCancelButton: true, confirmButtonColor: '#f1c40f', background: '#1a1a1a', color: '#fff' });
+        if (!res.isConfirmed) return;
         try {
-            const resp = await axios.get("/point/main/store/wish/check");
-            setWishList(resp.data);
-        } catch (e) { console.error(e); }
-    }, [loginLevel]);
+            await axios.post("/point/main/store/buy", { buyItemNo: item.pointItemNo });
+            toast.success("구매 완료! 🎒");
+            setPointRefresh(v => v + 1);
+            if (refreshPoint) refreshPoint();
+            loadData();
+        } catch (e) { Swal.fire({ icon: 'error', text: e.response?.data || "구매 실패", background: '#1a1a1a', color: '#fff' }); }
+    };
 
-    useEffect(() => {
-        loadItems();
-        loadMyItems();
-        loadWishList();
-    }, [loadItems, loadMyItems, loadWishList]);
-
-    // [구매 핸들러]
-  const handleBuy = async (item) => {
-    if (!window.confirm(`[${item.pointItemName}] 을(를) 구매하시겠습니까?`)) return;
-    try {
-        await axios.post("/point/main/store/buy", { buyItemNo: item.pointItemNo });
-        
-        // 아이템 타입에 따른 성공 메시지 분기
-        if (item.pointItemType === "HEART_RECHARGE") {
-            toast.success("하트 5개가 즉시 충전되었습니다! ❤️");
-        } else {
-            toast.success("구매 성공! 🎒보관함을 확인하세요.");
-        }
-
-        loadItems(); 
-        loadMyItems(); 
-        if (refreshPoint) refreshPoint(); // 상단 포인트/하트 정보 갱신
-    } catch (err) {
-        toast.error(err.response?.data?.message || "구매 실패 😥");
-    }
-};  
-
-    // [선물 핸들러]
     const handleGift = async (item) => {
-        const targetId = window.prompt("선물을 받을 친구의 ID를 입력하세요.");
+        const { value: targetId } = await Swal.fire({ title: '아이템 선물', input: 'text', inputLabel: '상대방 ID 입력', showCancelButton: true, confirmButtonColor: '#f1c40f', background: '#1a1a1a', color: '#fff' });
         if (!targetId) return;
-        if (!window.confirm(`${targetId}님에게 선물하시겠습니까?`)) return;
-        
         try {
             await axios.post("/point/main/store/gift", { itemNo: item.pointItemNo, targetId });
-            toast.success(`🎁 ${targetId}님에게 선물 발송 완료!`);
-            loadItems(); 
-            if (refreshPoint) refreshPoint(); 
-        } catch (err) {
-            toast.error(err.response?.data?.message || "선물 실패 😥");
-        }
+            toast.success(`${targetId}님께 선물 완료!`);
+            setPointRefresh(v => v + 1);
+            loadData();
+        } catch (e) { toast.error(e.response?.data || "실패"); }
     };
 
-    // [삭제 핸들러 - 관리자]
-    const handleDelete = async (item) => {
-        if (!window.confirm(`[${item.pointItemName}] 정말 삭제하시겠습니까?`)) return;
-        try {
-            await axios.post("/point/main/store/item/delete", { pointItemNo: item.pointItemNo });
-            toast.info("상품이 삭제되었습니다. 🗑️");
-            loadItems(); 
-        } catch (e) { 
-            console.error(e);
-            toast.error("삭제 실패: " + (e.response?.data?.message || "오류가 발생했습니다.")); 
-        }
-    };
-    
-    // [찜 토글 핸들러]
     const handleToggleWish = async (itemNo) => {
-        if (!loginLevel) {
-            toast.warning("로그인 후 이용 가능합니다. 🔒");
-            return;
-        }
+        if (!loginLevel) return toast.warning("로그인이 필요합니다.");
         try {
             await axios.post("/point/main/store/wish/toggle", { itemNo });
-            loadWishList(); 
+            loadData();
         } catch (e) { toast.error("찜하기 실패"); }
     };
 
     return (
         <div className="store-container">
-            {/* 상단 헤더 */}
-            <div className="d-flex justify-content-between align-items-center mb-4">
-                <h4 className="text-white fw-bold">
-                    popcorn 굿즈 스토어 <span className="text-secondary fs-6 ms-2">({items.length}개의 상품)</span>
-                </h4>
-                {loginLevel === "관리자" && (
-                    <button className="btn btn-outline-light btn-sm fw-bold" onClick={() => setShowAddModal(true)}>
-                        + 상품 등록
-                    </button>
-                )}
+            <div className="store-header">
+                <h4 className="store-title">popcorn 스토어 <span>({items.length})</span></h4>
+                {loginLevel === "관리자" && <button className="btn-add" onClick={() => setShowAddModal(true)}>+ 상품 등록</button>}
             </div>
 
-            {/* 상품 리스트 (그리드) */}
             <div className="goods-grid">
-                {items.length === 0 ? (
-                    <div className="col-12 text-center p-5 border rounded bg-dark text-secondary">
-                        <h3>텅... 🍃</h3>
-                        <p>등록된 상품이 없습니다.</p>
-                    </div>
-                ) : (
-                    items.map((item) => {
-                        const reqScore = getScore(item.pointItemReqLevel);
-                        const canAccess = (myScore >= reqScore); 
-                        
-                        const ownedCount = myItems.filter(i => i.inventoryItemNo === item.pointItemNo).length;
-                        const isUnique = item.pointItemIsLimitedPurchase === 1;
-                        const isAlreadyOwned = isUnique && ownedCount > 0;
-                        const isWished = wishList.includes(item.pointItemNo); 
-                        const isSoldOut = item.pointItemStock <= 0;
+                {items.map((item) => {
+                    const myScore = getScore(loginLevel);
+                    const reqScore = getScore(item.pointItemReqLevel);
+                    const canAccess = (myScore >= reqScore);
+                    const isSoldOut = item.pointItemStock <= 0;
 
-                        return (
-                            <div className={`goods-card ${(!canAccess && loginLevel !== "관리자") || isSoldOut ? "disabled" : ""}`} key={item.pointItemNo}>
+                    // 🔴 보유 상태 확인 (Number 형변환으로 정확도 상승)
+                    const isOwned = myItems.some(i => Number(i.inventoryItemNo) === Number(item.pointItemNo));
+                    const isLimitedAndOwned = isOwned && item.pointItemIsLimitedPurchase === 1;
+
+                    return (
+                        <div className={`goods-card ${isSoldOut ? "disabled" : ""}`} key={item.pointItemNo}>
+                            <div className="goods-img-box">
+                                <img src={item.pointItemSrc || "/default.png"} alt="item" />
                                 
-                                {/* 이미지 영역 */}
-                                <div className="goods-img-wrapper">
-                                    {item.pointItemSrc ? (
-                                        <img src={item.pointItemSrc} alt={item.pointItemName} className="goods-img" />
-                                    ) : (
-                                        <div className="goods-img d-flex align-items-center justify-content-center bg-secondary text-white">
-                                            No Image
-                                        </div>
-                                    )}
+                                {/* 🔴 찜 버튼 복구 */}
+                                <button className="wish-overlay" onClick={() => handleToggleWish(item.pointItemNo)}>
+                                    {wishList.includes(item.pointItemNo) ? "❤️" : "🤍"}
+                                </button>
 
-                                    <button className="btn-wish" onClick={(e) => { e.stopPropagation(); handleToggleWish(item.pointItemNo); }}>
-                                        {isWished ? "❤️" : "🤍"}
-                                    </button>
-
-                                    <div className="badge-overlay">
-                                        {isUnique && <span className="badge bg-danger">LIMITED</span>}
-                                        {ownedCount > 0 && <span className="badge bg-info text-dark">보유중</span>}
-                                    </div>
-
-                                    {isSoldOut && (
-                                        <div className="badge-soldout">SOLD OUT</div>
-                                    )}
+                                {/* 🔴 배지 오버레이 (보유중 표시) */}
+                                <div className="badge-overlay">
+                                    {isOwned && <span className="badge-own">보유중</span>}
+                                    {isSoldOut && <span className="badge-soldout">품절</span>}
                                 </div>
-
-                                {/* 정보 영역 */}
-                                <div className="goods-info">
-                                    <h5 className="goods-title" title={item.pointItemName}>{item.pointItemName}</h5>
-                                    <p className="goods-desc">{item.pointItemContent}</p>
-                                    
-                                    <div className="goods-meta d-flex flex-wrap gap-1 align-items-center">
-                                        {/* 관리자에게만 재고 표시 */}
-                                        {loginLevel === "관리자" && (
-                                            <span className={`small me-2 ${item.pointItemStock < 5 ? "text-danger fw-bold" : "text-secondary"}`}>
-                                                재고 {item.pointItemStock}
-                                            </span>
-                                        )}
-                                        
-                                        {/* 등급 배지 */}
-                                        <span className="badge bg-dark border border-secondary text-secondary">
-                                            Lv.{item.pointItemReqLevel}
-                                        </span>
-
-                                        {/* ★ [추가] 일일 구매 제한 표시 */}
-                                        {item.pointItemDailyLimit > 0 && (
-                                            <span className="badge bg-danger bg-opacity-10 text-danger border border-danger border-opacity-25">
-                                                일일 {item.pointItemDailyLimit}개 한정
-                                            </span>
-                                        )}
-                                    </div>
-
-                                    <div className="goods-price mb-3">
-                                        {item.pointItemPrice.toLocaleString()} P
-                                    </div>
-
-                                    {/* 버튼 그룹 */}
-                                    <div className="btn-group-custom">
+                            </div>
+                            <div className="goods-content">
+                                <h5 className="item-name">{item.pointItemName}</h5>
+                                <div className="item-meta-row">
+                                    <span className="badge-lv">Lv.{item.pointItemReqLevel}</span>
+                                    {item.pointItemDailyLimit > 0 && <span className="badge-daily">일일 {item.pointItemDailyLimit}개</span>}
+                                </div>
+                                <div className="item-bottom-group">
+                                    <div className="item-price">{item.pointItemPrice.toLocaleString()} P</div>
+                                    <div className="item-buttons">
                                         {canAccess ? (
                                             <>
                                                 <button 
-                                                    className={`btn-goods buy ${isAlreadyOwned ? "disabled" : ""}`}
+                                                    className={`btn-buy ${isLimitedAndOwned ? "owned" : ""}`} 
                                                     onClick={() => handleBuy(item)} 
-                                                    disabled={isSoldOut || isAlreadyOwned}
+                                                    disabled={isSoldOut || isLimitedAndOwned}
                                                 >
-                                                    {isAlreadyOwned ? "보유함" : "구매"}
+                                                    {isLimitedAndOwned ? "보유함" : "구매"}
                                                 </button>
-                                                <button 
-                                                    className="btn-goods gift" 
-                                                    onClick={() => handleGift(item)} 
-                                                    disabled={isSoldOut}
-                                                >
-                                                    선물
-                                                </button>
+                                                <button className="btn-gift" onClick={() => handleGift(item)} disabled={isSoldOut}>선물</button>
                                             </>
-                                        ) : (
-                                            <button className="btn-goods disabled" disabled>
-                                                🔒 등급 제한
-                                            </button>
-                                        )}
+                                        ) : ( <button className="btn-locked" disabled>🔒 등급 부족</button> )}
                                     </div>
-
-                                    {loginLevel === "관리자" && (
-                                        <div className="admin-controls mt-2 pt-2 border-top border-secondary">
-                                            <button className="btn btn-sm btn-outline-warning me-1" onClick={() => setEditTarget(item)}>수정</button>
-                                            <button className="btn btn-sm btn-outline-danger" onClick={() => handleDelete(item)}>삭제</button>
-                                        </div>
-                                    )}
                                 </div>
                             </div>
-                        );
-                    })
-                )}
+                        </div>
+                    );
+                })}
             </div>
-
-            {/* 모달 렌더링 */}
-            {showAddModal && <ProductAdd closeModal={() => setShowAddModal(false)} reload={loadItems} />}
-            {editTarget && <ProductEdit target={editTarget} closeModal={() => setEditTarget(null)} reload={loadItems} />}
+            {showAddModal && <ProductAdd closeModal={() => setShowAddModal(false)} reload={loadData} />}
+            {editTarget && <ProductEdit target={editTarget} closeModal={() => setEditTarget(null)} reload={loadData} />}
         </div>
     );
 }
