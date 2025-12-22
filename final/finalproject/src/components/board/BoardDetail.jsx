@@ -638,11 +638,11 @@ export default function BoardDetail() {
                                 <>
                                     <div className="d-flex justify-content-between align-items-center mb-2">
 
-                                        <h5 className="m-0 mt-2 fw-bold" onClick={() => navigate(`/member/profile/info/${replyDto.replyWriter}`)}
+                                        <h5 className="m-0 fw-bold" onClick={() => navigate(`/member/profile/info/${replyDto.replyWriter}`)}
                                             style={{ cursor: "pointer" }}>
                                             <img src={profileMap[replyDto.replyWriter] || ""}
-                                                alt="profile" className="board avatar-img-v2 me-2" />
-                                            {replyDto.replyWriter}
+                                                alt="profile" className="board avatar-img-v2 me-2 mt-3" />
+                                            <span>{replyDto.replyWriter}</span>
                                         </h5>
                                         <div className="m-0 d-flex text-nowarp">
                                             {replyDto.replyEtime ? (
@@ -653,7 +653,7 @@ export default function BoardDetail() {
                                         </div>
                                     </div>
 
-                                    <div className="mt-4" style={{ whiteSpace: "pre-wrap", wordBreak: "break-all" }}>
+                                    <div className="mt-1" style={{ whiteSpace: "pre-wrap", wordBreak: "break-all" }}>
                                         {replyDto.replyContent}
                                     </div>
 

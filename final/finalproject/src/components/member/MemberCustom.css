@@ -132,6 +132,12 @@ body { background-color: #0c0c0e !important; margin: 0; color: #fff; font-family
 
 
 /* --- [1] 상단 탭 네비게이션 스타일 (MemberMypage 전용) --- */
+
+.btn-sub { background: rgba(255, 255, 255, 0.1); color: #fff; border: 1px solid rgba(255,255,255,0.2); }
+.btn-out { background: rgba(255, 59, 48, 0.1); border: 2px solid var(--danger-red); color: var(--danger-red); }
+.btn-out:hover { background: var(--danger-red); color: #fff; }
+
+
 /* 전체 레이아웃 컨테이너 */
 .mypage-container-wide {
   max-width: 1400px;

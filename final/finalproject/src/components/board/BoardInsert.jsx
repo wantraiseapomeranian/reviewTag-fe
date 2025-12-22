@@ -408,7 +408,7 @@ export default function boardInsert() {
                 <div className="modal-dialog modal-lg modal-dialog-scrollable">
                     <div className="modal-content">
                         <div className="modal-header">
-                            <h5 className="modal-title">컨텐츠 검색</h5>
+                            <h5 className="modal-title text-muted">컨텐츠 검색</h5>
                             <button type="button" className="btn-close" onClick={closeModal}></button>
                         </div>
                         <div className="modal-body">
