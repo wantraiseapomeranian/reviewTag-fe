@@ -49,7 +49,12 @@ export default function AdminInventory() {
             setIconList(resIcon.data || []);
             toast.info("자산 정보를 동기화했습니다.");
         } catch (err) {
-            Swal.fire("조회 실패", "존재하지 않는 유저이거나 서버 오류입니다.", "error");
+            Swal.fire({
+                title: "조회 실패",
+                text: "존재하지 않는 유저이거나 서버 오류입니다.",
+                icon: "error",
+                didOpen: () => (Swal.getContainer().style.zIndex = "3000") // 최상단 유지
+            });
         } finally { setLoading(false); }
     }, [searchId]);
 
@@ -60,7 +65,8 @@ export default function AdminInventory() {
             icon: 'warning',
             showCancelButton: true,
             confirmButtonColor: '#d33',
-            background: '#1a1a1a', color: '#fff'
+            background: '#1a1a1a', color: '#fff',
+            didOpen: () => (Swal.getContainer().style.zIndex = "3000") // 최상단 유지
         });
 
         if (result.isConfirmed) {
@@ -78,14 +84,27 @@ export default function AdminInventory() {
         try {
             const url = type === "item" ? `/admin/inventory/${searchId}/${targetNo}` : `/admin/icon/${searchId}/${targetNo}`;
             await axios.post(url);
+            
+            // 알림창 z-index 보정 추가
             await Swal.fire({ 
-                icon: 'success', title: '지급 완료', 
+                icon: 'success', 
+                title: '지급 완료', 
                 text: `[${name}] 지급되었습니다.`, 
-                timer: 1500, showConfirmButton: false, background: '#1a1a1a', color: '#fff' 
+                timer: 1500, 
+                showConfirmButton: false, 
+                background: '#1a1a1a', 
+                color: '#fff',
+                didOpen: () => (Swal.getContainer().style.zIndex = "3000") 
             });
+            
             fetchUserData();
         } catch { 
-            Swal.fire("지급 실패", "이미 보유 중이거나 시스템 오류입니다.", "error"); 
+            Swal.fire({
+                icon: "error",
+                title: "지급 실패",
+                text: "이미 보유 중이거나 시스템 오류입니다.",
+                didOpen: () => (Swal.getContainer().style.zIndex = "3000")
+            }); 
         }
     };
 
@@ -174,4 +193,4 @@ export default function AdminInventory() {
             </div>
         </Admin>
     );
-}   
+}
