@@ -3,7 +3,7 @@ import axios from "axios";
 import { toast } from "react-toastify"; 
 
 export default function ProductAdd({ closeModal, reload }) {
-    // [1] 입력값 관리 (dailyLimit 필드 추가)
+    // [1] 입력값 관리: 백엔드 int 타입에 맞춰 초기값을 0으로 설정
     const [input, setInput] = useState({
         pointItemName: "",
         pointItemPrice: 0,
@@ -12,10 +12,11 @@ export default function ProductAdd({ closeModal, reload }) {
         pointItemReqLevel: "일반회원",
         pointItemContent: "",
         pointItemSrc: "",
-        pointItemIsLimitedPurchase: "N", // Y/N으로 관리 권장 (DB 타입 확인)
-        pointItemDailyLimit: 0           // 일일 제한 개수 추가
+        pointItemIsLimitedPurchase: 0, 
+        pointItemDailyLimit: 0          
     });
 
+    // 입력값 변경 핸들러
     const changeInput = (e) => {
         const { name, value } = e.target;
         setInput({ ...input, [name]: value });
@@ -23,25 +24,28 @@ export default function ProductAdd({ closeModal, reload }) {
 
     // [2] 등록 실행
     const handleAdd = async () => {
+        // 필수 입력값 검증
         if (!input.pointItemName || !input.pointItemPrice) {
             return toast.warning("상품명과 가격은 필수입니다. 😫");
         }
 
         try {
-            // 서버 전송 전 데이터 정제 (숫자 타입 변환)
+            // 서버 전송 전 데이터 정제: 모든 숫자 필드를 Number()로 확실히 변환
             const payload = {
                 ...input,
                 pointItemPrice: Number(input.pointItemPrice),
                 pointItemStock: Number(input.pointItemStock),
-                pointItemDailyLimit: Number(input.pointItemDailyLimit)
+                pointItemDailyLimit: Number(input.pointItemDailyLimit),
+                // 핵심 수정: String "N" 에러를 방지하기 위해 숫자로 변환하여 전송
+                pointItemIsLimitedPurchase: Number(input.pointItemIsLimitedPurchase)
             };
 
             const resp = await axios.post("/point/main/store/item/add", payload);
             
             if (resp.data === "success") {
                 toast.success("📦 상품 등록 완료!"); 
-                reload(); 
-                closeModal(); 
+                reload(); // 목록 새로고침
+                closeModal(); // 모달 닫기
             } else if (resp.data === "fail_auth") {
                 toast.error("관리자만 등록할 수 있습니다. 👮");
             } else {
@@ -96,6 +100,7 @@ export default function ProductAdd({ closeModal, reload }) {
                                         <option value="DECO_NICK">닉네임 치장</option>
                                         <option value="DECO_ICON">프로필 아이콘</option>
                                         <option value="DECO_BG">배경 스킨</option>
+                                        <option value="DECO_FRAME">프로필 테두리</option>
                                     </optgroup>
                                     <optgroup label="이벤트/기타">
                                         <option value="VOUCHER">포인트 충전권</option>
@@ -114,13 +119,19 @@ export default function ProductAdd({ closeModal, reload }) {
                             </div>
                         </div>
 
-                        {/* 구매 제한 설정 (중복구매 여부 & 일일 제한 개수) */}
+                        {/* 구매 제한 설정 (중복구매 여부 숫자로 매핑) */}
                         <div className="row mb-3">
                             <div className="col-6">
                                 <label className="form-label fw-bold small">중복 구매 제한</label>
-                                <select name="pointItemIsLimitedPurchase" className="form-select" onChange={changeInput} value={input.pointItemIsLimitedPurchase}>
-                                    <option value="N">제한 없음 (계속 구매)</option>
-                                    <option value="Y">1인 1회 한정</option>
+                                <select 
+                                    name="pointItemIsLimitedPurchase" 
+                                    className="form-select" 
+                                    onChange={changeInput} 
+                                    value={input.pointItemIsLimitedPurchase}
+                                >
+                                    {/* 백엔드 DTO의 int 타입에 맞춰 value를 숫자로 설정 */}
+                                    <option value={0}>제한 없음 (계속 구매)</option>
+                                    <option value={1}>1인 1회 한정</option>
                                 </select>
                             </div>
                             <div className="col-6">
@@ -142,7 +153,7 @@ export default function ProductAdd({ closeModal, reload }) {
                             <input type="text" name="pointItemSrc" className="form-control" placeholder="http://..." onChange={changeInput} />
                         </div>
                         <div className="mb-0">
-                            <label className="form-label fw-bold small">설명 (하트 충전권의 경우 '5' 입력 권장)</label>
+                            <label className="form-label fw-bold small">설명</label>
                             <textarea name="pointItemContent" className="form-control" rows="2" onChange={changeInput} placeholder="상품 설명을 입력하세요."></textarea>
                         </div>
 

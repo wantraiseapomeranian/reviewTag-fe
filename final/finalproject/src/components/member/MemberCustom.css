@@ -5,174 +5,160 @@
     --danger-red: #ff3b30;
 }
 
-/* 배경 및 레이아웃 */
 body { background-color: #0c0c0e !important; margin: 0; }
 .mypage-info-wrapper { max-width: 1400px; margin: 0 auto; padding: 40px; font-family: 'Pretendard', sans-serif; }
 
-/* 1. 히어로 영역 (골드 테두리 + 얼음 광택) */
+/* --- 1. 히어로 영역 (프레임 효과를 위해 overflow: visible) --- */
 .profile-hero-v2 {
     position: relative;
     height: 420px;
     border-radius: 40px;
-    overflow: hidden;
-    border: 3px solid var(--gold-main);
-    box-shadow: 0 0 50px rgba(0, 0, 0, 0.8), inset 0 0 20px var(--gold-glow);
-    margin-bottom: 40px;
+    overflow: visible !important; 
+    border: 3px solid rgba(255, 255, 255, 0.1);
+    box-shadow: 0 0 50px rgba(0, 0, 0, 0.8);
+    margin-bottom: 60px;
     z-index: 1;
+    background-color: transparent !important;
+    background-size: cover !important;
+    background-position: center !important;
+    background-repeat: no-repeat !important;
+    transition: all 0.4s ease;
 }
 
-/* 얼음 광택 효과 클래스 */
-.profile-hero-v2.bg-ice {
-    background: linear-gradient(135deg, #a5f3fc 0%, #06b6d4 100%) !important;
-}
-.profile-hero-v2.bg-ice::before {
-    content: ''; position: absolute; top: 0; left: 0; right: 0; bottom: 0;
-    background: linear-gradient(105deg, transparent 30%, rgba(255, 255, 255, 0.5) 50%, transparent 70%);
-    background-size: 200% 100%; animation: ice-shimmer 5s infinite; z-index: -1;
-}
-@keyframes ice-shimmer { 0% { background-position: -200% 0; } 100% { background-position: 200% 0; } }
-
+/* [가림 해결] 오버레이를 투명하게 설정하여 뒤의 배경이 보이게 함 */
 .hero-overlay-v2 {
     width: 100%; height: 100%;
-    background: linear-gradient(to bottom, rgba(0,0,0,0.1) 0%, rgba(12, 12, 14, 0.9) 100%);
+    background: rgba(0, 0, 0, 0.15) !important; 
     display: flex; flex-direction: column; justify-content: center; align-items: center;
-}
-
-/* 신뢰도 게이지 (49% 이하 빨간색) */
-.rel-fill.safe { background: linear-gradient(90deg, #00ffcc, #00ff88); box-shadow: 0 0 15px var(--safe-green); }
-.rel-fill.danger { background: linear-gradient(90deg, #ff4b2b, #ff3b30); box-shadow: 0 0 20px var(--danger-red); }
-.rel-text.danger { color: var(--danger-red); animation: blink 1.5s infinite; }
-@keyframes blink { 50% { opacity: 0.5; } }
-
-/* 2. 활동 통계 카드 (복구 및 강화) */
-.activity-stats-row {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 25px;
-    margin-bottom: 40px;
-}
-.activity-stats-row a {
-  text-decoration: none;
-  color: inherit;
-}
-.stat-card {
-    background: rgba(255, 255, 255, 0.03);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    padding: 40px 20px;
-    border-radius: 30px;
-    text-align: center;
-    transition: 0.3s;
-}
-.stat-card:hover { transform: translateY(-10px); border-color: var(--gold-main); }
-.stat-label { color: #888; font-size: 1.1rem; font-weight: 600; }
-.stat-value { display: block; font-size: 2rem; font-weight: 800; color: #fff; margin-top: 15px; }
-.stat-value.text-red { color: #ff4d4d; text-shadow: 0 0 15px rgba(255, 77, 77, 0.3); }
-.stat-value.text-gold { color: var(--gold-main); text-shadow: 0 0 15px rgba(255, 77, 77, 0.3); }
-
-
-/* 3. 계정 상세 정보 (가독성 강화) */
-.account-info-card {
-    background: rgba(255, 255, 255, 0.02);
-    padding: 50px; border-radius: 40px; border: 1px solid rgba(255, 255, 255, 0.08);
-}
-.info-item-v2 {
-    background: rgba(0, 0, 0, 0.3); padding: 2px 45px; border-radius: 20px;
-    display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;
-}
-.label-with-icon { font-size: 1.3rem; color: #ccc; }
-.value-v2 { font-size: 1rem; color: #fff; font-weight: 800; }
-
-/* 4. 버튼 영역 (동일 크기) */
-.mypage-actions-v2 { margin-top: 60px; display: flex; justify-content: center; gap: 20px; }
-.mypage-actions-v2 a, .mypage-actions-v2 button {
-    flex: 1; max-width: 260px; height: 70px; display: flex; align-items: center; justify-content: center;
-    border-radius: 20px; font-size: 1.2rem; font-weight: 800; text-decoration: none; transition: 0.3s;
-}
-.btn-main { background: #fff; color: #000; }
-.btn-sub { background: rgba(255, 255, 255, 0.1); color: #fff; border: 1px solid rgba(255,255,255,0.2); }
-.btn-out { background: rgba(255, 59, 48, 0.1); border: 2px solid var(--danger-red); color: var(--danger-red); }
-.btn-out:hover { background: var(--danger-red); color: #fff; }
-
-/* 전체 레이아웃 컨테이너 */
-.mypage-container-wide {
-  max-width: 1400px;
-  margin: 0 auto;
-  padding: 40px 20px;
-  min-height: 100vh;
-}
-
-/* 탭 네비게이션 바 */
-.mypage-tabs {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  gap: 15px;
-  background: rgba(255, 255, 255, 0.03); /* 아주 연한 유리 느낌 */
-  backdrop-filter: blur(15px);
-  padding: 12px;
-  border-radius: 24px;
-  margin-bottom: 50px;
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
-}
-
-/* 개별 탭 버튼 스타일 */
-.mypage-tab {
-  padding: 16px 35px;
-  color: #888; /* 비활성 상태: 흐린 회색 */
-  text-decoration: none;
-  font-weight: 700;
-  font-size: 1.1rem;
-  border-radius: 18px;
-  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-  position: relative;
-  overflow: hidden;
-}
-
-/* 호버 시 효과 */
-.mypage-tab:hover {
-  color: #fff;
-  background: rgba(255, 255, 255, 0.05);
-  transform: translateY(-2px);
-}
-
-/* ✨ 핵심: 활성화된 탭 스타일 (골드 네온) */
-.mypage-tab.active {
-  color: var(--gold-main); /* 금색 글씨 */
-  background: rgba(255, 215, 0, 0.1); /* 은은한 금색 배경 */
-  border: 1px solid rgba(255, 215, 0, 0.4);
-  box-shadow: 0 0 20px rgba(255, 215, 0, 0.15);
-  text-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
-}
-
-/* 활성 탭 하단에 강조 선 추가 (선택사항) */
-.mypage-tab.active::after {
-  content: "";
-  position: absolute;
-  bottom: 8px;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 60%;
-  height: 3px;
-  background: var(--gold-main);
-  border-radius: 10px;
-  box-shadow: 0 0 10px var(--gold-main);
-}
-
-/* 컨텐츠가 출력되는 영역 애니메이션 */
-.mypage-content-area {
-  animation: slideUp 0.6s ease-out;
-}
-
-@keyframes slideUp {
-  from { opacity: 0; transform: translateY(30px); }
-  to { opacity: 1; transform: translateY(0); }
+    border-radius: 40px;
+    position: relative;
+    z-index: 2;
 }
 
 .avatar-img-v2 {
-    width: 80px;
-    height: 80px;
-    border-radius: 50%;
-    border: 3px solid var(--gold-main);
-    box-shadow: 0 0 15px var(--gold-glow);
+    width: 140px; height: 140px; border-radius: 50%;
+    border: 4px solid #fff; object-fit: cover; margin-bottom: 15px;
+    box-shadow: 0 0 20px rgba(0,0,0,0.5);
 }
+
+/* --- [능동형 신뢰도 배지: 테마별 자동 변색] --- */
+.reviewer-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 10px 24px;
+    border-radius: 50px;
+    font-weight: 850;
+    font-size: 1.1rem;
+    backdrop-filter: blur(10px);
+    border: 2px solid rgba(255, 255, 255, 0.2);
+    box-shadow: 0 5px 15px rgba(0,0,0,0.4);
+    transition: all 0.4s ease;
+    margin-top: 15px;
+}
+
+/* (1) 기본/다크 테마 배지 */
+.reviewer-badge.rel-high { background: rgba(255, 255, 255, 0.1); color: #fff; }
+
+/* (2) 아이스 배경일 때: 푸른 광채 배지로 변형 */
+.profile-hero-v2.bg-ice .reviewer-badge {
+    background: rgba(165, 243, 252, 0.15);
+    color: #a5f3fc;
+    border-color: #22d3ee;
+    box-shadow: 0 0 20px rgba(34, 211, 238, 0.5);
+    text-shadow: 0 0 8px rgba(165, 243, 252, 0.7);
+}
+
+/* (3) 파이어 프레임일 때: 붉은 열기 배지로 변형 */
+.profile-hero-v2.frame-fire .reviewer-badge {
+    background: rgba(255, 69, 0, 0.15);
+    color: #ff9f43;
+    border-color: #ff4500;
+    box-shadow: 0 0 20px rgba(255, 69, 0, 0.6);
+    animation: badge-flicker 2s infinite alternate;
+}
+
+/* (4) 골드 프레임일 때: 금빛 배지로 변형 */
+.profile-hero-v2.frame-gold .reviewer-badge {
+    background: rgba(255, 215, 0, 0.1);
+    color: var(--gold-main);
+    border-color: var(--gold-main);
+    box-shadow: 0 0 15px rgba(255, 215, 0, 0.4);
+}
+
+@keyframes badge-flicker {
+    0% { transform: scale(1); opacity: 0.95; }
+    100% { transform: scale(1.03); opacity: 1; }
+}
+
+/* --- [배경 이미지 리스트: 히어로 전용] --- */
+.profile-hero-v2.bg-chain { background-image: url('https://i.postimg.cc/CKnTfP91/chain.webp') !important; }
+.profile-hero-v2.bg-harrypotter { background-image: url('https://i.postimg.cc/PxtJHv6w/haelipoteo.jpg') !important; }
+.profile-hero-v2.bg-ice { background-image: url('https://i.postimg.cc/tRF8hVJG/icewall.webp') !important; }
+.profile-hero-v2.bg-fallout { background-image: url('https://i.postimg.cc/0jb2F2hg/pol-ausbaegyeonghwamyeon.webp') !important; }
+.profile-hero-v2.bg-tanjiro { background-image: url('https://i.postimg.cc/Dy4V8YGP/tanjiro.webp') !important; }
+
+/* --- [프레임 특수 효과] --- */
+.profile-hero-v2.frame-gold::after {
+    content: ""; position: absolute; top: -12px; left: -12px; right: -12px; bottom: -12px;
+    border-radius: 48px; padding: 10px;
+    background: linear-gradient(110deg, #ffd700, #fff5b7, #b8860b, #ffd700);
+    background-size: 200% auto; animation: gold-shine 3s linear infinite;
+    -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor; mask-composite: exclude; z-index: 5;
+}
+
+.profile-hero-v2.frame-ice::after {
+    content: ""; position: absolute; top: -45px; left: -45px; right: -45px; bottom: -45px;
+    background-image: url('https://i.postimg.cc/pXRV8vWW/Chat-GPT-Image-2025nyeon-12wol-21il-ohu-10-47-22.png');
+    background-size: 100% 100%; background-repeat: no-repeat; padding: 45px;
+    -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor; mask-composite: exclude;
+    z-index: 10; pointer-events: none;
+    filter: drop-shadow(0 0 25px #a5f3fc) brightness(1.3) contrast(1.2);
+    animation: ice-pulse 2s infinite alternate ease-in-out;
+}
+
+.profile-hero-v2.frame-fire::after {
+    content: ""; position: absolute; top: -75px; left: -75px; right: -75px; bottom: -75px;
+    background-image: url('https://i.postimg.cc/TYrg9Tv6/Chat-GPT-Image-2025nyeon-12wol-21il-ohu-10-36-12.png');
+    background-size: 100% 100%; background-repeat: no-repeat; padding: 75px;
+    -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor; mask-composite: exclude;
+    z-index: 10; pointer-events: none;
+    filter: drop-shadow(0 0 30px #ff4500) brightness(1.5) contrast(1.2);
+    animation: super-fire-burn 0.8s infinite alternate ease-in-out;
+}
+
+/* 닉네임 네온 효과 */
+.nickname-v2 { font-size: 3.5rem; font-weight: 900; color: #fff; margin-top: 10px; z-index: 5; position: relative; }
+.nickname-v2.neon-gold { color: #ffd700; text-shadow: 0 0 15px rgba(255, 215, 0, 0.8), 0 2px 4px #000; }
+.nickname-v2.neon-ice { color: #a5f3fc; text-shadow: 0 0 15px rgba(165, 243, 252, 0.8), 0 2px 4px #000; }
+.nickname-v2.neon-fire { color: #ff4500; text-shadow: 0 0 20px rgba(255, 69, 0, 0.8), 0 2px 4px #000; }
+
+/* 통계 카드 */
+.activity-stats-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; margin-bottom: 40px; }
+.stat-card {
+    background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.1);
+    padding: 30px 20px; border-radius: 24px; text-align: center; transition: 0.3s;
+}
+.stat-card:hover { transform: translateY(-5px); border-color: var(--gold-main); background: rgba(255, 215, 0, 0.05); }
+.stat-value { display: block; font-size: 1.8rem; font-weight: 800; color: #fff; margin-top: 10px; }
+.stat-value.text-gold { color: var(--gold-main); }
+
+/* 상세 정보 및 버튼 */
+.account-info-card { background: rgba(255, 255, 255, 0.02); padding: 40px; border-radius: 30px; border: 1px solid rgba(255, 255, 255, 0.08); }
+.info-item-v2 { display: flex; justify-content: space-between; padding: 20px 0; border-bottom: 1px solid rgba(255,255,255,0.05); }
+.value-v2 { color: #fff; font-weight: 700; font-size: 1.1rem; }
+
+.mypage-actions-v2 { display: flex; justify-content: center; gap: 15px; margin-top: 40px; }
+.btn-main, .btn-sub, .btn-out {
+    padding: 20px 40px; border-radius: 18px; font-weight: 800; text-decoration: none; cursor: pointer; border: none; font-size: 1.1rem;
+}
+.btn-main { background: #fff; color: #000; }
+.btn-sub { background: #222; color: #fff; border: 1px solid rgba(255,255,255,0.1); }
+.btn-out { background: transparent; border: 2px solid var(--danger-red); color: var(--danger-red); }
+
+/* 애니메이션 */
+@keyframes gold-shine { to { background-position: 200% center; } }
+@keyframes ice-pulse { from { transform: scale(0.99); } to { transform: scale(1.01); } }
+@keyframes super-fire-burn { from { transform: scale(0.98); } to { transform: scale(1.02); } }

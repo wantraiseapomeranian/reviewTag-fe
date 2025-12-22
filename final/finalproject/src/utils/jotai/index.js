@@ -52,3 +52,4 @@ export const userAnswersAtom = atom({});
 //퀴즈 게임 모달 표시 여부
 export const quizModalShowAtom = atom(false);
 
+export const pointRefreshAtom = atom(0);

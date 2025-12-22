@@ -1,6 +1,6 @@
 import { useAtom, useAtomValue, useSetAtom } from "jotai";
 import { Link, useNavigate } from "react-router-dom"
-import { accessTokenState, adminState, clearLoginState, heartState, loginCompleteState, loginIdState, loginLevelState, loginState } from "../utils/jotai";
+import { accessTokenState, adminState, clearLoginState, heartState, loginCompleteState, loginIdState, loginLevelState, loginState , pointRefreshAtom} from "../utils/jotai";
 import { useCallback, useEffect, useRef, useState } from "react";
 import axios from "axios";
 import './Menu.css'
@@ -23,7 +23,7 @@ export default function Menu() {
 
     //하트 가져오기
     const [heart, setHeart] = useAtom(heartState);
-
+     const [pointRefresh] = useAtom(pointRefreshAtom);
     //effect
     useEffect(() => {
         if (accessToken?.length > 0) {
@@ -37,7 +37,7 @@ export default function Menu() {
         if (isLogin && loginId) {
             loadMemberData();
         }
-    }, [isLogin, loginId]);
+    }, [isLogin, loginId, pointRefresh]);
 
     //callback
     //내 정보 가져오는 함수

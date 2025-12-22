@@ -1,7 +1,7 @@
 import { useEffect, useState, useCallback } from "react";
 import axios from "axios";
 import { toast } from "react-toastify";
-import Swal from "sweetalert2"; // SweetAlert2 임포트
+import Swal from "sweetalert2"; 
 import "./InventoryView.css";
 
 export default function InventoryView({ refreshPoint }) {
@@ -27,7 +27,7 @@ export default function InventoryView({ refreshPoint }) {
         const type = item.pointItemType;
         let extraValue = null;
 
-        // 아이템 유형별 전처리 (Swal 입력 및 확인창)
+        // 아이템 유형별 전처리
         if (type === "CHANGE_NICK") {
             const { value: text } = await Swal.fire({
                 title: '닉네임 변경',
@@ -46,7 +46,6 @@ export default function InventoryView({ refreshPoint }) {
             if (!text) return;
             extraValue = text;
         } 
-        // 하트 충전 아이템 처리 (고정 5개 충전 메시지)
         else if (type === "HEART_RECHARGE") {
             const result = await Swal.fire({
                 title: '하트 충전',
@@ -119,7 +118,7 @@ export default function InventoryView({ refreshPoint }) {
             if (!result.isConfirmed) return;
         }
 
-        // 실제 서버 통신 (공통)
+        // 실제 서버 통신
         try {
             const resp = await axios.post("/point/main/store/inventory/use", { 
                 inventoryNo: targetNo, 
@@ -236,21 +235,22 @@ export default function InventoryView({ refreshPoint }) {
                                         : <div className="no-img">No Img</div>
                                     }
                                     <span className="inven-count-badge">x{item.inventoryQuantity}</span>
-                                    {isEquipped && <span className="badge bg-success equipped-badge">착용중</span>}
+                                    {isEquipped && <span className="equipped-badge-overlay">ON</span>}
                                 </div>
                                     
                                 <div className="inven-info">
-                                    <h6 className="inven-name" title={item.pointItemName}>{item.pointItemName}</h6>
+                                    <h6 className="inven-name" title={item.pointItemName}>
+                                        {item.pointItemName}
+                                    </h6>
                                     <span className="inven-type">{item.pointItemType}</span>
                                 </div>
 
                                 <div className="inven-actions">
-                                    {/* HEART_RECHARGE 포함하여 사용 버튼 활성화 */}
                                     {["CHANGE_NICK", "LEVEL_UP", "RANDOM_POINT", "VOUCHER", "DECO_NICK", "DECO_BG", "DECO_ICON", "DECO_FRAME", "RANDOM_ICON", "HEART_RECHARGE"].includes(item.pointItemType) && (
                                         <button 
-                                            className={`btn-inven use ${isEquipped ? 'disabled' : ''}`} 
+                                            className={`btn-inven use`} 
                                             onClick={() => handleUse(item)}
-                                            disabled={isEquipped}
+                                            disabled={isEquipped && isDecoItem}
                                         >
                                             {item.pointItemType === 'RANDOM_ICON' ? '뽑기' : 
                                              isDecoItem ? (isEquipped ? '사용중' : '장착') : '사용'}

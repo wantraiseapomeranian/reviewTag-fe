@@ -2,7 +2,7 @@
 
 /* 전체 배경 (올라프 이미지) */
 .ranking-bg-container {
-    background: url('https://i.postimg.cc/13JDFFCT/background.png') no-repeat center center fixed;
+   
     background-size: cover;
     min-height: 100vh;
     width: 100%;

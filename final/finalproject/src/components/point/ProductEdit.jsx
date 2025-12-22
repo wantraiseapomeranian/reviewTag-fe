@@ -3,7 +3,7 @@ import axios from "axios";
 import { toast } from "react-toastify";
 
 export default function ProductEdit({ target, closeModal, reload }) {
-    // [1] 입력값 관리 (pointItemDailyLimit 필드 추가)
+    // [1] 입력값 관리: 초기 상태에서 pointItemIsLimitedPurchase를 0(int)으로 설정
     const [input, setInput] = useState({
         pointItemNo: 0,
         pointItemName: "",
@@ -13,8 +13,8 @@ export default function ProductEdit({ target, closeModal, reload }) {
         pointItemReqLevel: "일반회원",
         pointItemContent: "",
         pointItemSrc: "",
-        pointItemIsLimitedPurchase: "N", // Y 또는 N (DB 타입에 맞춰 0/1로 쓰고 싶다면 Number 변환 필요)
-        pointItemDailyLimit: 0          // 일일 제한 추가
+        pointItemIsLimitedPurchase: 0, // 대신 숫자 0
+        pointItemDailyLimit: 0
     });
 
     // 모달이 열리면 target 데이터를 input에 채워넣음
@@ -22,8 +22,9 @@ export default function ProductEdit({ target, closeModal, reload }) {
         if(target) {
             setInput({ 
                 ...target,
-                // 혹시 DB에서 넘어온 값이 null일 경우를 대비해 기본값 세팅
-                pointItemDailyLimit: target.pointItemDailyLimit || 0
+                // DB에서 넘어온 값을 숫자 타입으로 확실히 변환하여 세팅
+                pointItemDailyLimit: Number(target.pointItemDailyLimit || 0),
+                pointItemIsLimitedPurchase: Number(target.pointItemIsLimitedPurchase || 0)
             });
         }
     }, [target]);
@@ -40,12 +41,14 @@ export default function ProductEdit({ target, closeModal, reload }) {
         }
 
         try {
-            // 서버 전송 전 데이터 정제 (숫자 타입 변환)
+            // 서버 전송 전 데이터 정제: 백엔드 int 타입에 맞춰 모든 숫자 필드 Number 변환
             const payload = {
                 ...input,
                 pointItemPrice: Number(input.pointItemPrice),
                 pointItemStock: Number(input.pointItemStock),
-                pointItemDailyLimit: Number(input.pointItemDailyLimit)
+                pointItemDailyLimit: Number(input.pointItemDailyLimit),
+                // 핵심: 이 부분을 숫자로 보내야 JSON parse error(String "N")가 발생하지 않음
+                pointItemIsLimitedPurchase: Number(input.pointItemIsLimitedPurchase)
             };
 
             // 수정 API 호출
@@ -107,6 +110,7 @@ export default function ProductEdit({ target, closeModal, reload }) {
                                         <option value="DECO_NICK">닉네임 치장</option>
                                         <option value="DECO_ICON">프로필 아이콘</option>
                                         <option value="DECO_BG">배경 스킨</option>
+                                        <option value="DECO_FRAME">프로필 테두리</option>
                                     </optgroup>
                                     <optgroup label="이벤트/기타">
                                         <option value="VOUCHER">포인트 충전권</option>
@@ -129,9 +133,15 @@ export default function ProductEdit({ target, closeModal, reload }) {
                         <div className="row mb-3">
                             <div className="col-6">
                                 <label className="form-label fw-bold small">1인 1회 제한</label>
-                                <select name="pointItemIsLimitedPurchase" className="form-select" value={input.pointItemIsLimitedPurchase} onChange={changeInput}>
-                                    <option value="N">N (중복 가능)</option>
-                                    <option value="Y">Y (1회 한정)</option>
+                                <select 
+                                    name="pointItemIsLimitedPurchase" 
+                                    className="form-select" 
+                                    value={input.pointItemIsLimitedPurchase} 
+                                    onChange={changeInput}
+                                >
+                                    {/* 수정: 백엔드 int 매핑을 위해 value를 숫자로 설정 */}
+                                    <option value={0}>N (중복 가능)</option>
+                                    <option value={1}>Y (1회 한정)</option>
                                 </select>
                             </div>
                             <div className="col-6">
