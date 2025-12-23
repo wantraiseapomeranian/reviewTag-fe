@@ -1,99 +1,93 @@
 /* 캘린더 전체 감싸는 영역 */
 .attendCalendarWrapper {
     padding: 10px;
-    background: rgba(255, 255, 255, 0.02);
+    background: transparent;
     border-radius: 20px;
+    width: 100%;
 }
 
 /* 캘린더 커스텀 스타일 */
 .attendCustomCalendar.react-calendar {
-    width: 100%;
-    background: transparent;
-    border: none;
-    font-family: 'Pretendard', sans-serif;
-    color: #fff;
+    width: 100% !important;
+    background: transparent !important;
+    border: none !important;
+    font-family: 'Noto Sans KR', sans-serif;
 }
 
-/* 상단 네비게이션 (년/월 표시부) */
+/* 상단 네비게이션 (년/월 표시) */
 .attendCustomCalendar .react-calendar__navigation {
-    margin-bottom: 15px;
+    margin-bottom: 25px;
+    display: flex;
+    justify-content: center;
 }
 
 .attendCustomCalendar .react-calendar__navigation button {
-    color: #00d2d3;
-    font-size: 1.1rem;
-    font-weight: bold;
-    min-width: 44px;
+    color: #00d2d3 !important; /* 포인트 컬러 */
+    font-size: 1.4rem;
+    font-weight: 800;
+    min-width: 50px;
     background: none;
-}
-
-.attendCustomCalendar .react-calendar__navigation button:enabled:hover,
-.attendCustomCalendar .react-calendar__navigation button:enabled:focus {
-    background-color: rgba(255, 255, 255, 0.05);
-    border-radius: 10px;
 }
 
 /* 요일 표시부 */
 .attendCustomCalendar .react-calendar__month-view__weekdays {
-    font-weight: bold;
-    font-size: 0.8rem;
-    color: #888;
-    text-decoration: none !important;
+    font-weight: 700;
+    font-size: 1rem;
+    color: #999;
+    padding-bottom: 15px;
 }
 
 .attendCustomCalendar .react-calendar__month-view__weekdays__weekday abbr {
     text-decoration: none;
 }
 
-/* 개별 날짜 타일 */
+/* ⭐ 핵심: 날짜 칸 높이 확대 (70px -> 115px) */
 .attendCustomCalendar .react-calendar__tile {
-    height: 70px;
+    height: 115px !important; 
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: flex-start;
-    padding-top: 10px;
+    padding: 15px 5px !important;
     background: none;
-    color: #ccc;
+    color: #333;
     position: relative;
-    border-radius: 12px;
+    border-bottom: 1px solid #f0f0f0;
 }
 
 /* 오늘 날짜 표시 */
 .attendCustomCalendar .react-calendar__tile--now {
-    background: rgba(0, 210, 211, 0.1) !important;
+    background: #f0fdfa !important;
     color: #00d2d3 !important;
-    font-weight: bold;
+    font-weight: 900;
 }
 
-/* 선택하거나 호버했을 때 배경 제거 (도장이 잘 보이게) */
-.attendCustomCalendar .react-calendar__tile:enabled:hover,
-.attendCustomCalendar .react-calendar__tile:enabled:focus,
-.attendCustomCalendar .react-calendar__tile--active {
-    background: rgba(255, 255, 255, 0.05) !important;
-    color: #fff;
-}
-
-/* 출석 도장 스타일 */
+/* ⭐ 출석 도장 크기 확대 */
 .attendSmallStamp {
-    margin-top: 5px;
-    font-size: 0.6rem;
-    line-height: 1.1;
+    margin-top: 10px;
+    font-size: 0.75rem;
+    line-height: 1.2;
     color: #000;
-    background: #f1c40f;
-    width: 34px;
-    height: 34px;
+    background: #f1c40f; /* 노란색 도장 */
+    width: 52px; /* 도장 크기 확대 */
+    height: 52px;
     border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
     font-weight: 900;
-    box-shadow: 0 0 10px rgba(241, 196, 15, 0.4);
-    transform: rotate(-15deg); /* 약간 기울여서 도장 느낌 강조 */
+    box-shadow: 0 4px 10px rgba(241, 196, 15, 0.4);
+    transform: rotate(-15deg);
     border: 2px dashed rgba(0, 0, 0, 0.2);
+    animation: stampBounce 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
 
-/* 주말 색상 조정 (선택 사항) */
+@keyframes stampBounce {
+    0% { transform: scale(2) rotate(0deg); opacity: 0; }
+    100% { transform: scale(1) rotate(-15deg); opacity: 1; }
+}
+
+/* 다른 달 날짜 흐리게 */
 .attendCustomCalendar .react-calendar__month-view__days__day--neighboringMonth {
-    color: #444 !important;
+    color: #eee !important;
 }
