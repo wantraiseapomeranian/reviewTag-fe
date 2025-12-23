@@ -203,3 +203,25 @@
 .ap-flex-grow { flex-grow: 1; }
 .ap-fw-bold { font-weight: bold; }
 .ap-small { font-size: 12px; }
+
+.ap-clickable-id {
+    cursor: pointer;
+    text-decoration: underline;
+    text-underline-offset: 3px;
+    color: #58a6ff !important;
+    font-weight: 600;
+}
+.ap-clickable-id:hover {
+    color: #1f6feb !important;
+}
+
+/* 히스토리 변동색 */
+.ap-text-plus { color: #3fb950 !important; font-weight: bold; }
+.ap-text-minus { color: #f85149 !important; font-weight: bold; }
+.ap-text-highlight { color: #e3b341; }
+
+/* 모달 내부 테이블 보정 */
+.ap-modal-body .ap-table td {
+    padding: 10px 8px;
+    font-size: 13px;
+}
