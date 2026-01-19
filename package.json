@@ -1,5 +1,6 @@
 {
-  "name": "finalproject",
+  "homepage": "/review", 
+  "name": "review-tag",
   "private": true,
   "version": "0.0.0",
   "type": "module",
